@@ -1,0 +1,14 @@
+{
+  "host": "findyourgrind.ddns.net",
+  "mqtt": {
+    "port": 1883,
+    "topic": {
+      "mqttLogger": "mqttLogger"
+    }
+  },
+  "ws": {
+    "event": {
+      "logger": "logger"
+    }
+  }
+}
