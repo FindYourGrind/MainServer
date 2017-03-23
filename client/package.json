@@ -13,6 +13,7 @@
     "bootstrap-vue": "^0.10.0-rc.1",
     "loopback-connector-postgresql": "^2.7.0",
     "vue": "^2.2.2",
+    "vue-resource-2": "^0.8.0",
     "vue-router": "^2.2.0",
     "vue-tables-2": "^0.4.60",
     "vue-websocket": "^0.2.2",

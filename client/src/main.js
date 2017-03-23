@@ -7,6 +7,7 @@ import VueWebsocket from "vue-websocket";
 import store from './store'
 import BootstrapVue from 'bootstrap-vue';
 import {ServerTable, ClientTable, Event} from 'vue-tables-2';
+import VueResource from 'vue-resource';
 
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
@@ -23,14 +24,20 @@ setTimeout(function () {
 
 Vue.use(ClientTable);
 Vue.use(BootstrapVue);
+Vue.use(VueResource);
 
 Vue.config.productionTip = false;
 
 /* eslint-disable no-new */
 new Vue({
-  el: '#app',
-  store,
-  router,
-  template: '<App/>',
-  components: { App }
+    el: '#app',
+    store,
+    router,
+    template: '<App/>',
+    components: {
+        App
+    },
+    http: {
+        root: '/api'
+    }
 });
