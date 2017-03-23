@@ -1,11 +1,17 @@
 'use strict';
 
+var bodyParser = require('body-parser');
 var loopback = require('loopback');
 var boot = require('loopback-boot');
 
 var app = module.exports = loopback();
 
 app.config = require('../config.json');
+
+app.use(bodyParser.urlencoded({extended: true}));
+app.use(loopback.token({
+    model: app.models.accessToken
+}));
 
 app.start = function() {
   // start the web server

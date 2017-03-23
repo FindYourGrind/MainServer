@@ -9,6 +9,9 @@
     "build": "node build/build.js"
   },
   "dependencies": {
+    "bootstrap": "^4.0.0-alpha.6",
+    "bootstrap-vue": "^0.10.0-rc.1",
+    "loopback-connector-postgresql": "^2.7.0",
     "vue": "^2.2.2",
     "vue-router": "^2.2.0",
     "vue-tables-2": "^0.4.60",

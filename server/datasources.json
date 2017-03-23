@@ -2,5 +2,15 @@
   "db": {
     "name": "db",
     "connector": "memory"
+  },
+  "pg": {
+    "host": "findyourgrind.ddns.net",
+    "port": 15432,
+    "url": "postgres://postgres:@findyourgrind.ddns.net:15432/main_server",
+    "database": "main_server",
+    "password": "",
+    "name": "pg",
+    "user": "postgres",
+    "connector": "postgresql"
   }
 }

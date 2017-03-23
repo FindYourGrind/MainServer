@@ -13,7 +13,14 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 
 import Config from "../../config.json";
 
-Vue.use(VueWebsocket, "ws://localhost:3000");
+setTimeout(function () {
+    Vue.use(VueWebsocket, "ws://localhost:3000", {
+      query: {
+        accessToken: 'demoToken'
+      }
+    });
+}, 5000);
+
 Vue.use(ClientTable);
 Vue.use(BootstrapVue);
 

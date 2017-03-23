@@ -5,6 +5,10 @@ module.exports = function(app, cb) {
   app.on('started', function () {
     app.wsInstance = require('socket.io')(app.serverInstance);
 
+    app.wsInstance.set('authorization', function (handshakeData, accept) {
+      accept(null, true);
+    });
+
     app.wsInstance.on('connection', function (socket) {
       console.log('connected to WS');
 

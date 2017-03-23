@@ -14,25 +14,40 @@
     ]
   },
   "User": {
-    "dataSource": "db"
+    "dataSource": "pg"
   },
   "AccessToken": {
-    "dataSource": "db",
-    "public": false
+    "dataSource": "pg",
+    "public": false,
+    "relations": {
+      "user": {
+        "type": "belongsTo",
+        "model": "Account",
+        "foreignKey": "userId"
+      }
+    }
   },
   "ACL": {
-    "dataSource": "db",
+    "dataSource": "pg",
     "public": false
   },
   "RoleMapping": {
-    "dataSource": "db",
+    "dataSource": "pg",
     "public": false,
     "options": {
       "strictObjectIDCoercion": true
     }
   },
   "Role": {
-    "dataSource": "db",
+    "dataSource": "pg",
     "public": false
+  },
+  "SensorType": {
+    "dataSource": "pg",
+    "public": true
+  },
+  "Account": {
+    "dataSource": "pg",
+    "public": true
   }
 }
