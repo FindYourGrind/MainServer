@@ -4,7 +4,7 @@
             <input type="email" name="userEmail" v-model.trim="userEmail" placeholder="User Email"/><br>
             <input type="password" name="userPassword" v-model.trim="userPassword" placeholder="User Password"/><br>
             <input type="submit" name="submit" v-on:click="submit" value="Login"/>
-            <button v-on:click="goToRegistration">Registration</button>
+            <button v-on:click="goToRegistration">Sign Up</button>
         </form>
         <div v-bind:class="{ 'error-message': hasError, 'success-message': !hasError}">
             {{ infoMessage }}
@@ -13,7 +13,9 @@
 </template>
 
 <script>
-    import { mapMutations, mapGetters } from 'vuex'
+    import Vue from 'vue';
+    import VueWebsocket from "vue-websocket";
+    import { mapMutations, mapGetters } from 'vuex';
 
     export default {
         name: 'login',
@@ -36,6 +38,13 @@
                 me.$http.post('http://localhost:3000/api/Accounts/login', payload).then(response => {
                     if (response.ok && response.data.id) {
                         me.setAccessToken(response.data.id);
+
+                        Vue.use(VueWebsocket, "ws://localhost:3000", {
+                          query: {
+                            accessToken: response.data.id,
+                            userId: response.data.userId
+                          }
+                        });
 
                         return response.data;
                     }

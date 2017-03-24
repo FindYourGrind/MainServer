@@ -26,13 +26,14 @@ Vue.use(VueResource);
 if (accessToken) {
     Vue.use(VueWebsocket, "ws://localhost:3000", {
         query: {
-            accessToken: accessToken
+            accessToken: accessToken,
+            userId: userId
         }
     });
 }
 
-store.commit('userAccessToken', accessToken);
-store.commit('userId', userId);
+store.commit('userAccessToken', accessToken || '');
+store.commit('userId', userId || -1);
 
 /* eslint-disable no-new */
 new Vue({

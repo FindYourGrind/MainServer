@@ -40,8 +40,10 @@ const router = new Router({
 router.beforeEach(function (to, from, next) {
     let accessToken = Store.getters.userAccessToken;
 
-    if (to.name !== 'Login' && !accessToken) {
-        next({ name: 'Login' });
+    if (to.name === 'Registration' && !accessToken) {
+        next();
+    } else if (to.name !== 'Login' && !accessToken) {
+        next({name: 'Login'});
     } else if (to.name === 'Login' && accessToken) {
         next({ name: 'MainPage' });
     } else {
