@@ -10,7 +10,7 @@
 
 <script>
     import Vue from 'vue';
-    import { mapGetters } from 'vuex';
+    import { mapGetters, mapMutations } from 'vuex';
 
     export default {
         name: 'mainPage',
@@ -24,7 +24,10 @@
                 let me = this;
 
                 me.$http.post('http://localhost:3000/api/Accounts/logout');
-                Vue.http.headers.common['Authorization'] = '';
+
+                me.removeAccessToken();
+                me.removeUserId();
+
                 me.$router.push({ name: 'Login'});
             },
             test: function () {
@@ -38,6 +41,10 @@
             },
             ...mapGetters({
                 getUserId: 'userId'
+            }),
+            ...mapMutations({
+                removeAccessToken: 'removeUserAccessToken',
+                removeUserId: 'removeUserId'
             })
         }
     }

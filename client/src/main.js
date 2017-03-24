@@ -14,19 +14,25 @@ import 'bootstrap-vue/dist/bootstrap-vue.css'
 
 import Config from "../../config.json";
 
-setTimeout(function () {
-    Vue.use(VueWebsocket, "ws://localhost:3000", {
-      query: {
-        accessToken: 'demoToken'
-      }
-    });
-}, 5000);
+const accessToken = localStorage.getItem('accessToken');
+const userId = localStorage.getItem('userId');
+
+Vue.config.productionTip = false;
 
 Vue.use(ClientTable);
 Vue.use(BootstrapVue);
 Vue.use(VueResource);
 
-Vue.config.productionTip = false;
+if (accessToken) {
+    Vue.use(VueWebsocket, "ws://localhost:3000", {
+        query: {
+            accessToken: accessToken
+        }
+    });
+}
+
+store.commit('userAccessToken', accessToken);
+store.commit('userId', userId);
 
 /* eslint-disable no-new */
 new Vue({
@@ -38,6 +44,9 @@ new Vue({
         App
     },
     http: {
-        root: '/api'
+        root: '/api',
+        headers: {
+            Authorization: accessToken
+        }
     }
 });

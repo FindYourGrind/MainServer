@@ -13,8 +13,7 @@
 </template>
 
 <script>
-    import Vue from 'vue'
-    import { mapMutations } from 'vuex'
+    import { mapMutations, mapGetters } from 'vuex'
 
     export default {
         name: 'login',
@@ -36,9 +35,9 @@
 
                 me.$http.post('http://localhost:3000/api/Accounts/login', payload).then(response => {
                     if (response.ok && response.data.id) {
-                        Vue.http.headers.common['Authorization'] = response.data.id;
+                        me.setAccessToken(response.data.id);
 
-                        return response.data
+                        return response.data;
                     }
                 }).then(data => {
                     me.$http.get('http://localhost:3000/api/Accounts/' + data.userId).then(response => {
@@ -54,7 +53,8 @@
                         }
                     })
                 }).catch(err => {
-                    Vue.http.headers.common['Authorization'] = '';
+                    me.removeAccessToken();
+                    me.removeUserId();
 
                     me.hasError = true;
                     me.infoMessage = 'ERROR';
@@ -68,8 +68,11 @@
             ...mapMutations({
                 setUserId: 'userId',
                 setUserName: 'userName',
-                setUserEmail: 'userEmail'
-            }),
+                setUserEmail: 'userEmail',
+                setAccessToken: 'userAccessToken',
+                removeAccessToken: 'removeUserAccessToken',
+                removeUserId: 'removeUserId'
+            })
         }
     }
 
