@@ -45,7 +45,7 @@
                         password: me.userPassword
                     };
 
-                    me.$http.post('http://localhost:3000/api/Accounts', payload).then(response => {
+                    me.$http.post('api/Accounts', payload).then(response => {
                         if (response.ok) {
                             me.hasError = false;
                             me.infoMessage = 'Success';

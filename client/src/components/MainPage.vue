@@ -23,7 +23,9 @@
             logout: function () {
                 let me = this;
 
-                me.$http.post('http://localhost:3000/api/Accounts/logout');
+                me.$http.post('api/Accounts/logout');
+
+                me.$socket.close();
 
                 me.removeAccessToken();
                 me.removeUserId();
@@ -33,7 +35,7 @@
             test: function () {
                 let me = this;
 
-                me.$http.get('http://localhost:3000/api/Accounts/' + me.getUserId()).then(response => {
+                me.$http.get('api/Accounts/' + me.getUserId()).then(response => {
                     me.requestResult = response.data;
                 }, response => {
                     debugger;

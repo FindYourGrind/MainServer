@@ -1,5 +1,6 @@
 {
   "host": "findyourgrind.ddns.net",
+  "httpOnly": true,
   "mqtt": {
     "port": 1883,
     "topic": {

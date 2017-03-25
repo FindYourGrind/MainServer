@@ -14,7 +14,7 @@
 
 <script>
     import Vue from 'vue';
-    import VueWebsocket from "vue-websocket";
+    import webSocket from '../webSocket';
     import { mapMutations, mapGetters } from 'vuex';
 
     export default {
@@ -35,21 +35,21 @@
                     password: me.userPassword
                 };
 
-                me.$http.post('http://localhost:3000/api/Accounts/login', payload).then(response => {
+                me.$http.post('api/Accounts/login', payload).then(response => {
                     if (response.ok && response.data.id) {
                         me.setAccessToken(response.data.id);
 
-                        Vue.use(VueWebsocket, "ws://localhost:3000", {
-                          query: {
-                            accessToken: response.data.id,
-                            userId: response.data.userId
-                          }
+                        webSocket.connect({
+                            query: {
+                                accessToken: response.data.id,
+                                userId: response.data.userId
+                            }
                         });
 
                         return response.data;
                     }
                 }).then(data => {
-                    me.$http.get('http://localhost:3000/api/Accounts/' + data.userId).then(response => {
+                    me.$http.get('api/Accounts/' + data.userId).then(response => {
                         if (response.ok) {
                             me.setUserId(response.data.id);
                             me.setUserName(response.data.username);

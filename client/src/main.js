@@ -3,11 +3,11 @@
 import Vue from 'vue'
 import App from './App'
 import router from './router'
-import VueWebsocket from "vue-websocket";
 import store from './store'
 import BootstrapVue from 'bootstrap-vue';
 import {ServerTable, ClientTable, Event} from 'vue-tables-2';
 import VueResource from 'vue-resource';
+import webSocket from './webSocket';
 
 import 'bootstrap/dist/css/bootstrap.css'
 import 'bootstrap-vue/dist/bootstrap-vue.css'
@@ -24,7 +24,8 @@ Vue.use(BootstrapVue);
 Vue.use(VueResource);
 
 if (accessToken) {
-    Vue.use(VueWebsocket, "ws://localhost:3000", {
+    webSocket.connect({
+        multiplex: false,
         query: {
             accessToken: accessToken,
             userId: userId
@@ -35,6 +36,9 @@ if (accessToken) {
 store.commit('userAccessToken', accessToken || '');
 store.commit('userId', userId || -1);
 
+Vue.http.options.root = (Config.httpOnly ? 'http' : 'https') + '://localhost:3000';
+Vue.http.headers.common['Authorization'] = accessToken;
+
 /* eslint-disable no-new */
 new Vue({
     el: '#app',
@@ -43,11 +47,5 @@ new Vue({
     template: '<App/>',
     components: {
         App
-    },
-    http: {
-        root: '/api',
-        headers: {
-            Authorization: accessToken
-        }
     }
 });
