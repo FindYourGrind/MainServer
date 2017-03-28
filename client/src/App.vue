@@ -1,20 +1,26 @@
 <template>
   <div id="app">
+    <app-header></app-header>
     <router-view></router-view>
   </div>
 </template>
 
 <script>
-  export default {
-    name: 'app',
-    socket: {
-      events: {
-        connect() {
-          console.log("Websocket connected to " + this.$socket.nsp);
+    import AppHeader from "./components/AppHeader.vue";
+
+    export default {
+        name: 'app',
+        components: {
+            AppHeader
+        },
+        socket: {
+            events: {
+                connect() {
+                    console.log("Websocket connected to " + this.$socket.nsp);
+                }
+            }
         }
-      }
     }
-  }
 </script>
 
 <style>
