@@ -11,7 +11,10 @@ const getters = {
     userId: state => state.userId,
     userName: state => state.userName,
     userEmail: state => state.userEmail,
-    userAccessToken: state => state.userAccessToken
+    userAccessToken: state => state.userAccessToken,
+    isLogged: state => {
+        return !!state.userId && !!state.userAccessToken;
+    }
 };
 
 const actions = {

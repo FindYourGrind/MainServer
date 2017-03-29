@@ -1,7 +1,6 @@
 <template xmlns:v-on="http://www.w3.org/1999/xhtml">
     <div class="hello">
-        <button v-on:click="logout">Logout</button>
-        <button v-on:click="test">Test Reauest</button>
+        <button v-on:click="test">Test Request</button>
         <div>
             {{ requestResult }}
         </div>
@@ -20,18 +19,6 @@
             }
         },
         methods: {
-            logout: function () {
-                let me = this;
-
-                me.$http.post('api/Accounts/logout');
-
-                me.$socket.close();
-
-                me.removeAccessToken();
-                me.removeUserId();
-
-                me.$router.push({ name: 'Login'});
-            },
             test: function () {
                 let me = this;
 
@@ -42,7 +29,8 @@
                 });
             },
             ...mapGetters({
-                getUserId: 'userId'
+                getUserId: 'userId',
+                getUserName: 'userName'
             }),
             ...mapMutations({
                 removeAccessToken: 'removeUserAccessToken',
