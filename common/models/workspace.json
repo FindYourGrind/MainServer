@@ -11,24 +11,34 @@
       "type": "string",
       "required": true
     },
-    "cores": {
-      "type": [
-        "object"
-      ]
-    },
-    "sources": {
-      "type": [
-        "object"
-      ]
-    },
-    "sinks": {
-      "type": [
-        "object"
-      ]
+    "description": {
+      "type": "string",
+      "required": false
     }
   },
   "validations": [],
-  "relations": {},
+  "relations": {
+    "cores": {
+      "type": "hasMany",
+      "model": "Core",
+      "foreignKey": "workspaceId"
+    },
+    "sources": {
+      "type": "hasMany",
+      "model": "Source",
+      "foreignKey": "workspaceId"
+    },
+    "sinks": {
+      "type": "hasMany",
+      "model": "Sink",
+      "foreignKey": "workspaceId"
+    },
+    "accountId": {
+      "type": "belongsTo",
+      "model": "Account",
+      "foreignKey": "id"
+    }
+  },
   "acls": [],
   "methods": {}
 }

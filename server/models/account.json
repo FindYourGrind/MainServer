@@ -16,6 +16,11 @@
       "options": {
         "disableInclude": true
       }
+    },
+    "workspaces": {
+      "type": "hasMany",
+      "model": "Workspace",
+      "foreignKey": "accountId"
     }
   },
   "acls": [],

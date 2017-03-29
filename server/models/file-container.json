@@ -1,0 +1,10 @@
+{
+  "name": "FileContainer",
+  "plural": "FileContainers",
+  "base": "Model",
+  "properties": {},
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}

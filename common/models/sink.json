@@ -9,8 +9,7 @@
   "properties": {
     "type": {
       "type": "number",
-      "required": true,
-      "default": -1
+      "required": true
     },
     "mapping": {
       "type": "string",

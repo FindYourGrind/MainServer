@@ -11,16 +11,6 @@
       "type": "string",
       "required": true
     },
-    "sourcesId": {
-      "type": [
-        "number"
-      ]
-    },
-    "sinksId": {
-      "type": [
-        "number"
-      ]
-    },
     "type": {
       "type": "number",
       "required": true

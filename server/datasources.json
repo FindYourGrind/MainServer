@@ -12,5 +12,12 @@
     "name": "pg",
     "user": "postgres",
     "connector": "postgresql"
+  },
+  "files": {
+    "name": "files",
+    "connector": "loopback-component-storage",
+    "provider": "filesystem",
+    "root": "./server/storage",
+    "maxFileSize": "10485760"
   }
 }

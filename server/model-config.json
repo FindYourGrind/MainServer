@@ -65,5 +65,9 @@
   "Core": {
     "dataSource": "pg",
     "public": true
+  },
+  "FileContainer": {
+    "dataSource": "files",
+    "public": true
   }
 }

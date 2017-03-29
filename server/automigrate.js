@@ -1,13 +1,17 @@
 let server = require('./server');
 let ds = server.dataSources.pg;
 let lbTables = [
-    'User',
-    'AccessToken',
-    'ACL',
-    'RoleMapping',
-    'Role',
-    'Account',
-    'SensorType'
+    //'User',
+    //'AccessToken',
+    //'ACL',
+    //'RoleMapping',
+    //'Role',
+    //'Account',
+    //'SensorType'
+    'Workspace',
+    'Core',
+    'Sink',
+    'Source',
 ];
 
 ds.automigrate(lbTables, function(er) {
@@ -15,6 +19,6 @@ ds.automigrate(lbTables, function(er) {
         console.log('Error:', er);
         throw er;
     }
-    console.log('Loopback tables [' - lbTables - '] created in', ds.adapter.name);
+    console.log('Loopback tables', lbTables, 'created in', ds.adapter.name);
     ds.disconnect();
 });
