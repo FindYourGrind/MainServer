@@ -1,15 +1,29 @@
 <template xmlns:v-on="http://www.w3.org/1999/xhtml" xmlns:v-bind="http://www.w3.org/1999/xhtml">
-    <div class="login">
-        <form name="login" onsubmit="return false">
-            <input type="email" name="userEmail" v-model.trim="userEmail" placeholder="User Email"/><br>
-            <input type="password" name="userPassword" v-model.trim="userPassword" placeholder="User Password"/><br>
-            <input type="submit" name="submit" v-on:click="submit" value="Login"/>
-            <button v-on:click="goToRegistration">Sign Up</button>
-        </form>
-        <div v-bind:class="{ 'error-message': hasError, 'success-message': !hasError}">
-            {{ infoMessage }}
-        </div>
+  <div class="login">
+
+    <span class="md-display-2">Login</span>
+
+    <form novalidate @submit.stop.prevent="submit">
+
+      <md-input-container>
+        <label>Email</label>
+        <md-input type="email" required v-model.trim="userEmail"></md-input>
+      </md-input-container>
+
+      <md-input-container md-has-password>
+        <label>Password</label>
+        <md-input type="password" required v-model.trim="userPassword"></md-input>
+      </md-input-container>
+
+      <md-button class="md-raised" v-on:click.native="submit">Login</md-button>
+      <md-button class="md-raised md-primary" v-on:click.native="goToRegistration">Sign Up</md-button>
+    </form>
+
+    <div v-bind:class="{ 'error-message': hasError, 'success-message': !hasError}">
+      {{ infoMessage }}
     </div>
+
+  </div>
 </template>
 
 <script>
@@ -88,10 +102,16 @@
 </script>
 
 <style scoped>
-    input {
-        margin: 4px;
-        padding-left: 4px;
-    }
+
+  .login {
+    width: 100%;
+    margin-top: 50px;
+    text-align: center;
+  }
+
+  .login form {
+    width: 300px;
+  }
 
     .error-message {
         color: red;

@@ -1,17 +1,38 @@
-<template>
-    <div class="registration">
-        <form name="registration" onsubmit="return false">
-            <input type="text" name="userName" v-model.trim="userName" placeholder="User Name"/><br>
-            <input type="email" name="userEmail" v-model.trim="userEmail" placeholder="User Email"/><br>
-            <input type="password" name="userPassword" v-model.trim="userPassword" placeholder="User Password"/><br>
-            <input type="password" name="confirmPassword" v-model.trim="confirmPassword" placeholder="Confirm Password"/><br>
-            <input type="submit" name="submit" v-on:click="submit" value="Sign Up"/>
-            <button v-on:click="goToLogin">Sign In</button>
-        </form>
-        <div v-bind:class="{ 'error-message': hasError, 'success-message': !hasError}">
-            {{ infoMessage }}
-        </div>
+<template xmlns:v-bind="http://www.w3.org/1999/xhtml">
+  <div class="registration">
+
+    <span class="md-display-2">Registration</span>
+
+    <form novalidate @submit.stop.prevent="submit">
+
+      <md-input-container>
+        <label>Name</label>
+        <md-input type="text" required v-model.trim="userName"></md-input>
+      </md-input-container>
+
+      <md-input-container>
+        <label>Email</label>
+        <md-input type="email" required v-model.trim="userEmail"></md-input>
+      </md-input-container>
+
+      <md-input-container>
+        <label>Password</label>
+        <md-input type="password" required v-model.trim="userPassword"></md-input>
+      </md-input-container>
+
+      <md-input-container>
+        <label>Confirm Password</label>
+        <md-input type="password" required v-model.trim="confirmPassword"></md-input>
+      </md-input-container>
+
+      <md-button class="md-raised" v-on:click.native="submit">Sign Up</md-button>
+      <md-button class="md-raised md-primary" v-on:click.native="goToLogin">Sign In</md-button>
+    </form>
+
+    <div v-bind:class="{ 'error-message': hasError, 'success-message': !hasError}">
+      {{ infoMessage }}
     </div>
+  </div>
 </template>
 
 <script>
@@ -70,10 +91,16 @@
 </script>
 
 <style scoped>
-    input {
-        margin: 4px;
-        padding-left: 4px;
-    }
+
+  .registration {
+    width: 100%;
+    margin-top: 50px;
+    text-align: center;
+  }
+
+  .registration form {
+    width: 300px;
+  }
 
     .error-message {
         color: red;

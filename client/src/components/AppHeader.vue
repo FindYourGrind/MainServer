@@ -48,10 +48,11 @@
 
     .header-logo {
         position: inherit;
-        font: 900 330%/100% "Lucida Grande";
+        font-weight: 900;
         font-style: italic;
+        font-size: 45px;
         color: white;
-        margin: 2px 0 0 10px;
+        margin: 0 0 0 10px;
     }
 
     .header-user-panel {

@@ -57,5 +57,13 @@
   "Sink": {
     "dataSource": "pg",
     "public": true
+  },
+  "Workspace": {
+    "dataSource": "pg",
+    "public": true
+  },
+  "Core": {
+    "dataSource": "pg",
+    "public": true
   }
 }

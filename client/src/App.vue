@@ -1,7 +1,9 @@
 <template>
-  <div id="app">
-    <app-header></app-header>
-    <router-view></router-view>
+  <div class="app-wrapper">
+    <div id="app">
+      <app-header></app-header>
+      <router-view></router-view>
+    </div>
   </div>
 </template>
 
@@ -24,12 +26,17 @@
 </script>
 
 <style>
-#app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
-}
+  .app-wrapper {
+    text-align: center;
+  }
+
+  #app {
+    font-family: 'Avenir', Helvetica, Arial, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    display: inline-block;
+    margin-top: 60px;
+    text-align: center;
+    width: 100%;
+  }
 </style>

@@ -1,0 +1,34 @@
+{
+  "name": "Workspace",
+  "plural": "Workspaces",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "cores": {
+      "type": [
+        "object"
+      ]
+    },
+    "sources": {
+      "type": [
+        "object"
+      ]
+    },
+    "sinks": {
+      "type": [
+        "object"
+      ]
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}

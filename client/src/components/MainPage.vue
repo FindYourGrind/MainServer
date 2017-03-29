@@ -1,9 +1,6 @@
 <template xmlns:v-on="http://www.w3.org/1999/xhtml">
-    <div class="hello">
-        <button v-on:click="test">Test Request</button>
-        <div>
-            {{ requestResult }}
-        </div>
+    <div class="main-page">
+
     </div>
 </template>
 
@@ -14,19 +11,13 @@
     export default {
         name: 'mainPage',
         data () {
-            return {
-                requestResult: ''
-            }
+            return {}
         },
         methods: {
-            test: function () {
+            toggleLeftSidenav() {
                 let me = this;
 
-                me.$http.get('api/Accounts/' + me.getUserId()).then(response => {
-                    me.requestResult = response.data;
-                }, response => {
-                    debugger;
-                });
+                me.$refs.leftSidenav.toggle();
             },
             ...mapGetters({
                 getUserId: 'userId',
@@ -41,5 +32,7 @@
 </script>
 
 <style scoped>
-
+  .main-page {
+    width: 100%;
+  }
 </style>

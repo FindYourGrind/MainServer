@@ -1,0 +1,33 @@
+{
+  "name": "Core",
+  "plural": "Cores",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
+    "sourcesId": {
+      "type": [
+        "number"
+      ]
+    },
+    "sinksId": {
+      "type": [
+        "number"
+      ]
+    },
+    "type": {
+      "type": "number",
+      "required": true
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}
