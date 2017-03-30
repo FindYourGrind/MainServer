@@ -1,13 +1,12 @@
 let server = require('./server');
 let ds = server.dataSources.pg;
 let lbTables = [
-    //'User',
-    //'AccessToken',
-    //'ACL',
-    //'RoleMapping',
-    //'Role',
-    //'Account',
-    //'SensorType'
+    'User',
+    'ACL',
+    'RoleMapping',
+    'Role',
+    'Account',
+    'SensorType',
     'Workspace',
     'Core',
     'Sink',

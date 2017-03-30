@@ -5,6 +5,7 @@ const state = {
     userName: undefined,
     userEmail: undefined,
     userAccessToken: undefined,
+    userAvatarURL: undefined,
 };
 
 const getters = {
@@ -12,6 +13,7 @@ const getters = {
     userName: state => state.userName,
     userEmail: state => state.userEmail,
     userAccessToken: state => state.userAccessToken,
+    userAvatarURL: state => state.userAvatarURL,
     isLogged: state => {
         return !!state.userId && !!state.userAccessToken;
     }
@@ -41,6 +43,10 @@ const mutations = {
 
         localStorage.setItem('accessToken', token);
         Vue.http.headers.common['Authorization'] = token;
+    },
+
+    userAvatarURL (state, url) {
+        state.userAvatarURL = url;
     },
 
     removeUserAccessToken (state) {

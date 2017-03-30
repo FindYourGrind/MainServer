@@ -6,7 +6,12 @@
   "options": {
     "validateUpsert": true
   },
-  "properties": {},
+  "properties": {
+    "avatarUrl": {
+      "type": "string",
+      "default": "api/FileContainers/ImagesContainer/defaultAvatar.png"
+    }
+  },
   "validations": [],
   "relations": {
     "accessTokens": {

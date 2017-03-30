@@ -42,13 +42,35 @@ store.commit('userId', userId || -1);
 Vue.http.options.root = (Config.httpOnly ? 'http' : 'https') + '://localhost:3000';
 Vue.http.headers.common['Authorization'] = accessToken;
 
-/* eslint-disable no-new */
-new Vue({
+if (accessToken && userId) {
+  Vue.http.get('api/Accounts/' + userId).then(function (response) {
+    store.commit('userId', response.ok ? response.data.id : '');
+    store.commit('userName', response.ok ? response.data.username : '');
+    store.commit('userEmail', response.ok ? response.data.email : '');
+
+    startApp();
+  }, function () {
+    store.commit('removeUserAccessToken');
+    store.commit('removeUserId');
+
+    startApp();
+  });
+} else {
+  store.commit('removeUserAccessToken');
+  store.commit('removeUserId');
+
+  startApp();
+}
+
+function startApp () {
+  /* eslint-disable no-new */
+  new Vue({
     el: '#app',
     store,
     router,
     template: '<App/>',
     components: {
-        App
+      App
     }
-});
+  });
+}

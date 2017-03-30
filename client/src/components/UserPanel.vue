@@ -10,11 +10,14 @@
         </transition>
         <div class="user-panel-header-icon">
             <img class="user-icon"
-                 src="../assets/businessman-xxl.png"
+                 :src="avatarURL"
                  width="46"
                  height="46"
                  alt="User Icon"
                  @click="fullUserPanelVisible = !fullUserPanelVisible"/>
+            <!--<md-avatar @click.native="fullUserPanelVisible = !fullUserPanelVisible">-->
+              <!--<img :src="avatarURL" alt="User Icon">-->
+            <!--</md-avatar>-->
         </div>
         <transition name="fade">
             <div v-if="fullUserPanelVisible" class="user-right-panel">
@@ -41,6 +44,11 @@
                 let me = this;
 
                 return me.getUserName();
+            },
+            avatarURL: function () {
+                let me = this;
+
+                return me.getUserAvatarURL();
             }
         },
         methods: {
@@ -58,7 +66,8 @@
             },
             ...mapGetters({
                 getUserId: 'userId',
-                getUserName: 'userName'
+                getUserName: 'userName',
+                getUserAvatarURL: 'userAvatarURL'
             }),
             ...mapMutations({
                 removeAccessToken: 'removeUserAccessToken',

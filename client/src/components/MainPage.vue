@@ -21,9 +21,9 @@
                         <md-textarea v-model.trim="workspaceDescription"></md-textarea>
                     </md-input-container>
 
-                    <md-input-container @change.native="onWorkspaceImageChange">
+                    <md-input-container>
                         <label>Description Image</label>
-                        <md-file v-model="workspaceImage" @change.native="onWorkspaceImageChange"></md-file>
+                        <md-file v-model.trim="workspaceImageName" @selected="onWorkspaceImageSelected"></md-file>
                     </md-input-container>
                 </form>
             </md-dialog-content>
@@ -37,9 +37,9 @@
         <div>
             <div class="workspace-wrapper" v-for="workspace in workspaces" key="workspace.id">
                 <md-card>
-                    <!--<md-card-media>-->
-                    <!--<img src="assets/card-image-1.jpg" alt="People">-->
-                    <!--</md-card-media>-->
+                    <md-card-media>
+                    <img :src="workspace.descriptionImage" alt="">
+                    </md-card-media>
 
                     <md-card-header>
                         <h3>{{ workspace.name }}</h3>
@@ -85,8 +85,9 @@
             return {
                 workspaceName: '',
                 workspaceDescription: '',
+                workspaceImageName: '',
                 workspaceImage: null,
-                workspaces: []
+                workspaces: [],
             }
         },
         methods: {
@@ -120,25 +121,38 @@
             goToWorkspace: function (id) {
 
             },
-            onWorkspaceImageChange: function (e) {
-                let files = e.target.files || e.dataTransfer.files;
-                debugger;
+            onWorkspaceImageSelected: function (files ) {
+                this.workspaceImage = new FormData();
+                this.workspaceImage.append('result', files[0]);
             },
             openDialog(ref) {
                 this.$refs[ref].open();
             },
             closeDialog(action, ref) {
                 if (action === 'save') {
-                    this.$http.post('api/Workspaces', {
+                    this.$http.post('api/FileContainers/ImagesContainer/upload', this.workspaceImage, {
+                      headers: {
+                        "Content-Type": "multipart/form-data"
+                      }
+                    }).then(response => {
+                      return;
+                    }, err => {
+                      debugger;
+                    }).then(function () {
+                      this.$http.post('api/Workspaces', {
                         name: this.workspaceName,
                         description: this.workspaceDescription,
-                        accountId: this.getUserId()
-                    }).then(response => {
+                        accountId: this.getUserId(),
+                        descriptionImage: 'api/FileContainers/ImagesContainer/download/' + this.workspaceImageName
+                      }).then(response => {
                         this.updateWorkspacesList();
                         this.workspaceName = '';
                         this.workspaceDescription = '';
-                    }, err => {
-
+                        this.workspaceImageName = '';
+                        this.workspaceImage = null;
+                      }, err => {
+                        debugger;
+                      });
                     });
                 }
 

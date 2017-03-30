@@ -25,6 +25,11 @@
         <md-input type="password" required v-model.trim="confirmPassword"></md-input>
       </md-input-container>
 
+      <md-input-container @change.native="onAvatarImageChange">
+        <label>Description Image</label>
+        <md-file v-model.trim="userAvatarImageName"></md-file>
+      </md-input-container>
+
       <md-button class="md-raised" v-on:click.native="submit">Sign Up</md-button>
       <md-button class="md-raised md-primary" v-on:click.native="goToLogin">Sign In</md-button>
     </form>
@@ -44,6 +49,8 @@
                 userEmail: '',
                 userPassword: '',
                 confirmPassword: '',
+                userAvatarImageName: '',
+                userAvatarImage: null,
                 hasError: false,
                 infoMessage: ''
             }
@@ -63,19 +70,30 @@
                     let payload = {
                         username: me.userName,
                         email: me.userEmail,
-                        password: me.userPassword
+                        password: me.userPassword,
+                        avatarUrl: 'api/FileContainers/ImagesContainer/download/' + me.userAvatarImageName
                     };
 
+                  this.$http.post('api/FileContainers/ImagesContainer/upload', this.userAvatarImage, {
+                    headers: {
+                      "Content-Type": "multipart/form-data"
+                    }
+                  }).then(response => {
+                    return;
+                  }, err => {
+                    debugger;
+                  }).then(function () {
                     me.$http.post('api/Accounts', payload).then(response => {
-                        if (response.ok) {
-                            me.hasError = false;
-                            me.infoMessage = 'Success';
-                            me.$router.push({name: 'Login'});
-                        }
-                    }, response => {
-                        me.hasError = true;
-                        me.infoMessage = 'Some problems'
+                      if (response.ok) {
+                      me.hasError = false;
+                      me.infoMessage = 'Success';
+                      me.$router.push({name: 'Login'});
+                    }
+                  }, err => {
+                      me.hasError = true;
+                      me.infoMessage = 'Some problems'
                     });
+                  });
                 } else {
                     me.hasError = true;
                     me.infoMessage = 'Passwords not equals'
@@ -85,6 +103,12 @@
                 let me = this;
 
                 me.$router.push({name: 'Login'});
+            },
+            onAvatarImageChange: function (e) {
+              let files = e.target.files || e.dataTransfer.files;
+
+              this.userAvatarImage = new FormData();
+              this.userAvatarImage.append('result', files[0]);
             }
         }
     }

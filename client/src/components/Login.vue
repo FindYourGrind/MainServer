@@ -68,6 +68,7 @@
                             me.setUserId(response.data.id);
                             me.setUserName(response.data.username);
                             me.setUserEmail(response.data.email);
+                            me.setUserAvatarURL(response.data.avatarUrl);
 
                             me.hasError = false;
                             me.infoMessage = "Success";
@@ -93,6 +94,7 @@
                 setUserName: 'userName',
                 setUserEmail: 'userEmail',
                 setAccessToken: 'userAccessToken',
+                setUserAvatarURL: 'userAvatarURL',
                 removeAccessToken: 'removeUserAccessToken',
                 removeUserId: 'removeUserId'
             })
