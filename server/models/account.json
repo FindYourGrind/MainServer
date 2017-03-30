@@ -9,7 +9,7 @@
   "properties": {
     "avatarUrl": {
       "type": "string",
-      "default": "api/FileContainers/ImagesContainer/defaultAvatar.png"
+      "default": "api/FileContainers/ImagesContainer/download/defaultAvatar.png"
     }
   },
   "validations": [],

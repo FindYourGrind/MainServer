@@ -17,7 +17,8 @@
     },
     "descriptionImage": {
       "type": "string",
-      "required": false
+      "required": false,
+      "default": "api/FileContainers/ImagesContainer/download/defaultWorkspaceImage.png"
     }
   },
   "validations": [],

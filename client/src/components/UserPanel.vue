@@ -11,8 +11,8 @@
         <div class="user-panel-header-icon">
             <img class="user-icon"
                  :src="avatarURL"
-                 width="46"
-                 height="46"
+                 width="60"
+                 height="60"
                  alt="User Icon"
                  @click="fullUserPanelVisible = !fullUserPanelVisible"/>
             <!--<md-avatar @click.native="fullUserPanelVisible = !fullUserPanelVisible">-->
@@ -87,6 +87,8 @@
     .user-panel-header-icon {
         width: 60px;
         height: 60px;
+        min-width: 60px;
+        min-height: 60px;
         background-color: rgba(118, 118, 118, 0.69);
         border-top-left-radius: 30px;
         border-bottom-left-radius: 30px;
@@ -95,10 +97,10 @@
 
     .user-panel-header-icon .user-icon {
         float: left;
-        border-radius: 50%;
+        border-radius: 23px;
         background-color: white;
-        border: 1px solid white;
-        margin: 7px;
+        /*border: 1px solid white;*/
+        /*margin: 7px;*/
     }
 
     .user-panel-header-icon .user-icon:hover {
