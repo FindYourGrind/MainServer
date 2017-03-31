@@ -72,7 +72,6 @@
                 }
 
                 createPromise.then(function (workspacePayload) {
-                    debugger;
                     this.$emit('create', workspacePayload);
                 }).then(this.close);
             },
@@ -119,7 +118,7 @@
             },
             ...mapGetters({
                 getUserId: 'userId'
-            }),
+            })
         }
     }
 </script>

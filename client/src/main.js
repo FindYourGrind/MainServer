@@ -47,6 +47,7 @@ if (accessToken && userId) {
     store.commit('userId', response.ok ? response.data.id : '');
     store.commit('userName', response.ok ? response.data.username : '');
     store.commit('userEmail', response.ok ? response.data.email : '');
+    store.commit('userAvatarURL', response.ok ? response.data.avatarUrl : '');
 
     startApp();
   }, function () {

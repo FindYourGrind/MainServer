@@ -22,7 +22,7 @@
         "disableInclude": true
       }
     },
-    "workspaces": {
+    "workspacesCards": {
       "type": "hasMany",
       "model": "Workspace",
       "foreignKey": "accountId"
