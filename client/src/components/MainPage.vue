@@ -22,14 +22,20 @@
       </md-tab>
 
       <md-tab id="workspace" md-label="Workspace">
-        <md-layout md-gutter="16">
+        <md-layout md-gutter="8">
           <md-layout md-flex="20">
-            <span>end</span>
+            <span>
+              <md-whiteframe class="workplace-left-panel" md-elevation="3">
+                <div class="workplace-left-panel">
+                  <create-core-modal-form @create="coreCreated"></create-core-modal-form>
+                </div>
+              </md-whiteframe>
+            </span>
           </md-layout>
 
-          <md-layout md-flex="200">
+          <md-layout md-flex="8">
             <span>
-              <md-whiteframe class="workspace-workplace-panel" md-elevation="3">
+              <md-whiteframe md-elevation="3">
                 <div v-for="workspace in workspaces" key="workspace.id">
                   {{ JSON.stringify(workspace) }}
                 </div>
@@ -56,11 +62,13 @@
     import { mapGetters, mapMutations } from 'vuex';
     import WorkspaceCard from './workspace/WorkspaceCard.vue';
     import CreateWorkspaceModalForm from './workspace/CreateWorkspaceModalForm.vue';
+    import CreateCoreModalForm from './workspace/CreateCoreModalForm.vue';
 
     export default {
         name: 'mainPage',
         components: {
             CreateWorkspaceModalForm,
+            CreateCoreModalForm,
             WorkspaceCard
         },
         data () {
@@ -146,6 +154,9 @@
                     this.workspacesCards.push(workspacePayload);
                 }
             },
+            coreCreated: function (corePayload) {
+
+            },
             ...mapGetters({
                 getUserId: 'userId',
                 getUserName: 'userName'
@@ -166,13 +177,20 @@
     width: 100%;
   }
 
-  .workspace-workplace-left-panel {
-    min-width: 300px;
-  }
+  /*.workplace-left-panel {*/
+    /*min-width: 275px;*/
+    /*max-width: 275px;*/
+    /*min-height: 500px;*/
+  /*}*/
 
   .workspace-wrapper {
       width: 300px;
       margin: 5px;
       display: inline-block;
   }
+
+  /*#workspace {*/
+    /*width: auto;*/
+    /*height: auto;*/
+  /*}*/
 </style>

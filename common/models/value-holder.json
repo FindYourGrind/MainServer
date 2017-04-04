@@ -1,26 +1,34 @@
 {
-  "name": "Source",
-  "plural": "Sources",
+  "name": "ValueHolder",
+  "plural": "ValueHolders",
   "base": "PersistedModel",
   "idInjection": true,
   "options": {
     "validateUpsert": true
   },
   "properties": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
     "type": {
       "type": "number",
       "required": true
     },
-    "mapping": {
-      "type": "string",
+    "value": {
+      "type": "any",
+      "required": true
+    },
+    "valueType": {
+      "type": "number",
       "required": true
     }
   },
   "validations": [],
   "relations": {
-    "valueHolders": {
-      "type": "hasMany",
-      "model": "ValueHolder",
+    "coreId": {
+      "type": "belongsTo",
+      "model": "Core",
       "foreignKey": "id"
     }
   },

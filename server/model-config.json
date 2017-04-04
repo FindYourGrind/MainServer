@@ -69,5 +69,9 @@
   "FileContainer": {
     "dataSource": "files",
     "public": true
+  },
+  "ValueHolder": {
+    "dataSource": "pg",
+    "public": true
   }
 }
