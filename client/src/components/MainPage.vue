@@ -22,27 +22,35 @@
       </md-tab>
 
       <md-tab id="workspace" md-label="Workspace">
-        <md-layout md-gutter="8">
-          <md-layout md-flex="20">
-            <span>
-              <md-whiteframe class="workplace-left-panel" md-elevation="3">
-                <div class="workplace-left-panel">
-                  <create-core-modal-form @create="coreCreated"></create-core-modal-form>
-                </div>
-              </md-whiteframe>
-            </span>
-          </md-layout>
+        <!--<md-layout md-gutter="8">-->
+          <!--<md-layout md-flex="20">-->
+            <!--<span>-->
+              <!--<md-whiteframe class="workplace-left-panel" md-elevation="3">-->
+                <!--<div class="workplace-left-panel">-->
+                  <!--<create-core-modal-form @create="coreCreated"></create-core-modal-form>-->
+                <!--</div>-->
+              <!--</md-whiteframe>-->
+            <!--</span>-->
+          <!--</md-layout>-->
 
-          <md-layout md-flex="8">
-            <span>
-              <md-whiteframe md-elevation="3">
-                <div v-for="workspace in workspaces" key="workspace.id">
-                  {{ JSON.stringify(workspace) }}
-                </div>
-              </md-whiteframe>
-            </span>
-          </md-layout>
-        </md-layout>
+          <!--<md-layout md-flex="8">-->
+            <!--<span>-->
+              <!--<md-whiteframe md-elevation="3">-->
+                <!--<div v-for="workspace in workspaces" key="workspace.id">-->
+                  <!--{{ JSON.stringify(workspace) }}-->
+                <!--</div>-->
+              <!--</md-whiteframe>-->
+            <!--</span>-->
+          <!--</md-layout>-->
+        <!--</md-layout>-->
+
+        <md-tabs md-fixed ref="workspaceTabs">
+          <md-tab v-for="workspace in workspaces" :key="workspace.id" :md-label="workspace.name">
+            <p>
+            {{ workspace.name }}
+            </p>
+          </md-tab>
+        </md-tabs>
       </md-tab>
 
       <md-tab id="cores" md-label="Cores">
@@ -115,13 +123,14 @@
                 });
             },
             onTabChanged: function (tabIndex) {
+                let me = this;
               switch (tabIndex) {
                 case 0:
 
                   break;
                 case 1:
                   if (this.workspaceIdToOpen) {
-                    this.$http.get('api/Workspaces/' + this.workspaceIdToOpen, {
+                    this.$http.get('api/Workspaces/' + me.workspaceIdToOpen, {
                         params: {
                             filter: {
                               include: ["cores", "sources", "sinks"]
@@ -129,12 +138,18 @@
                         }
                     }).then(function (response) {
                       if (response.ok) {
-                        this.workspaces.push(response.data);
-                        this.workspaceIdToOpen = undefined;
+
+                        if (!this.workspaces.find(function (workspace) {
+                            return workspace.id === me.workspaceIdToOpen;
+                          })) {
+                          this.workspaces.push(response.data);
+                        }
+
+                        me.workspaceIdToOpen = undefined;
                       }
                     }, function (err) {
                       console.log('Error while loading workspace with artifacts');
-                      this.workspaceIdToOpen = undefined;
+                      me.workspaceIdToOpen = undefined;
                     });
                   }
                   break;

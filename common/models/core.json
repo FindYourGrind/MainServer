@@ -21,7 +21,7 @@
     "valueHolders": {
       "type": "hasMany",
       "model": "ValueHolder",
-      "foreignKey": "id"
+      "foreignKey": "coreId"
     }
   },
   "acls": [],
