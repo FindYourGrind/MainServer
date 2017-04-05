@@ -1,22 +1,24 @@
 let server = require('./server');
 let ds = server.dataSources.pg;
-let lbTables = [
-  'User',
-  'ACL',
-  'RoleMapping',
-  'Role',
-  'Account',
-  'SensorType',
-  'Workspace',
-  'Core',
-  'Sink',
-  'Source',
-];
-
-ds.isActual(lbTables, function(err, actual) {
-  if (!actual) {
-    ds.autoupdate(lbTables, function(err, result) {
-      console.log(result);
+let pgTables = server.models()
+    .filter(function (model) {
+      return model.dataSource.name === ds.name;
+    })
+    .map(function (model) {
+      return model.modelName;
     });
-  }
+
+
+pgTables.forEach(function (modelName) {
+    ds.isActual(modelName, function(err, actual) {
+        if (!actual) {
+            ds.autoupdate(modelName, function(err) {
+                if (err) {
+                    console.log(err);
+                } else {
+                    console.log(modelName, "updated");
+                }
+            });
+        }
+    });
 });

@@ -22,48 +22,43 @@
       </md-tab>
 
       <md-tab id="workspace" md-label="Workspace">
-        <!--<md-layout md-gutter="8">-->
-          <!--<md-layout md-flex="20">-->
-            <!--<span>-->
-              <!--<md-whiteframe class="workplace-left-panel" md-elevation="3">-->
-                <!--<div class="workplace-left-panel">-->
-                  <!--<create-core-modal-form @create="coreCreated"></create-core-modal-form>-->
-                <!--</div>-->
-              <!--</md-whiteframe>-->
-            <!--</span>-->
-          <!--</md-layout>-->
-
-          <!--<md-layout md-flex="8">-->
-            <!--<span>-->
-              <!--<md-whiteframe md-elevation="3">-->
-                <!--<div v-for="workspace in workspaces" key="workspace.id">-->
-                  <!--{{ JSON.stringify(workspace) }}-->
-                <!--</div>-->
-              <!--</md-whiteframe>-->
-            <!--</span>-->
-          <!--</md-layout>-->
-        <!--</md-layout>-->
-
         <md-tabs md-fixed
                  ref="workspaceTabs"
                  @change="onMainTabChanged">
-          <md-tab v-for="workspace in workspaces" :key="workspace.id" :md-label="workspace.name">
+          <md-tab v-for="workspace in workspaces" :key="workspace.id" :id="workspace.id" :md-label="workspace.name">
             <md-layout md-gutter="8">
               <md-layout md-flex="true">
                 <md-whiteframe md-elevation="3">
-                  <create-source-modal-form :workspaceId="workspace.id"></create-source-modal-form>
-                  {{ workspace.sources }}
+                  <create-source-modal-form :workspaceId="workspace.id" @create="sourceCreated"></create-source-modal-form>
+                  <ul>
+                    <li v-for="source in workspace.sources" :key="source.id">
+                      {{ source.name }}
+                      <md-button class="md-fab md-mini"
+                                 @click.native="removeSource(source.id)">>
+                        <md-icon>delete</md-icon>
+                      </md-button>
+                    </li>
+                  </ul>
                 </md-whiteframe>
               </md-layout>
               <md-layout md-flex="true">
                 <md-whiteframe md-elevation="3">
                   <create-core-modal-form :workspaceId="workspace.id" @create="coreCreated"></create-core-modal-form>
-                  {{ workspace.cores }}
+                  <core v-for="core in workspace.cores" :key="core.id" :coreData="core"></core>
                 </md-whiteframe>
               </md-layout>
               <md-layout md-flex="true">
                 <md-whiteframe md-elevation="3">
-                  {{ workspace.sinks }}
+                  <create-sink-modal-form :workspaceId="workspace.id"  @create="sinkCreated"></create-sink-modal-form>
+                  <ul>
+                    <li v-for="sink in workspace.sinks" :key="sink.id">
+                      {{ sink.name }}
+                      <md-button class="md-fab md-mini"
+                                 @click.native="removeSink(sink.id)">>
+                        <md-icon>delete</md-icon>
+                      </md-button>
+                    </li>
+                  </ul>
                 </md-whiteframe>
               </md-layout>
             </md-layout>
@@ -90,6 +85,8 @@
     import CreateWorkspaceModalForm from './workspace/CreateWorkspaceModalForm.vue';
     import CreateCoreModalForm from './workspace/CreateCoreModalForm.vue';
     import CreateSourceModalForm from './workspace/CreateSourceModalForm.vue';
+    import CreateSinkModalForm from './workspace/CreateSinkModalForm.vue';
+    import Core from './workspace/Core.vue';
 
     export default {
         name: 'mainPage',
@@ -97,6 +94,8 @@
             CreateWorkspaceModalForm,
             CreateCoreModalForm,
             CreateSourceModalForm,
+            CreateSinkModalForm,
+            Core,
             WorkspaceCard
         },
         data () {
@@ -192,8 +191,57 @@
                     this.workspacesCards.push(workspacePayload);
                 }
             },
-            coreCreated: function (corePayload) {
+            sourceCreated: function (sourcePayload) {
+                let workspace = this.workspaces.find(function (workspace) {
+                  return sourcePayload.workspaceId == workspace.id;
+                });
 
+                workspace.sources.push(sourcePayload);
+            },
+            coreCreated: function (corePayload) {
+              let workspace = this.workspaces.find(function (workspace) {
+                return corePayload.workspaceId == workspace.id;
+              });
+
+              workspace.cores.push(corePayload);
+            },
+            sinkCreated: function (sinkPayload) {
+              let workspace = this.workspaces.find(function (workspace) {
+                return sinkPayload.workspaceId == workspace.id;
+              });
+
+              workspace.sinks.push(sinkPayload);
+            },
+            removeSource: function (sourceId) {
+                this.removeWorkspaceSubject('sources', sourceId);
+            },
+            removeCore: function (coreId) {
+                this.removeWorkspaceSubject('cores', coreId);
+            },
+            removeSink: function (sinkId) {
+                this.removeWorkspaceSubject('sinks', sinkId);
+            },
+            removeWorkspaceSubject: function (subjectName, subjectId) {
+              let me = this;
+              let workspaceId = me.$refs['workspaceTabs'].activeTab;
+
+              this.$http.delete('api/Workspaces/' + workspaceId + '/' + subjectName + '/' + subjectId).then(response => {
+                if (response.ok) {
+                  let workspaceSubjects = me.workspaces.find(function (workspace) {
+                    return workspace.id == workspaceId;
+                  })[subjectName];
+                  let subjectToRemove = workspaceSubjects.find(function (subjectItem) {
+                    return subjectItem.id == subjectId;
+                  });
+                  let indexToRemove = workspaceSubjects.indexOf(subjectToRemove);
+
+                  if (indexToRemove !== -1) {
+                    workspaceSubjects.splice(indexToRemove, 1);
+                  }
+                }
+              }, err => {
+                debugger;
+              });
             },
             ...mapGetters({
                 getUserId: 'userId',

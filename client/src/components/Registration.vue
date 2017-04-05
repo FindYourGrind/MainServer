@@ -71,7 +71,7 @@
                         username: me.userName,
                         email: me.userEmail,
                         password: me.userPassword,
-                        avatarUrl: 'api/FileContainers/ImagesContainer/download/' + me.userAvatarImageName
+                        avatarUrl: 'api/FileContainers/ImagesContainer/download/' + (me.userAvatarImageName || 'defaultAvatar.png')
                     };
 
                   this.$http.post('api/FileContainers/ImagesContainer/upload', this.userAvatarImage, {

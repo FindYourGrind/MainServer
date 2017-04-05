@@ -1,23 +1,23 @@
 <template>
     <div>
         <md-button class="md-primary md-raised"
-                   id="openCreateSourceModalFormButton"
-                   @click.native="open">Create Source</md-button>
+                   id="openCreateSinkModalFormButton"
+                   @click.native="open">Create Sink</md-button>
 
-        <md-dialog md-open-from="#openCreateSourceModalFormButton"
-                   ref="createSourceModalForm">
-            <md-dialog-title>Create new Source</md-dialog-title>
+        <md-dialog md-open-from="#openCreateSinkModalFormButton"
+                   ref="createSinkModalForm">
+            <md-dialog-title>Create new Sink</md-dialog-title>
 
             <md-dialog-content>
                 <form novalidate @submit.stop.prevent="submit">
                     <md-input-container>
                         <label>Name</label>
-                        <md-input required v-model.trim="sourceName"></md-input>
+                        <md-input required v-model.trim="sinkName"></md-input>
                     </md-input-container>
 
                     <md-input-container>
                         <label>Type</label>
-                        <md-input v-model.trim="sourceType"></md-input>
+                        <md-input v-model.trim="sinkType"></md-input>
                     </md-input-container>
                 </form>
             </md-dialog-content>
@@ -32,22 +32,22 @@
 
 <script>
     export default {
-        name: 'CreateSourceModalForm',
+        name: 'CreateSinkModalForm',
         props: ['workspaceId'],
         data: function () {
             return {
-                sourceName: '',
-                sourceType: ''
+                sinkName: '',
+                sinkType: ''
             }
         },
         methods: {
             open: function () {
-                this.$refs['createSourceModalForm'].open();
+                this.$refs['createSinkModalForm'].open();
             },
             save: function () {
-                this.$http.post('api/Workspaces/' + this.workspaceId + '/sources', {
-                    type: this.sourceType,
-                    name: this.sourceName
+                this.$http.post('api/Workspaces/' + this.workspaceId + '/sinks', {
+                    type: this.sinkType,
+                    name: this.sinkName
                 }).then(function (response) {
                     if (response.ok) {
                         return response.data;
@@ -62,11 +62,11 @@
             },
             close: function () {
                 this.resetFormData();
-                this.$refs['createSourceModalForm'].close();
+                this.$refs['createSinkModalForm'].close();
             },
             resetFormData: function () {
-                this.sourceType = '';
-                this.sourceName = '';
+                this.sinkType = '';
+                this.sinkName = '';
             }
         }
     }

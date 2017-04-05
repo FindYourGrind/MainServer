@@ -7,23 +7,22 @@
     "validateUpsert": true
   },
   "properties": {
+    "name": {
+      "type": "string",
+      "required": true
+    },
     "type": {
       "type": "number",
       "required": true
     },
-    "mapping": {
-      "type": "string",
-      "required": true
+    "connections": {
+      "type": [
+        "number"
+      ]
     }
   },
   "validations": [],
-  "relations": {
-    "valueHolders": {
-      "type": "hasMany",
-      "model": "ValueHolder",
-      "foreignKey": "id"
-    }
-  },
+  "relations": {},
   "acls": [],
   "methods": {}
 }
