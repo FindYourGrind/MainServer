@@ -45,7 +45,7 @@
                 this.$refs['createCoreModalForm'].open();
             },
             save: function () {
-                this.$http.post('api/Workspaces/' + 5 + '/cores', {
+                this.$http.post('api/Workspaces/' + this.workspaceId + '/cores', {
                     name: this.coreName,
                     type: this.coreType
                 }).then(function (response) {

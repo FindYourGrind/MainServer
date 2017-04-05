@@ -3,12 +3,12 @@
     <md-tabs class="md-transparent"
              md-elevation="1"
              ref="mainTabs"
-             @change="onTabChanged">
+             @change="onMainTabChanged">
       <md-tab id="workspaces" md-label="Workspaces">
         <create-workspace-modal-form @create="workspaceCreated"></create-workspace-modal-form>
 
         <div>
-          <div class="workspace-wrapper" v-for="workspace in workspacesCards" key="workspace.id">
+          <div class="workspace-wrapper" v-for="workspace in workspacesCards" :key="workspace.id">
             <workspace-card :itemId="workspace.id"
                             :title="workspace.name"
                             :description="workspace.description"
@@ -44,11 +44,29 @@
           <!--</md-layout>-->
         <!--</md-layout>-->
 
-        <md-tabs md-fixed ref="workspaceTabs">
+        <md-tabs md-fixed
+                 ref="workspaceTabs"
+                 @change="onMainTabChanged">
           <md-tab v-for="workspace in workspaces" :key="workspace.id" :md-label="workspace.name">
-            <p>
-            {{ workspace.name }}
-            </p>
+            <md-layout md-gutter="8">
+              <md-layout md-flex="true">
+                <md-whiteframe md-elevation="3">
+                  <create-source-modal-form :workspaceId="workspace.id"></create-source-modal-form>
+                  {{ workspace.sources }}
+                </md-whiteframe>
+              </md-layout>
+              <md-layout md-flex="true">
+                <md-whiteframe md-elevation="3">
+                  <create-core-modal-form :workspaceId="workspace.id" @create="coreCreated"></create-core-modal-form>
+                  {{ workspace.cores }}
+                </md-whiteframe>
+              </md-layout>
+              <md-layout md-flex="true">
+                <md-whiteframe md-elevation="3">
+                  {{ workspace.sinks }}
+                </md-whiteframe>
+              </md-layout>
+            </md-layout>
           </md-tab>
         </md-tabs>
       </md-tab>
@@ -71,12 +89,14 @@
     import WorkspaceCard from './workspace/WorkspaceCard.vue';
     import CreateWorkspaceModalForm from './workspace/CreateWorkspaceModalForm.vue';
     import CreateCoreModalForm from './workspace/CreateCoreModalForm.vue';
+    import CreateSourceModalForm from './workspace/CreateSourceModalForm.vue';
 
     export default {
         name: 'mainPage',
         components: {
             CreateWorkspaceModalForm,
             CreateCoreModalForm,
+            CreateSourceModalForm,
             WorkspaceCard
         },
         data () {
@@ -122,7 +142,7 @@
                     id: 'workspace'
                 });
             },
-            onTabChanged: function (tabIndex) {
+            onMainTabChanged: function (tabIndex) {
                 let me = this;
               switch (tabIndex) {
                 case 0:
@@ -133,7 +153,7 @@
                     this.$http.get('api/Workspaces/' + me.workspaceIdToOpen, {
                         params: {
                             filter: {
-                              include: ["cores", "sources", "sinks"]
+                              include: ["cores", "sources", "sinks", "valueHolders"]
                             }
                         }
                     }).then(function (response) {
@@ -163,6 +183,9 @@
 
                   break;
               }
+            },
+            onWorkspaceTabChanged: function (tabIndex) {
+              console.log(arguments);
             },
             workspaceCreated: function (workspacePayload) {
                 if (workspacePayload) {

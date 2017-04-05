@@ -1,23 +1,23 @@
 <template>
     <div>
         <md-button class="md-primary md-raised"
-                   id="openCreateCoreModalFormButton"
-                   @click.native="open">Create Core</md-button>
+                   id="openCreateSourceModalFormButton"
+                   @click.native="open">Create Source</md-button>
 
-        <md-dialog md-open-from="#openCreateCoreModalFormButton"
-                   ref="createCoreModalForm">
-            <md-dialog-title>Create new Core</md-dialog-title>
+        <md-dialog md-open-from="#openCreateSourceModalFormButton"
+                   ref="createSourceModalForm">
+            <md-dialog-title>Create new Source</md-dialog-title>
 
             <md-dialog-content>
                 <form novalidate @submit.stop.prevent="submit">
                     <md-input-container>
-                        <label>Name</label>
-                        <md-input required v-model.trim="coreName"></md-input>
+                        <label>Type</label>
+                        <md-input required v-model.trim="sourceType"></md-input>
                     </md-input-container>
 
                     <md-input-container>
-                        <label>Type</label>
-                        <md-input v-model.trim="coreType"></md-input>
+                        <label>Mapping</label>
+                        <md-input v-model.trim="sourceMapping"></md-input>
                     </md-input-container>
                 </form>
             </md-dialog-content>
@@ -32,41 +32,41 @@
 
 <script>
     export default {
-        name: 'CreateCoreModalForm',
+        name: 'CreateSourceModalForm',
         props: ['workspaceId'],
         data: function () {
             return {
-                coreName: '',
-                coreType: ''
+                sourceType: '',
+                sourceMapping: ''
             }
         },
         methods: {
             open: function () {
-                this.$refs['createCoreModalForm'].open();
+                this.$refs['createSourceModalForm'].open();
             },
             save: function () {
-                this.$http.post('api/Workspaces/' + 5 + '/cores', {
-                    name: this.coreName,
-                    type: this.coreType
+                this.$http.post('api/Workspaces/' + this.workspaceId + '/sources', {
+                    type: this.sourceType,
+                    mapping: this.sourceMapping
                 }).then(function (response) {
                     if (response.ok) {
                         return response.data;
                     } else {
-                        console.log('Error while saving the workspace data');
+                        console.log('Error while saving the source data');
                     }
                 }, function () {
-                    console.log('Error while saving the workspace data');
-                }).then(function (sinkPayload) {
-                    this.$emit('create', sinkPayload);
+                    console.log('Error while saving the source data');
+                }).then(function (sourcePayload) {
+                    this.$emit('create', sourcePayload);
                 }).then(this.close);
             },
             close: function () {
                 this.resetFormData();
-                this.$refs['createCoreModalForm'].close();
+                this.$refs['createSourceModalForm'].close();
             },
             resetFormData: function () {
-                this.coreName = '';
-                this.coreType = '';
+                this.sourceType = '';
+                this.sourceMapping = '';
             }
         }
     }
