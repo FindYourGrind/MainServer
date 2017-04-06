@@ -27,34 +27,34 @@
                  @change="onMainTabChanged">
           <md-tab v-for="workspace in workspaces" :key="workspace.id" :id="workspace.id" :md-label="workspace.name">
             <md-layout md-gutter="8">
-              <md-layout md-flex="true">
+              <md-layout md-flex="true" md-align="start">
                 <md-whiteframe md-elevation="3">
                   <create-source-modal-form :workspaceId="workspace.id" @create="sourceCreated"></create-source-modal-form>
                   <ul>
                     <li v-for="source in workspace.sources" :key="source.id">
                       {{ source.name }}
                       <md-button class="md-fab md-mini"
-                                 @click.native="removeSource(source.id)">>
+                                 @click.native="removeSource(source.id)">
                         <md-icon>delete</md-icon>
                       </md-button>
                     </li>
                   </ul>
                 </md-whiteframe>
               </md-layout>
-              <md-layout md-flex="true">
+              <md-layout md-flex="true" md-align="center">
                 <md-whiteframe md-elevation="3">
                   <create-core-modal-form :workspaceId="workspace.id" @create="coreCreated"></create-core-modal-form>
                   <core v-for="core in workspace.cores" :key="core.id" :coreData="core"></core>
                 </md-whiteframe>
               </md-layout>
-              <md-layout md-flex="true">
+              <md-layout md-flex="true" md-align="end">
                 <md-whiteframe md-elevation="3">
                   <create-sink-modal-form :workspaceId="workspace.id"  @create="sinkCreated"></create-sink-modal-form>
                   <ul>
                     <li v-for="sink in workspace.sinks" :key="sink.id">
                       {{ sink.name }}
                       <md-button class="md-fab md-mini"
-                                 @click.native="removeSink(sink.id)">>
+                                 @click.native="removeSink(sink.id)">
                         <md-icon>delete</md-icon>
                       </md-button>
                     </li>

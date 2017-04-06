@@ -1,9 +1,27 @@
-<template>
-    <div class="value-holder-root">
+<template v-if="">
+    <div class="value-holder-root" v-if="leftToRight">
         <md-layout md-align="center">
             <md-layout md-align="start">
-                <p>Input: {{ valueHolderData.name }}</p>
-                <p>ID: {{ valueHolderData.id }}</p>
+                <md-button class="md-fab md-mini"
+                           @click.native="remove">
+                    <md-icon>delete</md-icon>
+                </md-button>
+                <md-button class="md-fab md-mini"
+                           @click.native="edit">
+                    <md-icon>edit</md-icon>
+                </md-button>
+            </md-layout>
+            <md-layout md-align="end">
+                Input: {{ valueHolderData.name }}<br>
+                ID: {{ valueHolderData.id }}<br>
+            </md-layout>
+        </md-layout>
+    </div>
+    <div class="value-holder-root" v-else>
+        <md-layout md-align="center">
+            <md-layout md-align="start">
+                Input: {{ valueHolderData.name }}<br>
+                ID: {{ valueHolderData.id }}<br>
             </md-layout>
             <md-layout md-align="end">
                 <md-button class="md-fab md-mini"
@@ -22,7 +40,7 @@
 <script>
     export default {
         name: 'ValueHolder',
-        props: ['valueHolderData'],
+        props: ['valueHolderData', 'leftToRight'],
         data: function () {
             return {}
         },
@@ -34,7 +52,7 @@
                 let me = this;
                 let valueHolder = me.valueHolderData;
 
-                this.$http.delete('api/Core/' + valueHolder.coreId + '/valueHolders/' + valueHolder.id).then(response => {
+                this.$http.delete('api/Cores/' + valueHolder.coreId + '/valueHolders/' + valueHolder.id).then(response => {
                     if (response.ok) {
                         me.$emit('remove', valueHolder.id);
                     }
@@ -48,10 +66,11 @@
 
 <style scoped>
     .value-holder-root {
-        width: 145px;
-        height: 100px;
+        width: 240px;
+        height: 65px;
         margin: 5px;
         padding: 5px;
         background-color: rgba(235, 147, 22, 0.45);
+        border-radius: 5px;
     }
 </style>

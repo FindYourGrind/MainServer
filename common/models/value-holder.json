@@ -17,7 +17,8 @@
     },
     "value": {
       "type": "any",
-      "required": true
+      "required": false,
+      "default": 0
     },
     "valueType": {
       "type": "number",

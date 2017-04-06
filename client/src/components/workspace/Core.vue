@@ -1,55 +1,60 @@
 <template>
-  <div class="core-root">
-    <md-layout md-align="center">
-      <md-layout md-align="center">
-        {{ coreData.name }}
-      </md-layout>
-      <md-layout md-align="end">
-        <md-button class="md-fab md-mini"
-                   @click.native="edit">
-          <md-icon>edit</md-icon>
-        </md-button>
-        <md-button class="md-fab md-mini"
-                   @click.native="remove">
-          <md-icon>delete</md-icon>
-        </md-button>
-      </md-layout>
-    </md-layout>
+    <div class="core-root">
+        <md-layout md-align="center">
+            <md-layout md-align="center">
+                {{ coreData.name }}
+            </md-layout>
+            <md-layout md-align="end">
+                <md-button class="md-fab md-mini"
+                           @click.native="edit">
+                    <md-icon>edit</md-icon>
+                </md-button>
+                <md-button class="md-fab md-mini"
+                           @click.native="remove">
+                    <md-icon>delete</md-icon>
+                </md-button>
+            </md-layout>
+        </md-layout>
 
-    <md-layout md-align="center">
-      <md-layout md-align="start">
-        <md-button class="md-fab md-mini"
-                   @click.native="addInput">
-          <md-icon>add</md-icon>
-        </md-button>
-      </md-layout>
-      <md-layout md-align="center">
-        ID: {{ coreData.id }}
-      </md-layout>
-      <md-layout md-align="end">
-        <md-button class="md-fab md-mini"
-                   @click.native="addOutput">
-        <md-icon>add</md-icon>
-      </md-button></md-layout>
-    </md-layout>
+        <md-layout md-align="center">
+            <md-layout md-align="start">
+                <create-value-holder-modal-form :workspaceId="coreData.workspaceId"
+                                                :coreId="coreData.id"
+                                                :valueHolderType="1"
+                                                @create="onValueHolderCreate"></create-value-holder-modal-form>
+            </md-layout>
+            <md-layout md-align="center">
+                ID: {{ coreData.id }}
+            </md-layout>
+            <md-layout md-align="end">
+                <create-value-holder-modal-form :workspaceId="coreData.workspaceId"
+                                                :coreId="coreData.id"
+                                                :valueHolderType="2"
+                                                @create="onValueHolderCreate"></create-value-holder-modal-form>
+            </md-layout>
+        </md-layout>
 
-    <md-layout md-align="center">
-      <md-layout md-align="start">
-          <value-holder v-for="input in inputs"
-                        :key="input.id"
-                        :valueHolderData="input"></value-holder>
-      </md-layout>
-      <md-layout md-align="end">
-        <value-holder v-for="output in outputs"
-                      :key="output.id"
-                      :valueHolderData="output"></value-holder>
-      </md-layout>
-    </md-layout>
-  </div>
+        <md-layout>
+            <md-layout md-align="start" md-column>
+                <value-holder v-for="input in inputs"
+                              :key="input.id"
+                              :valueHolderData="input"
+                              @remove="onValueHolderRemove"></value-holder>
+            </md-layout>
+            <md-layout md-align="end" md-column>
+                <value-holder v-for="output in outputs"
+                              :key="output.id"
+                              :valueHolderData="output"
+                              :leftToRight="true"
+                              @remove="onValueHolderRemove"></value-holder>
+            </md-layout>
+        </md-layout>
+    </div>
 </template>
 
 <script>
     import ValueHolder from "./ValueHolder.vue";
+    import CreateValueHolderModalForm from "./CreateValueHolderModalForm.vue";
 
     const INPUT_TYPE = 1;
     const OUTPUT_TYPE = 2;
@@ -58,7 +63,8 @@
         name: 'Core',
         props: ['coreData'],
         components: {
-            ValueHolder
+            ValueHolder,
+            CreateValueHolderModalForm
         },
         data: function () {
             return {}
@@ -66,7 +72,7 @@
         computed: {
             inputs: function () {
                 return this.coreData.valueHolders.filter(function (valueHolder) {
-                   return valueHolder.type === INPUT_TYPE;
+                    return valueHolder.type === INPUT_TYPE;
                 });
             },
             outputs: function () {
@@ -77,19 +83,28 @@
         },
         methods: {
             addInput: function () {
+                let me = this;
+                let inputPayload = {};
 
-            },
-            removeInput: function () {
-
+                me.addValueHolder(inputPayload);
             },
             addOutput: function () {
+                let me = this;
+                let outputPayload = {};
 
+                me.addValueHolder(outputPayload);
             },
-            removeOutput: function () {
+            addValueHolder: function (valueHolderPayload) {
+                let me = this;
+                let core = me.coreData;
 
-            },
-            editValueHolder: function () {
-
+                this.$http.post('api/Core/' + core.id + '/valueHolders', valueHolderPayload).then(response => {
+                    if (response.ok) {
+                        me.$emit('valueHolderAdded', response.data);
+                    }
+                }, err => {
+                    debugger;
+                });
             },
             edit: function () {
 
@@ -105,6 +120,23 @@
                 }, err => {
                     debugger;
                 });
+            },
+            onValueHolderCreate: function (valueHolderPayload) {
+                let me = this;
+
+                me.coreData.valueHolders.push(valueHolderPayload);
+            },
+            onValueHolderRemove: function (valueHolderId) {
+                let me = this;
+                let valueHolders = me.coreData.valueHolders;
+                let valueHolderToRemove = valueHolders.find(function (valueHolder) {
+                    return valueHolder.id === valueHolderId;
+                });
+                let indexToRemove = valueHolders.indexOf(valueHolderToRemove);
+
+                if (indexToRemove > -1) {
+                    valueHolders.splice(indexToRemove, 1);
+                }
             }
         }
     }
@@ -112,7 +144,7 @@
 
 <style scoped>
   .core-root {
-    width: 300px;
+    width: 520px;
     margin: 5px;
     padding: 5px;
     background-color: rgba(29, 30, 31, 0.45);
