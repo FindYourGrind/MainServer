@@ -2,7 +2,7 @@
   <div class="core-root">
     <md-layout md-align="center">
       <md-layout md-align="center">
-        Header
+        {{ coreData.name }}
       </md-layout>
       <md-layout md-align="end">
         <md-button class="md-fab md-mini"
@@ -23,7 +23,9 @@
           <md-icon>add</md-icon>
         </md-button>
       </md-layout>
-      <md-layout md-align="center">Core</md-layout>
+      <md-layout md-align="center">
+        ID: {{ coreData.id }}
+      </md-layout>
       <md-layout md-align="end">
         <md-button class="md-fab md-mini"
                    @click.native="addOutput">
@@ -33,56 +35,79 @@
 
     <md-layout md-align="center">
       <md-layout md-align="start">
-
+          <value-holder v-for="input in inputs"
+                        :key="input.id"
+                        :valueHolderData="input"></value-holder>
       </md-layout>
       <md-layout md-align="end">
-
+        <value-holder v-for="output in outputs"
+                      :key="output.id"
+                      :valueHolderData="output"></value-holder>
       </md-layout>
     </md-layout>
   </div>
 </template>
 
 <script>
-  export default {
-    name: 'Core',
-    props: ['coreData'],
-    data: function () {
-      return {}
-    },
-    methods: {
-      addInput: function () {
+    import ValueHolder from "./ValueHolder.vue";
 
-      },
-      removeInput: function () {
+    const INPUT_TYPE = 1;
+    const OUTPUT_TYPE = 2;
 
-      },
-      edit: function () {
-
-      },
-      remove: function () {
-        let me = this;
-        let core = me.coreData;
-
-        this.$http.delete('api/Workspaces/' + core.workspaceId + '/' + subjectName + '/' + subjectId).then(response => {
-          if (response.ok) {
-            let workspaceSubjects = me.workspaces.find(function (workspace) {
-              return workspace.id == workspaceId;
-            })[subjectName];
-            let subjectToRemove = workspaceSubjects.find(function (subjectItem) {
-              return subjectItem.id == subjectId;
-            });
-            let indexToRemove = workspaceSubjects.indexOf(subjectToRemove);
-
-            if (indexToRemove !== -1) {
-              workspaceSubjects.splice(indexToRemove, 1);
+    export default {
+        name: 'Core',
+        props: ['coreData'],
+        components: {
+            ValueHolder
+        },
+        data: function () {
+            return {}
+        },
+        computed: {
+            inputs: function () {
+                return this.coreData.valueHolders.filter(function (valueHolder) {
+                   return valueHolder.type === INPUT_TYPE;
+                });
+            },
+            outputs: function () {
+                return this.coreData.valueHolders.filter(function (valueHolder) {
+                    return valueHolder.type === OUTPUT_TYPE;
+                });
             }
-          }
-        }, err => {
-          debugger;
-        });
-      }
+        },
+        methods: {
+            addInput: function () {
+
+            },
+            removeInput: function () {
+
+            },
+            addOutput: function () {
+
+            },
+            removeOutput: function () {
+
+            },
+            editValueHolder: function () {
+
+            },
+            edit: function () {
+
+            },
+            remove: function () {
+                let me = this;
+                let core = me.coreData;
+
+                this.$http.delete('api/Workspaces/' + core.workspaceId + '/cores/' + core.id).then(response => {
+                    if (response.ok) {
+                        me.$emit('remove', core.id);
+                    }
+                }, err => {
+                    debugger;
+                });
+            }
+        }
     }
-  }
 </script>
 
 <style scoped>
@@ -91,5 +116,6 @@
     margin: 5px;
     padding: 5px;
     background-color: rgba(29, 30, 31, 0.45);
+    border-radius: 5px;
   }
 </style>
