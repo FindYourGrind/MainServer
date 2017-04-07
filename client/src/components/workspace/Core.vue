@@ -145,7 +145,7 @@
 <style scoped>
   .core-root {
     width: 520px;
-    margin: 5px;
+    margin: 15px 5px 15px 5px;
     padding: 5px;
     background-color: rgba(29, 30, 31, 0.45);
     border-radius: 5px;

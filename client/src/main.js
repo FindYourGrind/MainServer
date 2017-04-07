@@ -10,9 +10,9 @@ import VueResource from 'vue-resource';
 import webSocket from './webSocket';
 import VueMaterial from 'vue-material';
 
-import 'vue-material/dist/vue-material.css'
-import 'bootstrap/dist/css/bootstrap.css'
-import 'bootstrap-vue/dist/bootstrap-vue.css'
+import 'vue-material/dist/vue-material.css';
+import 'bootstrap/dist/css/bootstrap.css';
+import 'bootstrap-vue/dist/bootstrap-vue.css';
 
 import Config from "../../config.json";
 
