@@ -113,7 +113,7 @@
                 let me = this;
                 let core = me.coreData;
 
-                this.$http.delete('api/Workspaces/' + core.workspaceId + '/cores/' + core.id).then(response => {
+                this.$http.delete('api/Cores/' + core.id + '/completeRemoval').then(response => {
                     if (response.ok) {
                         me.$emit('remove', core.id);
                     }

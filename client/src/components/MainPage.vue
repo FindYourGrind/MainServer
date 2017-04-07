@@ -44,7 +44,10 @@
               <md-layout md-flex="true" md-align="center">
                 <md-whiteframe md-elevation="3">
                   <create-core-modal-form :workspaceId="workspace.id" @create="coreCreated"></create-core-modal-form>
-                  <core v-for="core in workspace.cores" :key="core.id" :coreData="core"></core>
+                  <core v-for="core in workspace.cores"
+                        :key="core.id"
+                        :coreData="core"
+                        @remove="onCoreRemove"></core>
                 </md-whiteframe>
               </md-layout>
               <md-layout md-flex="true" md-align="end">
@@ -197,11 +200,12 @@
                 workspace.sources.push(sourcePayload);
             },
             coreCreated: function (corePayload) {
-              let workspace = this.workspaces.find(function (workspace) {
-                return corePayload.workspaceId == workspace.id;
-              });
+                let workspace = this.workspaces.find(function (workspace) {
+                    return corePayload.workspaceId == workspace.id;
+                });
 
-              workspace.cores.push(corePayload);
+                corePayload.valueHolders = [];
+                workspace.cores.push(corePayload);
             },
             sinkCreated: function (sinkPayload) {
               let workspace = this.workspaces.find(function (workspace) {
@@ -212,9 +216,6 @@
             },
             removeSource: function (sourceId) {
                 this.removeWorkspaceSubject('sources', sourceId);
-            },
-            removeCore: function (coreId) {
-                this.removeWorkspaceSubject('cores', coreId);
             },
             removeSink: function (sinkId) {
                 this.removeWorkspaceSubject('sinks', sinkId);
@@ -240,6 +241,21 @@
               }, err => {
                 debugger;
               });
+            },
+            onCoreRemove: function (coreId) {
+                let me = this;
+                let workspace = me.workspaces.find(function (workspace) {
+                    return corePayload.workspaceId == workspace.id;
+                });
+                let cores = workspace.cores;
+                let coreToRemove = cores.find(function (core) {
+                    return core.id == coreId;
+                });
+                let indexToRemove = cores.indexOf(coreToRemove);
+
+                if (indexToRemove !== -1) {
+                    cores.splice(indexToRemove, 1);
+                }
             },
             ...mapGetters({
                 getUserId: 'userId',

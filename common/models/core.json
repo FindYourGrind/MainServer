@@ -25,5 +25,17 @@
     }
   },
   "acls": [],
-  "methods": {}
+  "methods": {
+    "prototype.CompleteRemoval": {
+      "accepts": [],
+      "returns": [],
+      "description": "Remove Core with all ValueHolders",
+      "http": [
+        {
+          "path": "/completeRemoval",
+          "verb": "delete"
+        }
+      ]
+    }
+  }
 }
