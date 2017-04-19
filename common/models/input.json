@@ -7,16 +7,26 @@
     "validateUpsert": true
   },
   "properties": {
-    "connection": {
+    "connected": {
+      "type": "boolean",
+      "default": false
+    },
+    "sourceId": {
       "type": "number"
     }
   },
   "validations": [],
   "relations": {
-    "coreId": {
+    "relativeCore": {
       "type": "belongsTo",
       "model": "Core",
       "foreignKey": "id"
+    },
+    "relativeSource": {
+      "type": "hasOne",
+      "model": "Source",
+      "foreignKey": "id",
+      "primaryKey": "sourceId"
     }
   },
   "acls": [],

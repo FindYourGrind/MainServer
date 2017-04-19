@@ -1,27 +1,30 @@
 {
-    "name": "Output",
-    "plural": "Outputs",
-    "base": "ValueHolder",
-    "idInjection": true,
-    "options": {
-        "validateUpsert": true
+  "name": "Output",
+  "plural": "Outputs",
+  "base": "ValueHolder",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "connected": {
+      "type": "boolean",
+      "default": false
+    }
+  },
+  "validations": [],
+  "relations": {
+    "relativeCore": {
+      "type": "belongsTo",
+      "model": "Core",
+      "foreignKey": "id"
     },
-    "properties": {
-        "connection": {
-            "type": [
-                "number"
-            ],
-            "default": []
-        }
-    },
-    "validations": [],
-    "relations": {
-        "coreId": {
-            "type": "belongsTo",
-            "model": "Core",
-            "foreignKey": "id"
-        }
-    },
-    "acls": [],
-    "methods": {}
+    "relativeSinks": {
+      "type": "hasMany",
+      "model": "Sink",
+      "foreignKey": "outputIdList"
+    }
+  },
+  "acls": [],
+  "methods": {}
 }

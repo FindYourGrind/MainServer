@@ -1,36 +1,48 @@
 'use strict';
 
 module.exports = function(Sink) {
+
     Sink.observe('after save', function onSinkCreate (ctx, next) {
-        console.log('Sink created');
-        next();
+        if (ctx.isNewInstance &&
+            ctx.instance &&
+            ctx.instance.output) {
+            ctx.instance.connect(ctx.instance.output, function (err, sink) {
+                next();
+            });
+        } else {
+            next();
+        }
     });
 
     /**
      * Connect Sink to Output
-     * @param {number} connection Output Id to connect
+     * @param {number} output Output Id to connect
      * @param {Function(Error)} callback
      */
 
-    Sink.prototype.connect = function(connection, callback) {
+    Sink.prototype.connect = function(output, callback) {
         let me = this;
         let app = Sink.app;
         let outputModel = app.models.Output;
 
-        outputModel.connectToSink(connection, me.getId(), function (err, output) {
-            if (err) {
-                callback(err);
-            }
-
-            me.updateAttributes({
-                connected: true,
-                connection: connection
-            }).then(function (sink) {
-                callback(null, sink)
-            }).catch(function (err) {
-                callback(err);
+        outputModel.findById(output)
+            .then(function (outputRecord) {
+                return outputRecord.updateAttributes({
+                    connected: true
+                });
             })
-        });
+            .then(function (outputRecord) {
+                return me.updateAttributes({
+                    connected: true,
+                    output: outputRecord.getId()
+                });
+            })
+            .then(function (sinkRecord) {
+                callback(null, sinkRecord);
+            })
+            .catch(function (err) {
+               console.log(err);
+            });
     };
 
 };

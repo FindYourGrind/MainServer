@@ -36,13 +36,13 @@
 
         <md-layout>
             <md-layout md-align="start" md-column>
-                <value-holder v-for="input in inputs"
+                <value-holder v-for="input in coreData.inputs"
                               :key="input.id"
                               :valueHolderData="input"
                               @remove="onValueHolderRemove"></value-holder>
             </md-layout>
             <md-layout md-align="end" md-column>
-                <value-holder v-for="output in outputs"
+                <value-holder v-for="output in coreData.outputs"
                               :key="output.id"
                               :valueHolderData="output"
                               :leftToRight="true"
@@ -56,9 +56,6 @@
     import ValueHolder from "./ValueHolder.vue";
     import CreateValueHolderModalForm from "./CreateValueHolderModalForm.vue";
 
-    const INPUT_TYPE = 1;
-    const OUTPUT_TYPE = 2;
-
     export default {
         name: 'Core',
         props: ['coreData'],
@@ -69,18 +66,7 @@
         data: function () {
             return {}
         },
-        computed: {
-            inputs: function () {
-                return this.coreData.valueHolders.filter(function (valueHolder) {
-                    return valueHolder.type === INPUT_TYPE;
-                });
-            },
-            outputs: function () {
-                return this.coreData.valueHolders.filter(function (valueHolder) {
-                    return valueHolder.type === OUTPUT_TYPE;
-                });
-            }
-        },
+        computed: {},
         methods: {
             addInput: function () {
                 let me = this;

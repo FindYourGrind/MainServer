@@ -1,7 +1,7 @@
 {
   "name": "ValueHolder",
   "plural": "ValueHolders",
-  "base": "Connectable",
+  "base": "PersistedModel",
   "idInjection": true,
   "options": {
     "validateUpsert": true

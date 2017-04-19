@@ -1,23 +1,33 @@
 {
-    "db": {
-        "name": "db",
-        "connector": "memory"
-    },
-    "pg": {
-        "host": "findyourgrind.ddns.net",
-        "port": 15432,
-        "url": "postgres://postgres:@findyourgrind.ddns.net:15432/main_server",
-        "database": "main_server",
-        "password": "",
-        "name": "pg",
-        "user": "postgres",
-        "connector": "postgresql"
-    },
-    "files": {
-        "name": "files",
-        "connector": "loopback-component-storage",
-        "provider": "filesystem",
-        "root": "./server/storage",
-        "maxFileSize": "10485760"
-    }
+  "db": {
+    "name": "db",
+    "connector": "memory"
+  },
+  "pg": {
+    "host": "localhost",
+    "port": 5432,
+    "url": "postgres://postgres:!Mhjub1993@localhost:5432/main_server",
+    "database": "main_server",
+    "password": "!Mhjub1993",
+    "name": "pg",
+    "user": "postgres",
+    "connector": "postgresql"
+  },
+  "pgRemote": {
+    "host": "findyourgrind.ddns.net",
+    "port": 15432,
+    "url": "postgres://postgres:@findyourgrind.ddns.net:15432/main_server",
+    "database": "main_server",
+    "password": "",
+    "name": "pgRemote",
+    "user": "postgres",
+    "connector": "postgresql"
+  },
+  "files": {
+    "name": "files",
+    "connector": "loopback-component-storage",
+    "provider": "filesystem",
+    "root": "./server/storage",
+    "maxFileSize": "10485760"
+  }
 }

@@ -111,7 +111,7 @@
                   if (this.workspaceIdToOpen) {
                     this.$http.get('api/Workspaces/' + me.workspaceIdToOpen, {
                         params: {
-                            filter: '{"include": [{"cores":["valueHolders"]}, "sources", "sinks"]}'
+                            filter: '{"include": [{"cores":["inputs", "outputs"]}, "sources", "sinks"]}'
                         }
                     }).then(function (response) {
                       if (response.ok) {

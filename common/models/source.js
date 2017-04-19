@@ -5,62 +5,49 @@ module.exports = function(Source) {
     //
     // });
     //
-    // Source.observe('after save', function updateTimestamp(ctx, next) {
-    //     let valueHolderModel = Source.app.models.ValueHolder;
-    //     let model = ctx.instance || ctx.data;
-    //     let connectionsIds = model.connection || [];
-    //
-    //     valueHolderModel.find({
-    //         where: {
-    //             id: {
-    //                 inq: connectionsIds
-    //             }
-    //         }
-    //     }, function (err, valueHolders) {
-    //         if (err) {
-    //             next('Error while connect to ValueHolders');
-    //         } else {
-    //             valueHolders.forEach(function (valueHolder) {
-    //                 valueHolder.updateAttributes({
-    //                     connected: true,
-    //                     connection: model.id
-    //                 }, function (err) {
-    //                     if (err) {
-    //                         next('Error while connect to ValueHolders');
-    //                     } else {
-    //                         next();
-    //                     }
-    //                 })
-    //             })
-    //         }
-    //     });
-    // });
+
+    Source.observe('after save', function onSourceCreate (ctx, next) {
+        if (ctx.isNewInstance &&
+            ctx.instance &&
+            ctx.instance.input) {
+            ctx.instance.connect(ctx.instance.input, function (err, source) {
+                next();
+            });
+        } else {
+            next();
+        }
+    });
 
     /**
      * Connect Source to Input
-     * @param {array} connection Connections array
+     * @param {array} inputs Connections array
      * @param {Function(Error)} callback
      */
 
-    Source.prototype.connect = function(connection, callback) {
+    Source.prototype.connect = function(inputs, callback) {
         let me = this;
         let app = Source.app;
         let inputModel = app.models.Input;
 
-        inputModel.connectToSource(connection, me.getId(), function (err, input) {
-            if (err) {
-                callback(err);
-            }
+        inputModel.find({ where: { id: { inq: [].concat(inputs) } } })
+            .then(function (inputRecords) {
+                inputRecords.forEach(inputRecord => {
+                    inputRecord.updateAttributes({
+                        connected: true,
+                        source: me.getId()
+                    })
+                });
 
-            me.updateAttributes({
-                connected: true,
-                connection: me.connection ? me.connection.concat(connection) : connection
-            }).then(function (source) {
-                callback(null, source)
-            }).catch(function (err) {
-                callback(err);
+                return me.updateAttributes({
+                    connected: true,
+                    inputIdList: me.inputIdList ? me.inputIdList.concat(inputs) : [inputs]
+                });
             })
-        });
+            .then(function (source) {
+                callback(null, source)
+            })
+            .catch(function (err) {
+                console.log(err);
+            });
     };
-
 };
