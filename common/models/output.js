@@ -31,16 +31,18 @@ module.exports = function(Output) {
     };
 
     Output.connectToSink = function (outputId, sinkId, callback) {
-        Output.updateAll({ id: outputId },
-            {
-                connected: true,
-                connection: sinkId
-            })
+        Output.findById(outputId)
             .then(function (output) {
-                callback(null, output);
-            })
-            .catch(function (err) {
-                callback(err);
+                output.updateAttributes({
+                    connected: true,
+                    connection: output.connection ? output.connection.concat(sinkId) : [ sinkId ]
+                })
+                .then(function (output) {
+                    callback(null, output);
+                })
+                .catch(function (err) {
+                    callback(err);
+                });
             });
     };
 };
