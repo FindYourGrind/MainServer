@@ -17,9 +17,21 @@ class SourceFactory {
         let processor = me.getSourceProcessor(sourcePayload.type);
 
         processor.on('workspace-' + sourcePayload.workspaceId + '-event-' + sourcePayload.eventName, function (data) {
-            app.models.ValueHolder.find({where: {id: sourcePayload.connections}}, function () {
+            app.models.ValueHolder.find({
+                where: {
+                    id: sourcePayload.connections
+                }
+            }).then(models => {
+                models.forEach(function (model) {
+                    model.updateAttribute('value', data).then(instance => {
 
-            })
+                    }, err => {
+                        debugger;
+                    });
+                })
+            }, err => {
+                debugger;
+            });
         });
     }
 

@@ -1,7 +1,7 @@
 {
   "name": "ValueHolder",
   "plural": "ValueHolders",
-  "base": "PersistedModel",
+  "base": "Connectable",
   "idInjection": true,
   "options": {
     "validateUpsert": true
@@ -9,10 +9,6 @@
   "properties": {
     "name": {
       "type": "string",
-      "required": true
-    },
-    "type": {
-      "type": "number",
       "required": true
     },
     "value": {
@@ -23,16 +19,13 @@
     "valueType": {
       "type": "number",
       "required": true
+    },
+    "updateTimeStamp": {
+      "type": "date"
     }
   },
   "validations": [],
-  "relations": {
-    "coreId": {
-      "type": "belongsTo",
-      "model": "Core",
-      "foreignKey": "id"
-    }
-  },
+  "relations": {},
   "acls": [],
   "methods": {}
 }

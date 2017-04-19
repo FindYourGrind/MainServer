@@ -1,0 +1,26 @@
+{
+  "name": "Output",
+  "plural": "Outputs",
+  "base": "ValueHolder",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "connection": {
+      "type": [
+        "number"
+      ]
+    }
+  },
+  "validations": [],
+  "relations": {
+    "coreId": {
+      "type": "belongsTo",
+      "model": "Core",
+      "foreignKey": "id"
+    }
+  },
+  "acls": [],
+  "methods": {}
+}

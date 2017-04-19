@@ -18,9 +18,14 @@
   },
   "validations": [],
   "relations": {
-    "valueHolders": {
+    "inputs": {
       "type": "hasMany",
-      "model": "ValueHolder",
+      "model": "Input",
+      "foreignKey": "coreId"
+    },
+    "outputs": {
+      "type": "hasMany",
+      "model": "Output",
       "foreignKey": "coreId"
     }
   },

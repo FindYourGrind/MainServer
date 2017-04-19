@@ -2,7 +2,8 @@ let server = require('./server');
 let ds = server.dataSources.pg;
 let pgTables = server.models()
     .filter(function (model) {
-      return model.dataSource.name === ds.name;
+
+      return model.dataSource && model.dataSource.name === ds.name;
     })
     .map(function (model) {
       return model.modelName;

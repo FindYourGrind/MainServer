@@ -4,7 +4,7 @@
             <md-layout md-flex="true"
                        md-align="start">
                 <md-whiteframe md-elevation="3">
-                    <create-source-modal-form :workspaceId="workspace.id"
+                    <create-source-modal-form :workspace="workspace"
                                               @create="ocSourceCreate"></create-source-modal-form>
                     <source-component v-for="source in workspace.sources"
                                       :key="source.id"

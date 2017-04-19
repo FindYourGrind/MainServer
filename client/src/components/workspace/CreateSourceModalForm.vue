@@ -19,6 +19,17 @@
                         <label>Type</label>
                         <md-input v-model.trim="sourceType"></md-input>
                     </md-input-container>
+
+                    <md-input-container>
+                        <label>Connections</label>
+                        <md-select multiple
+                                   v-model="connection">
+                            <md-subheader>{{ valueHolders.length > 0 ? "Inputs" : "No Available Inputs" }}</md-subheader>
+                            <md-option v-for="valueHolder in valueHolders"
+                                       :key="valueHolder.id"
+                                       :value="valueHolder.id">{{ valueHolder.name }}</md-option>
+                        </md-select>
+                    </md-input-container>
                 </form>
             </md-dialog-content>
 
@@ -33,21 +44,45 @@
 <script>
     export default {
         name: 'CreateSourceModalForm',
-        props: ['workspaceId'],
+        props: ['workspace'],
         data: function () {
             return {
                 sourceName: '',
-                sourceType: ''
+                sourceType: '',
+                connection: '',
+                valueHolders: []
             }
         },
         methods: {
             open: function () {
+                let me = this;
+
                 this.$refs['createSourceModalForm'].open();
+                this.$http.get('api/ValueHolders', {
+                    params: {
+                        filter: JSON.stringify({
+                            where: { or: [ { workspaceId: 2 }, { coreId: {
+                                            inq: me.workspace.cores.map(function (core) {
+                                                return core.id;
+                                            })}}], type: 1, connected: false }
+                        })
+                    }
+                }).then(response => {
+                    if (response.ok) {
+                        me.valueHolders = response.data;
+                    } else {
+                        throw 'Error while loading available inputs';
+                    }
+                }).catch(err => {
+                    debugger;
+                });
             },
             save: function () {
-                this.$http.post('api/Workspaces/' + this.workspaceId + '/sources', {
+                this.$http.post('api/Workspaces/' + this.workspace.id + '/sources', {
                     type: this.sourceType,
-                    name: this.sourceName
+                    name: this.sourceName,
+                    connection: this.connection,
+                    connected: this.connection.length > 0
                 }).then(function (response) {
                     if (response.ok) {
                         return response.data;
@@ -67,6 +102,7 @@
             resetFormData: function () {
                 this.sourceType = '';
                 this.sourceName = '';
+                this.connection = [];
             }
         }
     }

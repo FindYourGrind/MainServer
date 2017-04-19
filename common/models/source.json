@@ -1,7 +1,7 @@
 {
   "name": "Source",
   "plural": "Sources",
-  "base": "PersistedModel",
+  "base": "Connectable",
   "idInjection": true,
   "options": {
     "validateUpsert": true
@@ -15,7 +15,7 @@
       "type": "number",
       "required": true
     },
-    "connections": {
+    "connection": {
       "type": [
         "number"
       ]

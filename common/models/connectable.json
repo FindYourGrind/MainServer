@@ -1,0 +1,23 @@
+{
+  "name": "Connectable",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "connected": {
+      "type": "boolean",
+      "default": false
+    },
+    "connection": {
+      "type": "any",
+      "required": false,
+      "default": 0
+    }
+  },
+  "validations": [],
+  "relations": {},
+  "acls": [],
+  "methods": {}
+}
