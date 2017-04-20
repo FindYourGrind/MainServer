@@ -14,12 +14,12 @@
   },
   "validations": [],
   "relations": {
-    "relativeCore": {
+    "relatedCore": {
       "type": "belongsTo",
       "model": "Core",
       "foreignKey": "id"
     },
-    "relativeSinks": {
+    "relatedSinks": {
       "type": "hasMany",
       "model": "Sink",
       "foreignKey": "outputIdList"

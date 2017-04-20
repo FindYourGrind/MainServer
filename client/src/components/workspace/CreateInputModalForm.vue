@@ -1,25 +1,25 @@
 <template>
     <div>
         <md-button class="md-fab md-mini"
-                   id="openCreateValueHolderModalFormButton"
+                   id="openCreateInputModalFormButton"
                    @click.native="open">
           <md-icon>add</md-icon>
         </md-button>
 
-        <md-dialog md-open-from="#openCreateValueHolderModalFormButton"
-                   ref="createValueHolderModalForm">
-            <md-dialog-title>Create new {{ valueHolderType === 1 ? "Input" : "Output" }}</md-dialog-title>
+        <md-dialog md-open-from="#openCreateInputModalFormButton"
+                   ref="createInputModalForm">
+            <md-dialog-title>Create new Input</md-dialog-title>
 
             <md-dialog-content>
                 <form novalidate @submit.stop.prevent="submit">
                     <md-input-container>
                         <label>Name</label>
-                        <md-input required v-model.trim="valueHolderName"></md-input>
+                        <md-input required v-model.trim="inputName"></md-input>
                     </md-input-container>
 
                     <md-input-container>
                       <label>Value Type</label>
-                      <md-input v-model.trim="valueHolderValueType"></md-input>
+                      <md-input v-model.trim="inputValueType"></md-input>
                     </md-input-container>
                 </form>
             </md-dialog-content>
@@ -34,47 +34,46 @@
 
 <script>
     export default {
-        name: 'CreateValueHolderModalForm',
-        props: ['workspaceId', 'coreId', 'valueHolderType'],
+        name: 'CreateInputModalForm',
+        props: ['workspaceId', 'coreId'],
         data: function () {
             return {
-                valueHolderName: '',
-                valueHolderValueType: ''
+                inputName: '',
+                inputValueType: ''
             }
         },
         methods: {
             open: function () {
-                this.$refs['createValueHolderModalForm'].open();
+                this.$refs['createInputModalForm'].open();
             },
             save: function () {
                 let me = this;
                 let apiString = me.coreId ?
-                  'api/Cores/' + me.coreId + '/valueHolders' :
-                  'api/Workspaces/' + me.workspaceId + '/valueHolders';
+                  'api/Cores/' + me.coreId + '/relatedInputs' :
+                  'api/Workspaces/' + me.workspaceId + '/relatedInputs';
 
                 me.$http.post(apiString, {
-                    name: me.valueHolderName,
-                    type: me.valueHolderType,
-                    valueType: me.valueHolderValueType
+                    name: me.inputName,
+                    valueType: me.inputValueType
                 }).then(function (response) {
                     if (response.ok) {
                         return response.data;
                     } else {
-                        console.log('Error while saving the valueHolder data');
+                        console.log('Error while saving the Input data');
                     }
                 }, function () {
-                    console.log('Error while saving the valueHolder data');
-                }).then(function (valueHolderPayload) {
-                    me.$emit('create', valueHolderPayload);
+                    console.log('Error while saving the Input data');
+                }).then(function (inputPayload) {
+                    me.$emit('create', inputPayload);
                 }).then(me.close);
             },
             close: function () {
                 this.resetFormData();
-                this.$refs['createValueHolderModalForm'].close();
+                this.$refs['createInputModalForm'].close();
             },
             resetFormData: function () {
-                this.valueHolderName = '';
-                this.valueHolderValueType = '';
+                this.inputName = '';
+                this.inputValueType = '';
             }
         }
     }

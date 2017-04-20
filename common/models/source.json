@@ -28,7 +28,7 @@
   },
   "validations": [],
   "relations": {
-    "relativeInputs": {
+    "relatedInputs": {
       "type": "hasMany",
       "model": "Input",
       "foreignKey": "sourceId"

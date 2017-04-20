@@ -6,7 +6,7 @@
                 <md-whiteframe md-elevation="3">
                     <create-source-modal-form :workspace="workspace"
                                               @create="ocSourceCreate"></create-source-modal-form>
-                    <source-component v-for="source in workspace.sources"
+                    <source-component v-for="source in workspace.relatedSources"
                                       :key="source.id"
                                       :sourceData="source"
                                       @remove="onSourceRemove"></source-component>
@@ -17,7 +17,7 @@
                 <md-whiteframe md-elevation="3">
                     <create-core-modal-form :workspaceId="workspace.id"
                                             @create="onCoreCreate"></create-core-modal-form>
-                    <core v-for="core in workspace.cores"
+                    <core v-for="core in workspace.relatedCores"
                           :key="core.id"
                           :coreData="core"
                           @remove="onCoreRemove"></core>
@@ -28,7 +28,7 @@
                 <md-whiteframe md-elevation="3">
                     <create-sink-modal-form :workspaceId="workspace.id"
                                             @create="onSinkCreate"></create-sink-modal-form>
-                    <sink-component v-for="sink in workspace.sinks"
+                    <sink-component v-for="sink in workspace.relatedSinks"
                                     :key="sink.id"
                                     :sinkData="sink"
                                     @remove="onSinkRemove"></sink-component>
@@ -46,9 +46,9 @@
     import SourceComponent from './SourceComponent.vue';
     import SinkComponent from './SinkComponent.vue';
 
-    const CORES_STRING = 'cores';
-    const SOURCES_STRING = 'sources';
-    const SINKS_STRING = 'sinks';
+    const CORES_STRING = 'relatedCores';
+    const SOURCES_STRING = 'relatedSources';
+    const SINKS_STRING = 'relatedSinks';
 
     export default {
         name: 'WorkspaceEditor',

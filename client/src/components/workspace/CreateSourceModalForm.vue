@@ -58,11 +58,11 @@
                 let me = this;
 
                 this.$refs['createSourceModalForm'].open();
-                this.$http.get('api/ValueHolders', {
+                this.$http.get('api/Inputs', {
                     params: {
                         filter: JSON.stringify({
                             where: { or: [ { workspaceId: 2 }, { coreId: {
-                                            inq: me.workspace.cores.map(function (core) {
+                                            inq: me.workspace.relatedCores.map(function (core) {
                                                 return core.id;
                                             })}}], type: 1, connected: false }
                         })
@@ -74,15 +74,14 @@
                         throw 'Error while loading available inputs';
                     }
                 }).catch(err => {
-                    debugger;
+                    console.log(err);
                 });
             },
             save: function () {
-                this.$http.post('api/Workspaces/' + this.workspace.id + '/sources', {
+                this.$http.post('api/Workspaces/' + this.workspace.id + '/relatedSources', {
                     type: this.sourceType,
                     name: this.sourceName,
-                    connection: this.connection,
-                    connected: this.connection.length > 0
+                    connection: this.connection
                 }).then(function (response) {
                     if (response.ok) {
                         return response.data;

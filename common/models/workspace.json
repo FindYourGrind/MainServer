@@ -23,22 +23,22 @@
   },
   "validations": [],
   "relations": {
-    "relativeCores": {
+    "relatedCores": {
       "type": "hasMany",
       "model": "Core",
       "foreignKey": "workspaceId"
     },
-    "relativeSources": {
+    "relatedSources": {
       "type": "hasMany",
       "model": "Source",
       "foreignKey": "workspaceId"
     },
-    "relativeSinks": {
+    "relatedSinks": {
       "type": "hasMany",
       "model": "Sink",
       "foreignKey": "workspaceId"
     },
-    "relativeAccount": {
+    "relatedAccount": {
       "type": "belongsTo",
       "model": "Account",
       "foreignKey": "id"

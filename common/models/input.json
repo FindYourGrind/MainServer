@@ -17,12 +17,12 @@
   },
   "validations": [],
   "relations": {
-    "relativeCore": {
+    "relatedCore": {
       "type": "belongsTo",
       "model": "Core",
       "foreignKey": "id"
     },
-    "relativeSource": {
+    "relatedSource": {
       "type": "hasOne",
       "model": "Source",
       "foreignKey": "id",

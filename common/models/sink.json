@@ -25,7 +25,7 @@
   },
   "validations": [],
   "relations": {
-    "relativeOutputs": {
+    "relatedOutputs": {
       "type": "hasOne",
       "model": "Output",
       "foreignKey": "id",

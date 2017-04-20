@@ -6,9 +6,9 @@
   "pg": {
     "host": "localhost",
     "port": 5432,
-    "url": "postgres://postgres:!Mhjub1993@localhost:5432/main_server",
+    "url": "postgres://postgres:postgres@localhost:5432/main_server",
     "database": "main_server",
-    "password": "!Mhjub1993",
+    "password": "postgres",
     "name": "pg",
     "user": "postgres",
     "connector": "postgresql"
