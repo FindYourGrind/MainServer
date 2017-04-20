@@ -1,7 +1,7 @@
 {
   "name": "Source",
   "plural": "Sources",
-  "base": "Connectable",
+  "base": "PersistedModel",
   "idInjection": true,
   "options": {
     "validateUpsert": true
@@ -15,14 +15,25 @@
       "type": "number",
       "required": true
     },
-    "connection": {
+    "connected": {
+      "type": "boolean",
+      "default": false
+    },
+    "inputIdList": {
       "type": [
         "number"
-      ]
+      ],
+      "default": []
     }
   },
   "validations": [],
-  "relations": {},
+  "relations": {
+    "relatedInputs": {
+      "type": "hasMany",
+      "model": "Input",
+      "foreignKey": "sourceId"
+    }
+  },
   "acls": [],
   "methods": {}
 }

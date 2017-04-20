@@ -74,10 +74,6 @@
     "dataSource": null,
     "public": false
   },
-  "Connectable": {
-    "dataSource": null,
-    "public": false
-  },
   "Input": {
     "dataSource": "pg",
     "public": true

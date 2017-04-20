@@ -23,30 +23,25 @@
   },
   "validations": [],
   "relations": {
-    "cores": {
+    "relatedCores": {
       "type": "hasMany",
       "model": "Core",
       "foreignKey": "workspaceId"
     },
-    "sources": {
+    "relatedSources": {
       "type": "hasMany",
       "model": "Source",
       "foreignKey": "workspaceId"
     },
-    "sinks": {
+    "relatedSinks": {
       "type": "hasMany",
       "model": "Sink",
       "foreignKey": "workspaceId"
     },
-    "accountId": {
+    "relatedAccount": {
       "type": "belongsTo",
       "model": "Account",
       "foreignKey": "id"
-    },
-    "valueHolders": {
-      "type": "hasMany",
-      "model": "ValueHolder",
-      "foreignKey": "workspaceId"
     }
   },
   "acls": [],

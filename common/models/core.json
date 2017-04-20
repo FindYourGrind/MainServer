@@ -18,12 +18,12 @@
   },
   "validations": [],
   "relations": {
-    "inputs": {
+    "relatedInputs": {
       "type": "hasMany",
       "model": "Input",
       "foreignKey": "coreId"
     },
-    "outputs": {
+    "relatedOutputs": {
       "type": "hasMany",
       "model": "Output",
       "foreignKey": "coreId"

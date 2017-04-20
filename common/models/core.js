@@ -7,24 +7,24 @@ module.exports = function(Core) {
      * @param {Function(Error)} callback
      */
     Core.prototype.CompleteRemoval = function(callback) {
-        let valueHolderModel = Core.app.models.ValueHolder;
-        let coreId = this.getId();
+        let me = this;
+        let inputModel = Core.app.models.Input;
+        let outputModel = Core.app.models.Output;
+        let coreId = me.getId();
 
-        valueHolderModel.destroyAll({ coreId: coreId }, function (err) {
-            if (err) {
-                callback(new Error('Error while deleting ValueHolders'));
-                return;
-            }
-
-            Core.destroyById(coreId, function (err) {
-                if (err) {
-                    callback(new Error('Error while deleting Core'));
-                    return;
-                }
-
+        inputModel.destroyAll({ coreId: coreId })
+            .then(function (info) {
+                return outputModel.destroyAll({ coreId: coreId });
+            })
+            .then(function (info) {
+                return Core.destroyById(coreId);
+            })
+            .then(function () {
                 callback(null);
             })
-        });
+            .catch(function (err) {
+                callback(err);
+            });
     };
 
 };
