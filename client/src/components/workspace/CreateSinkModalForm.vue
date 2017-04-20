@@ -19,6 +19,17 @@
                         <label>Type</label>
                         <md-input v-model.trim="sinkType"></md-input>
                     </md-input-container>
+
+                    <md-input-container>
+                        <label>Output Connection</label>
+                        <md-select v-model="outputId">
+                            <md-subheader>{{ relatedOutputs.length > 0 ? "Outputs" : "No Available Outputs" }}</md-subheader>
+                            <md-option v-for="relatedOutput in relatedOutputs"
+                                       :key="relatedOutput.id"
+                                       :value="relatedOutput.id">{{ relatedOutput.name }}</md-option>
+                        </md-select>
+                    </md-input-container>
+
                 </form>
             </md-dialog-content>
 
@@ -33,21 +44,44 @@
 <script>
     export default {
         name: 'CreateSinkModalForm',
-        props: ['workspaceId'],
+        props: ['workspaceData'],
         data: function () {
             return {
                 sinkName: '',
-                sinkType: ''
+                sinkType: '',
+                outputId: '',
+                relatedOutputs: []
             }
         },
         methods: {
             open: function () {
+                let me = this;
+
                 this.$refs['createSinkModalForm'].open();
+                this.$http.get('api/Outputs', {
+                    params: {
+                        filter: JSON.stringify({
+                            where: { or: [ { workspaceId: me.workspaceData.id }, { coreId: {
+                                inq: me.workspaceData.relatedCores.map(function (core) {
+                                    return core.id;
+                                })}}], connected: false }
+                        })
+                    }
+                }).then(response => {
+                    if (response.ok) {
+                        me.relatedOutputs = response.data;
+                    } else {
+                        throw 'Error while loading available outpus=ts';
+                    }
+                }).catch(err => {
+                    console.log(err);
+                });
             },
             save: function () {
-                this.$http.post('api/Workspaces/' + this.workspaceId + '/sinks', {
+                this.$http.post('api/Workspaces/' + this.workspaceData.id + '/relatedSinks', {
                     type: this.sinkType,
-                    name: this.sinkName
+                    name: this.sinkName,
+                    outputId: this.outputId
                 }).then(function (response) {
                     if (response.ok) {
                         return response.data;
@@ -67,6 +101,8 @@
             resetFormData: function () {
                 this.sinkType = '';
                 this.sinkName = '';
+                this.outputId = '';
+                this.relatedOutputs = [];
             }
         }
     }

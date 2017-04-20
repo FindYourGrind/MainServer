@@ -20,7 +20,6 @@
             <md-layout md-align="start">
                 <create-input-modal-form :workspaceId="coreData.workspaceId"
                                                 :coreId="coreData.id"
-                                                :valueHolderType="1"
                                                 @create="onInputCreate"></create-input-modal-form>
             </md-layout>
             <md-layout md-align="center">
@@ -29,7 +28,6 @@
             <md-layout md-align="end">
                 <create-output-modal-form :workspaceId="coreData.workspaceId"
                                                 :coreId="coreData.id"
-                                                :valueHolderType="2"
                                                 @create="onOutputCreate"></create-output-modal-form>
             </md-layout>
         </md-layout>

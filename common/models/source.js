@@ -6,16 +6,22 @@ module.exports = function(Source) {
     // });
     //
 
-    Source.observe('after save', function onSourceCreate (ctx, next) {
+    Source.observe('after save', function afterSourceCreate (ctx, next) {
         if (ctx.isNewInstance &&
             ctx.instance &&
-            ctx.instance.input) {
-            ctx.instance.connect(ctx.instance.input, function (err, source) {
+            ctx.instance.inputIdList) {
+            ctx.instance.connect(ctx.instance.inputIdList, function (err, source) {
                 next();
             });
         } else {
             next();
         }
+    });
+
+    Source.observe('before delete', function beforeSourceDelete (ctx, next) {
+        Source.disconnect(ctx.where.id, function (err) {
+            next(err);
+        });
     });
 
     /**
@@ -34,13 +40,13 @@ module.exports = function(Source) {
                 inputRecords.forEach(inputRecord => {
                     inputRecord.updateAttributes({
                         connected: true,
-                        source: me.getId()
+                        sourceId: me.getId()
                     })
                 });
 
                 return me.updateAttributes({
                     connected: true,
-                    inputIdList: me.inputIdList ? me.inputIdList.concat(inputs) : [inputs]
+                    inputIdList: Array.from(new Set(me.inputIdList ? me.inputIdList.concat(inputs) : [inputs]))
                 });
             })
             .then(function (source) {
@@ -48,6 +54,34 @@ module.exports = function(Source) {
             })
             .catch(function (err) {
                 console.log(err);
+                callback(err);
+            });
+    };
+
+    /**
+     * Disconnect Source from Inputs
+     * @param {array} sourceId Connections array
+     * @param {Function(Error)} callback
+     */
+
+    Source.prototype.disconnect = function(sourceId, callback) {
+        let app = Source.app;
+        let inputModel = app.models.Input;
+
+        inputModel.find({ where: { sourceId: sourceId } })
+            .then(function (inputRecords) {
+                inputRecords.forEach(inputRecord => {
+                    inputRecord.updateAttributes({
+                        connected: false,
+                        sourceId: undefined
+                    })
+                });
+
+                callback(null)
+            })
+            .catch(function (err) {
+                console.log(err);
+                callback(err);
             });
     };
 };

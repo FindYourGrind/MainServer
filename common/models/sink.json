@@ -61,6 +61,27 @@
           "verb": "post"
         }
       ]
+    },
+    "prototype.disconnect": {
+      "accepts": [
+        {
+          "arg": "sinkId",
+          "type": "number",
+          "required": false,
+          "description": "Id of Sink to be disconnected",
+          "http": {
+            "source": "form"
+          }
+        }
+      ],
+      "returns": [],
+      "description": "Disconnect Sink from Output",
+      "http": [
+        {
+          "path": "/disconnect",
+          "verb": "post"
+        }
+      ]
     }
   }
 }

@@ -2,6 +2,17 @@
 
 module.exports = function(Input) {
 
+
+    // Input.observe('after save', function onInputreate (ctx, next) {
+    //     let app = Input.app;
+    //
+    //     if (ctx.isNewInstance) {
+    //         app.
+    //     }
+    //
+    //     next();
+    // });
+
     /**
      *
      * @param inputId

@@ -21,13 +21,13 @@
                     </md-input-container>
 
                     <md-input-container>
-                        <label>Connections</label>
+                        <label>Inputs Connections</label>
                         <md-select multiple
-                                   v-model="connection">
-                            <md-subheader>{{ valueHolders.length > 0 ? "Inputs" : "No Available Inputs" }}</md-subheader>
-                            <md-option v-for="valueHolder in valueHolders"
-                                       :key="valueHolder.id"
-                                       :value="valueHolder.id">{{ valueHolder.name }}</md-option>
+                                   v-model="inputIdList">
+                            <md-subheader>{{ relatedInputs.length > 0 ? "Inputs" : "No Available Inputs" }}</md-subheader>
+                            <md-option v-for="relatedInput in relatedInputs"
+                                       :key="relatedInput.id"
+                                       :value="relatedInput.id">{{ relatedInput.name }}</md-option>
                         </md-select>
                     </md-input-container>
                 </form>
@@ -44,13 +44,13 @@
 <script>
     export default {
         name: 'CreateSourceModalForm',
-        props: ['workspace'],
+        props: ['workspaceData'],
         data: function () {
             return {
                 sourceName: '',
                 sourceType: '',
-                connection: '',
-                valueHolders: []
+                inputIdList: '',
+                relatedInputs: []
             }
         },
         methods: {
@@ -61,15 +61,15 @@
                 this.$http.get('api/Inputs', {
                     params: {
                         filter: JSON.stringify({
-                            where: { or: [ { workspaceId: 2 }, { coreId: {
-                                            inq: me.workspace.relatedCores.map(function (core) {
+                            where: { or: [ { workspaceId: me.workspaceData.id }, { coreId: {
+                                            inq: me.workspaceData.relatedCores.map(function (core) {
                                                 return core.id;
-                                            })}}], type: 1, connected: false }
+                                            })}}], connected: false }
                         })
                     }
                 }).then(response => {
                     if (response.ok) {
-                        me.valueHolders = response.data;
+                        me.relatedInputs = response.data;
                     } else {
                         throw 'Error while loading available inputs';
                     }
@@ -78,10 +78,10 @@
                 });
             },
             save: function () {
-                this.$http.post('api/Workspaces/' + this.workspace.id + '/relatedSources', {
+                this.$http.post('api/Workspaces/' + this.workspaceData.id + '/relatedSources', {
                     type: this.sourceType,
                     name: this.sourceName,
-                    connection: this.connection
+                    inputIdList: this.inputIdList
                 }).then(function (response) {
                     if (response.ok) {
                         return response.data;
@@ -101,7 +101,8 @@
             resetFormData: function () {
                 this.sourceType = '';
                 this.sourceName = '';
-                this.connection = [];
+                this.inputIdList = '';
+                this.relatedInputs = [];
             }
         }
     }

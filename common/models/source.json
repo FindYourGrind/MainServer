@@ -35,5 +35,27 @@
     }
   },
   "acls": [],
-  "methods": {}
+  "methods": {
+    "prototype.disconnect": {
+      "accepts": [
+        {
+          "arg": "sourceId",
+          "type": "number",
+          "required": false,
+          "description": "Id of Source to be disconnected",
+          "http": {
+            "source": "form"
+          }
+        }
+      ],
+      "returns": [],
+      "description": "Disconnect Source from all Inputs",
+      "http": [
+        {
+          "path": "/disconnect",
+          "verb": "post"
+        }
+      ]
+    }
+  }
 }

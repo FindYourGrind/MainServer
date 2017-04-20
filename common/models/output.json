@@ -22,7 +22,7 @@
     "relatedSinks": {
       "type": "hasMany",
       "model": "Sink",
-      "foreignKey": "outputIdList"
+      "foreignKey": "outputId"
     }
   },
   "acls": [],

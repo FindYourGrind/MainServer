@@ -5,8 +5,8 @@ module.exports = function(Sink) {
     Sink.observe('after save', function onSinkCreate (ctx, next) {
         if (ctx.isNewInstance &&
             ctx.instance &&
-            ctx.instance.output) {
-            ctx.instance.connect(ctx.instance.output, function (err, sink) {
+            ctx.instance.outputId) {
+            ctx.instance.connect(ctx.instance.outputId, function (err, sink) {
                 next();
             });
         } else {
@@ -34,7 +34,7 @@ module.exports = function(Sink) {
             .then(function (outputRecord) {
                 return me.updateAttributes({
                     connected: true,
-                    output: outputRecord.getId()
+                    outputId: outputRecord.getId()
                 });
             })
             .then(function (sinkRecord) {
@@ -44,5 +44,17 @@ module.exports = function(Sink) {
                console.log(err);
             });
     };
+
+    /**
+     * Disconnect Sink from Output
+     * @param {number} sinkId Id of Sink to be disconnected
+     * @param {Function(Error)} callback
+     */
+
+    Sink.prototype.disconnect = function(sinkId, callback) {
+        // TODO
+        callback(null);
+    };
+
 
 };

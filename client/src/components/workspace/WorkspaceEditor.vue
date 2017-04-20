@@ -4,7 +4,7 @@
             <md-layout md-flex="true"
                        md-align="start">
                 <md-whiteframe md-elevation="3">
-                    <create-source-modal-form :workspace="workspace"
+                    <create-source-modal-form :workspaceData="workspace"
                                               @create="ocSourceCreate"></create-source-modal-form>
                     <source-component v-for="source in workspace.relatedSources"
                                       :key="source.id"
@@ -26,7 +26,7 @@
             <md-layout md-flex="true"
                        md-align="end">
                 <md-whiteframe md-elevation="3">
-                    <create-sink-modal-form :workspaceId="workspace.id"
+                    <create-sink-modal-form :workspaceData="workspace"
                                             @create="onSinkCreate"></create-sink-modal-form>
                     <sink-component v-for="sink in workspace.relatedSinks"
                                     :key="sink.id"
@@ -78,7 +78,8 @@
              * @param corePayload
              */
             onCoreCreate: function (corePayload) {
-                corePayload.valueHolders = [];
+                corePayload.relatedInputs = [];
+                corePayload.relatedOutputs = [];
                 this.addWorkspaceSubject(CORES_STRING, corePayload);
             },
 
