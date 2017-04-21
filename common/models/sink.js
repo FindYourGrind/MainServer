@@ -14,6 +14,28 @@ module.exports = function(Sink) {
         }
     });
 
+    Sink.observe('before delete', function beforeSinkDelete (ctx, next) {
+        let logger = Sink.app.logger;
+
+        Sink.findById(ctx.where.id)
+            .then(function (sinkRecord) {
+                if (sinkRecord.connected === true) {
+                    sinkRecord.disconnect(sinkRecord.outputId, function (err) {
+                        if (err) {
+                            throw err;
+                        }
+
+                        logger.info('Sink: ' + ctx.where.id + ' disconnected');
+                    });
+                }
+            })
+            .catch(function (err) {
+                logger.warn('Error while disconnecting Sink: ' + ctx.where.id + ' - '  + err);
+            });
+
+        next();
+    });
+
     /**
      * Connect Sink to Output
      * @param {number} output Output Id to connect
@@ -47,14 +69,34 @@ module.exports = function(Sink) {
 
     /**
      * Disconnect Sink from Output
-     * @param {number} sinkId Id of Sink to be disconnected
+     * @param {number} outputId Id of Output to be disconnected
      * @param {Function(Error)} callback
      */
 
-    Sink.prototype.disconnect = function(sinkId, callback) {
-        // TODO
-        callback(null);
-    };
+    Sink.prototype.disconnect = function(outputId, callback) {
+        let me = this;
+        let app = Sink.app;
+        let logger = app.logger;
+        let outputModel = app.models.Output;
 
+        me.updateAttributes({
+            outputId: 0,
+            connected: false
+        })
+        .then(function () {
+            return outputModel.findById(outputId);
+        })
+        .then(function (output) {
+            return output.disconnect([me.getId()]);
+        })
+        .then(function (response) {
+            logger.info('Sink: ' + me.getId() + ' disconnected from Output: ' + outputId);
+            callback(null);
+        })
+        .catch(function (err) {
+            logger.error('Error while disconnecting Sink: ' + me.getId() + ' from Output: ' + outputId);
+            callback(err);
+        });
+    };
 
 };

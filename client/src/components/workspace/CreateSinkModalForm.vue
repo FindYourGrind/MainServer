@@ -64,7 +64,7 @@
                             where: { or: [ { workspaceId: me.workspaceData.id }, { coreId: {
                                 inq: me.workspaceData.relatedCores.map(function (core) {
                                     return core.id;
-                                })}}], connected: false }
+                                })}}]}
                         })
                     }
                 }).then(response => {

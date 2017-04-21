@@ -18,10 +18,24 @@ module.exports = function(Source) {
         }
     });
 
-    Source.observe('before delete', function beforeSourceDelete (ctx, next) {
-        Source.disconnect(ctx.where.id, function (err) {
-            next(err);
-        });
+    Source.observe('before delete', function beforeOutputDelete (ctx, next) {
+        let logger = Output.app.logger;
+
+        Source.findById(ctx.where.id)
+            .then(function (sourceRecord) {
+                if (sourceRecord.connected === true) {
+                    sourceRecord.disconnect(sourceRecord.inputIdList, function (err) {
+                        if (err) { throw err; }
+
+                        logger.info('Source: ' + ctx.where.id + ' disconnected');
+                    });
+                }
+            })
+            .catch(function (err) {
+                logger.warn('Error while disconnecting Source: ' + ctx.where.id + ' - ' + err);
+            });
+
+        next();
     });
 
     /**
@@ -60,28 +74,35 @@ module.exports = function(Source) {
 
     /**
      * Disconnect Source from Inputs
-     * @param {array} sourceId Connections array
+     * @param {array} inputIdList Connections array
      * @param {Function(Error)} callback
      */
 
-    Source.prototype.disconnect = function(sourceId, callback) {
+    Source.prototype.disconnect = function (inputIdList, callback) {
+        let me = this;
         let app = Source.app;
+        let logger = app.logger;
         let inputModel = app.models.Input;
 
-        inputModel.find({ where: { sourceId: sourceId } })
-            .then(function (inputRecords) {
-                inputRecords.forEach(inputRecord => {
-                    inputRecord.updateAttributes({
-                        connected: false,
-                        sourceId: undefined
-                    })
+        return new Promise (function (resolve, reject) {
+            inputModel.updateAll({ where: { sourceId: { inq: inputIdList } } },
+                {
+                    connected: false,
+                    sourceId: 0
+                })
+                .then(function () {
+                    if (callback) {
+                        callback(null);
+                    }
+                    resolve();
+                })
+                .catch(function (err) {
+                    logger('Error while disconnecting Source: ' + me.getId() + ' - ' + err);
+                    if (callback) {
+                        callback(err);
+                    }
+                    reject();
                 });
-
-                callback(null)
-            })
-            .catch(function (err) {
-                console.log(err);
-                callback(err);
-            });
+        });
     };
 };

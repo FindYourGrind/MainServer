@@ -1,87 +1,70 @@
 {
-  "name": "Sink",
-  "plural": "Sinks",
-  "base": "PersistedModel",
-  "idInjection": true,
-  "options": {
-    "validateUpsert": true
-  },
-  "properties": {
-    "name": {
-      "type": "string",
-      "required": true
+    "name": "Sink",
+    "plural": "Sinks",
+    "base": "PersistedModel",
+    "idInjection": true,
+    "options": {
+        "validateUpsert": true
     },
-    "type": {
-      "type": "number",
-      "required": true
+    "properties": {
+        "name": {
+            "type": "string",
+            "required": true
+        },
+        "type": {
+            "type": "number",
+            "required": true
+        },
+        "connected": {
+            "type": "boolean",
+            "default": false
+        },
+        "outputId": {
+            "type": "number"
+        }
     },
-    "connected": {
-      "type": "boolean",
-      "default": false
+    "validations": [],
+    "relations": {
+        "relatedOutputs": {
+            "type": "hasOne",
+            "model": "Output",
+            "foreignKey": "id",
+            "primaryKey": "outputId"
+        }
     },
-    "outputId": {
-      "type": "number"
+    "acls": [],
+    "methods": {
+        "prototype.connect": {
+            "accepts": [
+                {
+                    "arg": "output",
+                    "type": "number",
+                    "required": true,
+                    "description": "Output Id to be connected to Sink",
+                    "http": {
+                        "source": "form"
+                    }
+                }
+            ],
+            "returns": [
+                {
+                    "arg": "sink",
+                    "type": "Sink",
+                    "root": true,
+                    "description": "Sink object"
+                }
+            ],
+            "description": "Connect Sink to Output",
+            "http": [
+                {
+                    "path": "/connect",
+                    "verb": "post"
+                },
+                {
+                    "path": "/connect",
+                    "verb": "put"
+                }
+            ]
+        }
     }
-  },
-  "validations": [],
-  "relations": {
-    "relatedOutputs": {
-      "type": "hasOne",
-      "model": "Output",
-      "foreignKey": "id",
-      "primaryKey": "outputId"
-    }
-  },
-  "acls": [],
-  "methods": {
-    "prototype.connect": {
-      "accepts": [
-        {
-          "arg": "output",
-          "type": "number",
-          "required": true,
-          "description": "Output Id to be connected to Sink",
-          "http": {
-            "source": "form"
-          }
-        }
-      ],
-      "returns": [
-        {
-          "arg": "sink",
-          "type": "Sink",
-          "root": true,
-          "description": "Sink object"
-        }
-      ],
-      "description": "Connect Sink to Output",
-      "http": [
-        {
-          "path": "/connect",
-          "verb": "post"
-        }
-      ]
-    },
-    "prototype.disconnect": {
-      "accepts": [
-        {
-          "arg": "sinkId",
-          "type": "number",
-          "required": false,
-          "description": "Id of Sink to be disconnected",
-          "http": {
-            "source": "form"
-          }
-        }
-      ],
-      "returns": [],
-      "description": "Disconnect Sink from Output",
-      "http": [
-        {
-          "path": "/disconnect",
-          "verb": "post"
-        }
-      ]
-    }
-  }
 }

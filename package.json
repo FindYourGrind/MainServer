@@ -14,13 +14,14 @@
     "loopback": "^3.0.0",
     "loopback-boot": "^2.6.5",
     "loopback-component-explorer": "^4.0.0",
-    "loopback-connector-postgresql": "^2.7.0",
     "loopback-component-storage": "^3.0.1",
+    "loopback-connector-postgresql": "^2.7.0",
     "serve-favicon": "^2.0.1",
     "socket.io": "^1.7.3",
     "strong-error-handler": "^1.0.1",
     "strong-pubsub": "^0.2.0",
-    "strong-pubsub-mqtt": "^0.1.0"
+    "strong-pubsub-mqtt": "^0.1.0",
+    "winston": "^2.3.1"
   },
   "devDependencies": {
     "eslint": "^2.13.1",
