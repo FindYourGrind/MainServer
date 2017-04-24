@@ -2,30 +2,22 @@
 let _ = require('lodash');
 
 module.exports = function(Source) {
-    // Source.on('set', function(sourceInstance) {
-    //
-    // });
-    //
 
     Source.observe('after save', function (ctx, next) {
         let app = Source.app;
         let logger = app.logger;
         let sourceRecord = ctx.instance;
 
-        if (ctx.isNewInstance) {
-            if (sourceRecord.inputIdList) {
-                sourceRecord.connect(sourceRecord.inputIdList)
-                    .then(function () {
-                        logger.info('Source: ' + sourceRecord.getId() + ' connected');
+        if (ctx.isNewInstance && sourceRecord.inputIdList.length > 0) {
+            sourceRecord.connect(sourceRecord.inputIdList)
+                .then(function () {
+                    next();
+                })
+                .catch(function (err) {
+                    logger.info('Error while connecting Source: ' + sourceRecord.getId() + ' - ' + err);
 
-                        next();
-                    })
-                    .catch(function (err) {
-                        logger.info('Error while connecting Source: ' + sourceRecord.getId() + ' - ' + err);
-
-                        next(err);
-                    });
-            }
+                    next(err);
+                });
         } else {
             next();
         }
@@ -44,10 +36,10 @@ module.exports = function(Source) {
                     oldSourceRecord = sourceRecord;
                     sourceDiff = Source.compareTwoSources(oldSourceRecord, newSourceRecord);
 
-                    return oldSourceRecord.disconnect(sourceDiff.disconnect);
+                    return sourceDiff.disconnect.length > 0 ? oldSourceRecord.disconnect(sourceDiff.disconnect) : oldSourceRecord;
                 })
                 .then(function () {
-                    return oldSourceRecord.connect(sourceDiff.connect);
+                    return sourceDiff.connect.length > 0 ? oldSourceRecord.connect(sourceDiff.connect) : oldSourceRecord;
                 })
                 .then(function () {
                     logger.info('Source: ' + oldSourceRecord.getId() + ' updated');
@@ -101,7 +93,7 @@ module.exports = function(Source) {
             })
                 .then(function () {
                     return me.updateAttributes({
-                        connected: true,
+                        connected: inputIdList && inputIdList.length > 0 ? true : false,
                         inputIdList: Array.from(new Set(me.inputIdList ? me.inputIdList.concat(inputIdList) : [inputIdList]))
                     });
                 })

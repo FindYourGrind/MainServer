@@ -1,5 +1,5 @@
-<template>
-    <div class="source-root">
+<template xmlns:v-bind="http://www.w3.org/1999/xhtml">
+    <div v-bind:class="[sourceData.connected ? 'connected' : 'disconnected', 'source-root']">
         <md-layout md-align="center">
             <md-layout md-align="start">
                 <md-button class="md-fab md-mini"
@@ -50,6 +50,15 @@
                     console.log(err);
                 });
             },
+        },
+        created: function () {
+            let me = this;
+
+            me.$socket.on('source-' + me.sourceData.id + '-update', function (data) {
+                Object.keys(data).forEach(function (dataKey) {
+                    me.sourceData[dataKey] = data[dataKey];
+                });
+            });
         }
     }
 </script>
@@ -60,7 +69,14 @@
         height: 65px;
         margin: 15px 5px 15px 5px;
         padding: 5px;
-        background-color: rgba(235, 147, 22, 0.45);
         border-radius: 5px;
+    }
+
+    .disconnected {
+        background-color: rgba(235, 147, 22, 0.45);
+    }
+
+    .connected {
+        background-color: rgba(11, 235, 0, 0.45);
     }
 </style>

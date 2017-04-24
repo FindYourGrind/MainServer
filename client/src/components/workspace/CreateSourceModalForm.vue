@@ -53,6 +53,11 @@
                 relatedInputs: []
             }
         },
+        computed: {
+            inputIdArray: function () {
+                return this.inputIdList ? this.inputIdList : [];
+            }
+        },
         methods: {
             open: function () {
                 let me = this;
@@ -100,7 +105,9 @@
                 this.$http.post('api/Workspaces/' + this.workspaceData.id + '/relatedSources', {
                     type: this.sourceType,
                     name: this.sourceName,
-                    inputIdList: this.inputIdList
+                    inputIdList: this.inputIdArray,
+                    workspaceId: this.workspaceData.id,
+                    connected: this.inputIdArray.length > 0
                 }).then(function (response) {
                     if (response.ok) {
                         return response.data;
@@ -119,7 +126,9 @@
                 me.$http.put('api/Sources/' + me.sourceData.id, {
                     type: this.sourceType,
                     name: this.sourceName,
-                    inputIdList: this.inputIdList
+                    inputIdList: this.inputIdArray,
+                    workspaceId: this.workspaceData.id,
+                    connected: this.inputIdArray.length > 0
                 }).then(function (response) {
                     if (response.ok) {
                         return response.data;

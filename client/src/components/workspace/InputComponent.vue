@@ -1,5 +1,5 @@
-<template>
-    <div class="value-holder-root">
+<template xmlns:v-bind="http://www.w3.org/1999/xhtml">
+    <div v-bind:class="[inputData.connected ? 'connected' : 'disconnected', 'value-holder-root']">
         <md-layout md-align="center">
             <md-layout md-align="start">
                 Input: {{ inputData.name }}<br>
@@ -42,6 +42,15 @@
                     console.log(err);
                 });
             }
+        },
+        created: function () {
+            let me = this;
+
+            me.$socket.on('input-' + me.inputData.id + '-update', function (data) {
+                Object.keys(data).forEach(function (dataKey) {
+                    me.inputData[dataKey] = data[dataKey];
+                });
+            });
         }
     }
 </script>
@@ -52,7 +61,14 @@
         height: 65px;
         margin: 5px;
         padding: 5px;
-        background-color: rgba(235, 147, 22, 0.45);
         border-radius: 5px;
+    }
+
+    .disconnected {
+        background-color: rgba(235, 147, 22, 0.45);
+    }
+
+    .connected {
+        background-color: rgba(11, 235, 0, 0.45);
     }
 </style>

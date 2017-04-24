@@ -2,6 +2,16 @@
 
 module.exports = function(Sink) {
 
+    Sink.on('set', function(sinkInstance) {
+        let app = Sink.app;
+        let logger = app.logger;
+        let sinkId = sinkInstance.getId();
+
+        logger.info('Sink: ' + sinkId + ' updated. Notification started');
+
+        app.wsInstance.emit('sink-' + sinkId + '-updated', sinkInstance);
+    });
+
     Sink.observe('after save', function onSinkCreate (ctx, next) {
         if (ctx.isNewInstance &&
             ctx.instance &&
