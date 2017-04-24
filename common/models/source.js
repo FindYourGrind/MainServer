@@ -1,4 +1,5 @@
 'use strict';
+let _ = require('lodash');
 
 module.exports = function(Source) {
     // Source.on('set', function(sourceInstance) {
@@ -6,30 +7,73 @@ module.exports = function(Source) {
     // });
     //
 
-    Source.observe('after save', function afterSourceCreate (ctx, next) {
-        if (ctx.isNewInstance &&
-            ctx.instance &&
-            ctx.instance.inputIdList) {
-            ctx.instance.connect(ctx.instance.inputIdList, function (err, source) {
-                next();
-            });
+    Source.observe('after save', function (ctx, next) {
+        let app = Source.app;
+        let logger = app.logger;
+        let sourceRecord = ctx.instance;
+
+        if (ctx.isNewInstance) {
+            if (sourceRecord.inputIdList) {
+                sourceRecord.connect(sourceRecord.inputIdList)
+                    .then(function () {
+                        logger.info('Source: ' + sourceRecord.getId() + ' connected');
+
+                        next();
+                    })
+                    .catch(function (err) {
+                        logger.info('Error while connecting Source: ' + sourceRecord.getId() + ' - ' + err);
+
+                        next(err);
+                    });
+            }
         } else {
             next();
         }
     });
 
-    Source.observe('before delete', function beforeOutputDelete (ctx, next) {
-        let logger = Output.app.logger;
+    Source.observe('before save', function (ctx, next) {
+        let app = Source.app;
+        let logger = app.logger;
+        let newSourceRecord = ctx.instance;
+        let oldSourceRecord;
+        let sourceDiff;
+
+        if (!ctx.isNewInstance && newSourceRecord) {
+            Source.findById(newSourceRecord.id)
+                .then(function (sourceRecord) {
+                    oldSourceRecord = sourceRecord;
+                    sourceDiff = Source.compareTwoSources(oldSourceRecord, newSourceRecord);
+
+                    return oldSourceRecord.disconnect(sourceDiff.disconnect);
+                })
+                .then(function () {
+                    return oldSourceRecord.connect(sourceDiff.connect);
+                })
+                .then(function () {
+                    logger.info('Source: ' + oldSourceRecord.getId() + ' updated');
+                    next();
+                })
+                .catch(function (err) {
+                    logger.info('Error while updating Source: ' + oldSourceRecord.getId() + ' - ' + err);
+
+                    next(err);
+                });
+        } else {
+            next();
+        }
+    });
+
+    Source.observe('before delete', function (ctx, next) {
+        let logger = Source.app.logger;
 
         Source.findById(ctx.where.id)
             .then(function (sourceRecord) {
                 if (sourceRecord.connected === true) {
-                    sourceRecord.disconnect(sourceRecord.inputIdList, function (err) {
-                        if (err) { throw err; }
-
-                        logger.info('Source: ' + ctx.where.id + ' disconnected');
-                    });
+                    return sourceRecord.disconnect(sourceRecord.inputIdList);
                 }
+            })
+            .then(function () {
+                logger.info('Source: ' + ctx.where.id + ' disconnected');
             })
             .catch(function (err) {
                 logger.warn('Error while disconnecting Source: ' + ctx.where.id + ' - ' + err);
@@ -40,36 +84,47 @@ module.exports = function(Source) {
 
     /**
      * Connect Source to Input
-     * @param {array} inputs Connections array
+     * @param {array} inputIdList Connections array
      * @param {Function(Error)} callback
      */
 
-    Source.prototype.connect = function(inputs, callback) {
+    Source.prototype.connect = function (inputIdList, callback) {
         let me = this;
         let app = Source.app;
+        let logger = app.logger;
         let inputModel = app.models.Input;
 
-        inputModel.find({ where: { id: { inq: [].concat(inputs) } } })
-            .then(function (inputRecords) {
-                inputRecords.forEach(inputRecord => {
-                    inputRecord.updateAttributes({
+        return new Promise (function (resolve, reject) {
+            inputModel.updateAll({ id: { inq: inputIdList } }, {
+                connected: true,
+                sourceId: me.getId()
+            })
+                .then(function () {
+                    return me.updateAttributes({
                         connected: true,
-                        sourceId: me.getId()
-                    })
-                });
+                        inputIdList: Array.from(new Set(me.inputIdList ? me.inputIdList.concat(inputIdList) : [inputIdList]))
+                    });
+                })
+                .then(function (source) {
+                    logger.info('Source: ' + me.getId() + ' connected to next Inputs: ' + inputIdList.toString());
 
-                return me.updateAttributes({
-                    connected: true,
-                    inputIdList: Array.from(new Set(me.inputIdList ? me.inputIdList.concat(inputs) : [inputs]))
+                    if (callback) {
+                        callback(null, source)
+                    }
+
+                    resolve(source);
+                })
+                .catch(function (err) {
+                    logger.info('Error while connecting Source: ' + me.getId() + ' to next Inputs: ' + inputIdList.toString() + ' - ' + err);
+
+
+                    if (callback) {
+                        callback(err)
+                    }
+
+                    reject(err);
                 });
-            })
-            .then(function (source) {
-                callback(null, source)
-            })
-            .catch(function (err) {
-                console.log(err);
-                callback(err);
-            });
+        });
     };
 
     /**
@@ -83,17 +138,35 @@ module.exports = function(Source) {
         let app = Source.app;
         let logger = app.logger;
         let inputModel = app.models.Input;
+        let inputIdSet = new Set(me.inputIdList);
+
+        inputIdList.forEach(function (inputId) {
+            inputIdSet.delete(inputId);
+        });
 
         return new Promise (function (resolve, reject) {
-            inputModel.updateAll({ where: { sourceId: { inq: inputIdList } } },
-                {
-                    connected: false,
-                    sourceId: 0
+            me.updateAttributes({ inputIdList: Array.from(inputIdSet) })
+                .then(function () {
+                    return inputModel.updateAll({ id: { inq: inputIdList } }, {
+                        connected: false,
+                        sourceId: 0
+                    });
+                })
+                .then(function (info) {
+                    return me._getRelation('relatedInputs');
+                })
+                .then(function (relatedInputs) {
+                    if (relatedInputs.length === 0) {
+                        return me.updateAttributes({ connected: false });
+                    }
                 })
                 .then(function () {
+                    logger.info('Source: ' + me.getId() + ' disconnected from next Inputs: ' + inputIdList.toString());
+
                     if (callback) {
                         callback(null);
                     }
+
                     resolve();
                 })
                 .catch(function (err) {
@@ -101,8 +174,32 @@ module.exports = function(Source) {
                     if (callback) {
                         callback(err);
                     }
-                    reject();
+                    reject(err);
                 });
         });
     };
+
+    Source.prototype._getRelation = function (relationKey) {
+        let me = this;
+
+        return new Promise (function (resolve, reject) {
+            me[relationKey](function (err, relation) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(relation);
+                }
+            });
+        });
+    };
+
+    Source.compareTwoSources = function (oldSource, newSource) {
+        let oldInputIdList = oldSource.inputIdList;
+        let newInputIdList = newSource.inputIdList;
+
+        return {
+            connect: _.difference(newInputIdList, oldInputIdList),
+            disconnect: _.difference(oldInputIdList, newInputIdList)
+        }
+    }
 };

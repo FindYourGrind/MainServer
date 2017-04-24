@@ -1,70 +1,37 @@
 {
-    "name": "Sink",
-    "plural": "Sinks",
-    "base": "PersistedModel",
-    "idInjection": true,
-    "options": {
-        "validateUpsert": true
+  "name": "Sink",
+  "plural": "Sinks",
+  "base": "PersistedModel",
+  "idInjection": true,
+  "options": {
+    "validateUpsert": true
+  },
+  "properties": {
+    "name": {
+      "type": "string",
+      "required": true
     },
-    "properties": {
-        "name": {
-            "type": "string",
-            "required": true
-        },
-        "type": {
-            "type": "number",
-            "required": true
-        },
-        "connected": {
-            "type": "boolean",
-            "default": false
-        },
-        "outputId": {
-            "type": "number"
-        }
+    "type": {
+      "type": "number",
+      "required": true
     },
-    "validations": [],
-    "relations": {
-        "relatedOutputs": {
-            "type": "hasOne",
-            "model": "Output",
-            "foreignKey": "id",
-            "primaryKey": "outputId"
-        }
+    "connected": {
+      "type": "boolean",
+      "default": false
     },
-    "acls": [],
-    "methods": {
-        "prototype.connect": {
-            "accepts": [
-                {
-                    "arg": "output",
-                    "type": "number",
-                    "required": true,
-                    "description": "Output Id to be connected to Sink",
-                    "http": {
-                        "source": "form"
-                    }
-                }
-            ],
-            "returns": [
-                {
-                    "arg": "sink",
-                    "type": "Sink",
-                    "root": true,
-                    "description": "Sink object"
-                }
-            ],
-            "description": "Connect Sink to Output",
-            "http": [
-                {
-                    "path": "/connect",
-                    "verb": "post"
-                },
-                {
-                    "path": "/connect",
-                    "verb": "put"
-                }
-            ]
-        }
+    "outputId": {
+      "type": "number"
     }
+  },
+  "validations": [],
+  "relations": {
+    "relatedOutputs": {
+      "type": "hasOne",
+      "model": "Output",
+      "foreignKey": "id",
+      "primaryKey": "outputId"
+    }
+  },
+  "acls": [],
+  "methods": {}
 }

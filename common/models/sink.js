@@ -38,19 +38,20 @@ module.exports = function(Sink) {
 
     /**
      * Connect Sink to Output
-     * @param {number} output Output Id to connect
+     * @param {number} outputId Output Id to connect
      * @param {Function(Error)} callback
      */
 
-    Sink.prototype.connect = function(output, callback) {
+    Sink.prototype.connect = function(outputId, callback) {
         let me = this;
         let app = Sink.app;
         let outputModel = app.models.Output;
 
-        outputModel.findById(output)
+        outputModel.findById(outputId)
             .then(function (outputRecord) {
                 return outputRecord.updateAttributes({
-                    connected: true
+                    connected: true,
+                    sinkIdList: Array.from(new Set(outputRecord.sinkIdList ? outputRecord.sinkIdList.concat(me.getId()) : [me.getId()]))
                 });
             })
             .then(function (outputRecord) {
@@ -94,7 +95,7 @@ module.exports = function(Sink) {
             callback(null);
         })
         .catch(function (err) {
-            logger.error('Error while disconnecting Sink: ' + me.getId() + ' from Output: ' + outputId);
+            logger.error('Error while disconnecting Sink: ' + me.getId() + ' from Output: ' + outputId + ' - ' + err);
             callback(err);
         });
     };

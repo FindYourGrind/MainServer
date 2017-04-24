@@ -35,5 +35,56 @@
     }
   },
   "acls": [],
-  "methods": {}
+  "methods": {
+    "prototype.disconnect": {
+      "accepts": [
+        {
+          "arg": "inputIdList",
+          "type": "array",
+          "required": true,
+          "description": "Id list of Inputs to be disconnected",
+          "http": {
+            "source": "form"
+          }
+        }
+      ],
+      "returns": [],
+      "description": "Disconnect Source from Inputs",
+      "http": [
+        {
+          "path": "/disconnect",
+          "verb": "post"
+        },
+        {
+          "path": "/disconnect",
+          "verb": "put"
+        }
+      ]
+    },
+    "prototype.connect": {
+      "accepts": [
+        {
+          "arg": "inputIdList",
+          "type": "array",
+          "required": true,
+          "description": "Id list of Inputs to be connected",
+          "http": {
+            "source": "form"
+          }
+        }
+      ],
+      "returns": [],
+      "description": "Connect Source to Inputs",
+      "http": [
+        {
+          "path": "/connect",
+          "verb": "post"
+        },
+        {
+          "path": "/connect",
+          "verb": "put"
+        }
+      ]
+    }
+  }
 }

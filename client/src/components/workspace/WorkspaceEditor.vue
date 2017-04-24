@@ -8,6 +8,7 @@
                                               @create="ocSourceCreate"></create-source-modal-form>
                     <source-component v-for="source in workspace.relatedSources"
                                       :key="source.id"
+                                      :workspaceData="workspace"
                                       :sourceData="source"
                                       @remove="onSourceRemove"></source-component>
                 </md-whiteframe>

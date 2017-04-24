@@ -10,6 +10,12 @@
     "connected": {
       "type": "boolean",
       "default": false
+    },
+    "sinkIdList": {
+      "type": [
+        "number"
+      ],
+      "default": []
     }
   },
   "validations": [],
@@ -26,31 +32,5 @@
     }
   },
   "acls": [],
-  "methods": {
-    "prototype.disconnect": {
-      "accepts": [
-        {
-          "arg": "sinkIdList",
-          "type": "array",
-          "required": true,
-          "description": "List of Sinks Ids to be disconnected",
-          "http": {
-            "source": "form"
-          }
-        }
-      ],
-      "returns": [],
-      "description": "Disconnect Output from Sinks",
-      "http": [
-        {
-          "path": "/disconnect",
-          "verb": "post"
-        },
-        {
-          "path": "/disconnect",
-          "verb": "put"
-        }
-      ]
-    }
-  }
+  "methods": {}
 }

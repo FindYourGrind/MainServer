@@ -6,10 +6,10 @@
                            @click.native="remove">
                     <md-icon>delete</md-icon>
                 </md-button>
-                <md-button class="md-fab md-mini"
-                           @click.native="edit">
-                    <md-icon>edit</md-icon>
-                </md-button>
+                <create-source-modal-form :workspaceData="workspaceData"
+                                          :sourceData="sourceData"
+                                          @edit="edit">
+                </create-source-modal-form>
             </md-layout>
             <md-layout md-align="end">
                 Input: {{ sourceData.name }}<br>
@@ -20,12 +20,13 @@
 </template>
 
 <script>
+    import CreateSourceModalForm from './CreateSourceModalForm.vue';
 
     export default {
         name: 'SourceComponent',
-        props: ['sourceData'],
+        props: ['workspaceData', 'sourceData'],
         components: {
-
+            CreateSourceModalForm
         },
         data: function () {
             return {}
@@ -46,7 +47,7 @@
                         me.$emit('remove', source.id);
                     }
                 }, err => {
-                    debugger;
+                    console.log(err);
                 });
             },
         }

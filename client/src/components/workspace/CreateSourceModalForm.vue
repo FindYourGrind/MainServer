@@ -2,11 +2,11 @@
     <div>
         <md-button class="md-primary md-raised"
                    id="openCreateSourceModalFormButton"
-                   @click.native="open">Create Source</md-button>
+                   @click.native="open">{{ sourceData ? "Edit Source" : "Create Source" }}</md-button>
 
         <md-dialog md-open-from="#openCreateSourceModalFormButton"
                    ref="createSourceModalForm">
-            <md-dialog-title>Create new Source</md-dialog-title>
+            <md-dialog-title>{{ sourceData ? "Edit Source: " + sourceData.name + "(" + sourceData.id + ")" : "Create new Source"}}</md-dialog-title>
 
             <md-dialog-content>
                 <form novalidate @submit.stop.prevent="submit">
@@ -44,7 +44,7 @@
 <script>
     export default {
         name: 'CreateSourceModalForm',
-        props: ['workspaceData'],
+        props: ['workspaceData', 'sourceData'],
         data: function () {
             return {
                 sourceName: '',
@@ -57,14 +57,24 @@
             open: function () {
                 let me = this;
 
+                if (me.sourceData) {
+                    me.sourceName = me.sourceData.name;
+                    me.sourceType = me.sourceData.type;
+                    me.inputIdList = me.sourceData.inputIdList;
+                }
+
                 this.$refs['createSourceModalForm'].open();
                 this.$http.get('api/Inputs', {
                     params: {
                         filter: JSON.stringify({
-                            where: { or: [ { workspaceId: me.workspaceData.id }, { coreId: {
-                                            inq: me.workspaceData.relatedCores.map(function (core) {
-                                                return core.id;
-                                            })}}], connected: false }
+                            where: { and: [
+                                { or: [ { workspaceId: me.workspaceData.id },
+                                    { coreId: { inq: me.workspaceData.relatedCores.map(function (core) { return core.id; } ) } } ]
+                                },
+                                { or: [ { connected: false },
+                                    { sourceId: me.sourceData ? me.sourceData.id : 0 } ]
+                                }
+                            ]}
                         })
                     }
                 }).then(response => {
@@ -78,6 +88,15 @@
                 });
             },
             save: function () {
+                let me = this;
+
+                if (me.sourceData) {
+                    me.editSource();
+                } else {
+                    me.createSource();
+                }
+            },
+            createSource: function () {
                 this.$http.post('api/Workspaces/' + this.workspaceData.id + '/relatedSources', {
                     type: this.sourceType,
                     name: this.sourceName,
@@ -92,6 +111,25 @@
                     console.log('Error while saving the source data');
                 }).then(function (sourcePayload) {
                     this.$emit('create', sourcePayload);
+                }).then(this.close);
+            },
+            editSource: function () {
+                let me = this;
+
+                me.$http.put('api/Sources/' + me.sourceData.id, {
+                    type: this.sourceType,
+                    name: this.sourceName,
+                    inputIdList: this.inputIdList
+                }).then(function (response) {
+                    if (response.ok) {
+                        return response.data;
+                    } else {
+                        console.log('Error while saving the source data');
+                    }
+                }, function () {
+                    console.log('Error while saving the source data');
+                }).then(function (sourcePayload) {
+                    this.$emit('edit', sourcePayload);
                 }).then(this.close);
             },
             close: function () {

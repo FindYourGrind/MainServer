@@ -2,16 +2,24 @@
 
 module.exports = function(Input) {
 
+    Input.observe('before delete', function beforeInputDelete (ctx, next) {
+        let logger = Input.app.logger;
 
-    // Input.observe('after save', function onInputreate (ctx, next) {
-    //     let app = Input.app;
-    //
-    //     if (ctx.isNewInstance) {
-    //         app.
-    //     }
-    //
-    //     next();
-    // });
+        Input.findById(ctx.where.id)
+            .then(function (inputRecord) {
+                if (inputRecord.connected === true) {
+                    return inputRecord.disconnect(inputRecord.sourceId);
+                }
+            })
+            .then(function () {
+                logger.info('Input: ' + ctx.where.id + ' disconnected');
+            })
+            .catch(function (err) {
+                logger.warn('Error while disconnecting Input: ' + ctx.where.id + ' - '  + err);
+            });
+
+        next();
+    });
 
     /**
      *
@@ -40,39 +48,42 @@ module.exports = function(Input) {
     };
 
     /**
-     *
-     * @param sourceId
+     * Disconnect Input from Source
+     * @param {number} sourceId Id of Source to be disconnected
+     * @param {Function(Error)} callback
      */
-    Input.connectToSource = function (inputIds, sourceId, callback) {
-        Input.updateAll({ id: { inq: inputIds } },
-            {
-                connected: true,
-                connection: sourceId
-            })
-            .then(function (input) {
-                callback(null, input);
-            })
-            .catch(function (err) {
-                callback(err);
+
+    Input.prototype.disconnect = function(sourceId, callback) {
+        let me = this;
+        let app = Input.app;
+        let logger = app.logger;
+        let sourceModel = app.models.Source;
+
+        return new Promise (function (resolve, reject) {
+            me.updateAttributes({
+                sourceId: 0,
+                connected: false
+            }).then(function () {
+                return sourceModel.findById(sourceId);
+            }).then(function (sourceRecord) {
+                return sourceRecord.disconnect([me.getId()]);
+            }).then(function (response) {
+                logger.info('Input: ' + me.getId() + ' disconnected from Source: ' + sourceId);
+
+                if (callback) {
+                    callback(null);
+                }
+
+                resolve();
+            }).catch(function (err) {
+                logger.error('Error while disconnecting Input: ' + me.getId() + ' from Source: ' + sourceId);
+
+                if (callback) {
+                    callback(err);
+                }
+
+                reject(err);
             });
-    };
-
-    /**
-     *
-     */
-    Input.disconnect = function (inputId) {
-        Input.findById(inputId)
-            .then(function (input) {
-                return input.updateAttributes({
-                    connected: false,
-                    connection: 0
-                });
-            })
-            .then(function () {
-
-            })
-            .catch(function () {
-
-            });
+        });
     };
 };
