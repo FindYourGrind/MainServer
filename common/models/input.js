@@ -2,16 +2,6 @@
 
 module.exports = function(Input) {
 
-    Input.on('set', function(inputInstance) {
-        let app = Input.app;
-        let logger = app.logger;
-        let inputId = inputInstance.getId();
-
-        logger.info('Input: ' + inputId + ' updated. Notification started');
-
-        app.wsInstance.emit('input-' + inputId + '-updated', inputInstance);
-    });
-
     Input.observe('before delete', function beforeInputDelete (ctx, next) {
         let logger = Input.app.logger;
 

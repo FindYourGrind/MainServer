@@ -2,23 +2,52 @@
 
 module.exports = function(Sink) {
 
-    Sink.on('set', function(sinkInstance) {
+    Sink.observe('after save', function onSinkCreate (ctx, next) {
         let app = Sink.app;
         let logger = app.logger;
-        let sinkId = sinkInstance.getId();
+        let sinkRecord = ctx.instance;
 
-        logger.info('Sink: ' + sinkId + ' updated. Notification started');
+        if (ctx.isNewInstance && sinkRecord && sinkRecord.outputId) {
+            sinkRecord.connect(sinkRecord.outputId)
+                .then(function () {
+                    next();
+                })
+                .catch(function (err) {
+                    logger.info('Error while connecting Sink: ' + sinkRecord.getId() + ' - ' + err);
 
-        app.wsInstance.emit('sink-' + sinkId + '-updated', sinkInstance);
+                    next(err);
+                });
+        } else {
+            next();
+        }
     });
 
-    Sink.observe('after save', function onSinkCreate (ctx, next) {
-        if (ctx.isNewInstance &&
-            ctx.instance &&
-            ctx.instance.outputId) {
-            ctx.instance.connect(ctx.instance.outputId, function (err, sink) {
-                next();
-            });
+    Sink.observe('before save', function (ctx, next) {
+        let app = Sink.app;
+        let logger = app.logger;
+        let newSinkRecord = ctx.instance;
+        let oldSinkRecord;
+        let sinkDiff;
+
+        if (!ctx.isNewInstance && newSinkRecord) {
+            Sink.findById(newSinkRecord.id)
+                .then(function (sinkRecord) {
+                    oldSinkRecord = sinkRecord;
+                    sinkDiff = Sink.compareTwoSinks(oldSinkRecord, newSinkRecord);
+
+                    return sinkDiff.disconnect ? oldSinkRecord.disconnect(sinkDiff.disconnect) : oldSinkRecord;
+                })
+                .then(function () {
+                    return sinkDiff.connect ? oldSinkRecord.connect(sinkDiff.connect) : oldSinkRecord;
+                })
+                .then(function () {
+                    next();
+                })
+                .catch(function (err) {
+                    logger.info('Error while updating Sink: ' + oldSinkRecord.getId() + ' - ' + err);
+
+                    next(err);
+                });
         } else {
             next();
         }
@@ -55,27 +84,42 @@ module.exports = function(Sink) {
     Sink.prototype.connect = function(outputId, callback) {
         let me = this;
         let app = Sink.app;
+        let logger = app.logger;
         let outputModel = app.models.Output;
 
-        outputModel.findById(outputId)
-            .then(function (outputRecord) {
-                return outputRecord.updateAttributes({
-                    connected: true,
-                    sinkIdList: Array.from(new Set(outputRecord.sinkIdList ? outputRecord.sinkIdList.concat(me.getId()) : [me.getId()]))
+        return new Promise (function (resolve, reject) {
+            outputModel.findById(outputId)
+                .then(function (outputRecord) {
+                    return outputRecord.updateAttributes({
+                        connected: true,
+                        sinkIdList: Array.from(new Set(outputRecord.sinkIdList ? outputRecord.sinkIdList.concat(me.getId()) : [me.getId()]))
+                    });
+                })
+                .then(function (outputRecord) {
+                    return me.updateAttributes({
+                        connected: true,
+                        outputId: outputRecord.getId()
+                    });
+                })
+                .then(function (sinkRecord) {
+                    logger.info('Sink: ' + me.getId() + ' connected to next Output: ' + outputId);
+
+                    if (callback) {
+                        callback(null, sinkRecord)
+                    }
+
+                    resolve(sinkRecord);
+                })
+                .catch(function (err) {
+                    logger.info('Error while connecting Sink: ' + me.getId() + ' to next Output: ' + outputId + ' - ' + err);
+
+                    if (callback) {
+                        callback(err)
+                    }
+
+                    reject(err);
                 });
-            })
-            .then(function (outputRecord) {
-                return me.updateAttributes({
-                    connected: true,
-                    outputId: outputRecord.getId()
-                });
-            })
-            .then(function (sinkRecord) {
-                callback(null, sinkRecord);
-            })
-            .catch(function (err) {
-               console.log(err);
-            });
+        });
     };
 
     /**
@@ -90,24 +134,59 @@ module.exports = function(Sink) {
         let logger = app.logger;
         let outputModel = app.models.Output;
 
-        me.updateAttributes({
-            outputId: 0,
-            connected: false
-        })
-        .then(function () {
-            return outputModel.findById(outputId);
-        })
-        .then(function (output) {
-            return output.disconnect([me.getId()]);
-        })
-        .then(function (response) {
-            logger.info('Sink: ' + me.getId() + ' disconnected from Output: ' + outputId);
-            callback(null);
-        })
-        .catch(function (err) {
-            logger.error('Error while disconnecting Sink: ' + me.getId() + ' from Output: ' + outputId + ' - ' + err);
-            callback(err);
+        return new Promise (function (resolve, reject) {
+            me.updateAttributes({
+                outputId: 0,
+                connected: false
+            })
+                .then(function () {
+                    return outputModel.findById(outputId);
+                })
+                .then(function (output) {
+                    return output.disconnect([me.getId()]);
+                })
+                .then(function (response) {
+                    logger.info('Sink: ' + me.getId() + ' disconnected from Output: ' + outputId);
+
+                    if (callback) {
+                        callback(null);
+                    }
+
+                    resolve();
+                })
+                .catch(function (err) {
+                    logger.error('Error while disconnecting Sink: ' + me.getId() + ' from Output: ' + outputId + ' - ' + err);
+
+                    if (callback) {
+                        callback(err);
+                    }
+
+                    reject(err);
+                });
         });
     };
 
+    Sink.prototype._getRelation = function (relationKey) {
+        let me = this;
+
+        return new Promise (function (resolve, reject) {
+            me[relationKey](function (err, relation) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve(relation);
+                }
+            });
+        });
+    };
+
+    Sink.compareTwoSinks = function (oldSink, newSink) {
+        let oldOutputId = oldSink.outputId;
+        let newOutputId = newSink.outputId;
+
+        return {
+            connect: oldOutputId === newOutputId ? false : newOutputId,
+            disconnect: oldOutputId === newOutputId ? false : oldOutputId
+        }
+    }
 };

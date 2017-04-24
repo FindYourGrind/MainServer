@@ -8,7 +8,7 @@ module.exports = function(Source) {
         let logger = app.logger;
         let sourceRecord = ctx.instance;
 
-        if (ctx.isNewInstance && sourceRecord.inputIdList.length > 0) {
+        if (ctx.isNewInstance && sourceRecord &&  sourceRecord.inputIdList.length > 0) {
             sourceRecord.connect(sourceRecord.inputIdList)
                 .then(function () {
                     next();
@@ -109,7 +109,6 @@ module.exports = function(Source) {
                 .catch(function (err) {
                     logger.info('Error while connecting Source: ' + me.getId() + ' to next Inputs: ' + inputIdList.toString() + ' - ' + err);
 
-
                     if (callback) {
                         callback(err)
                     }
@@ -163,9 +162,11 @@ module.exports = function(Source) {
                 })
                 .catch(function (err) {
                     logger('Error while disconnecting Source: ' + me.getId() + ' - ' + err);
+
                     if (callback) {
                         callback(err);
                     }
+
                     reject(err);
                 });
         });

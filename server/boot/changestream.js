@@ -1,37 +1,56 @@
 let es = require('event-stream');
 
 module.exports = function(app) {
-    app.on('wsReady', function () {
-        let logger = app.logger;
-        let Source = app.models.Source;
-        let Input = app.models.Input;
+    let logger = app.logger;
+    let Source = app.models.Source;
+    let Input = app.models.Input;
+    let Output = app.models.Output;
+    let Sink = app.models.Sink;
+    let Core = app.models.Core;
 
-        Source.createChangeStream(function (err, changes) {
-            //changes.pipe(es.stringify()).pipe(process.stdout);
-            changes.on('data', function (change) {
-                let sourceIds = Number.isInteger(change.target) ? change.target : change.target.inq;
-                let sourceData = change.data;
+    function notificationHandler (modelName, changesStream) {
+        //changes.pipe(es.stringify()).pipe(process.stdout);
+        changesStream.on('data', function (change) {
+            let recordsIds = Number.isInteger(change.target) ? change.target : change.target.inq;
+            let recordData = change.data;
 
-                [].concat(sourceIds).forEach(function (sourceId) {
-                    logger.info('Source: ' + sourceId + ' updated. Notification started (' + change.type + ')');
+            [].concat(recordsIds).forEach(function (recordId) {
+                logger.info(modelName + ': ' + recordId + ' updated. Notification started (' + change.type + ')');
 
-                    app.wsInstance.emit('source-' + sourceId + '-' + change.type, sourceData);
-                });
+                app.wsInstance.emit(modelName.toLowerCase() + '-' + recordId + '-' + change.type, recordData);
             });
+        });
+    }
+
+    app.on('wsReady', function () {
+        Source.createChangeStream(function (err, changes) {
+            if (!err) {
+                notificationHandler('Source', changes)
+            }
         });
 
         Input.createChangeStream(function (err, changes) {
-            //changes.pipe(es.stringify()).pipe(process.stdout);
-            changes.on('data', function (change) {
-                let inputIds = Number.isInteger(change.target) ? change.target : change.target.inq;
-                let inputData = change.data;
-
-                [].concat(inputIds).forEach(function (inputId) {
-                    logger.info('Input: ' + inputId + ' updated. Notification started (' + change.type + ')');
-
-                    app.wsInstance.emit('input-' + inputId + '-' + change.type, inputData);
-                });
-            });
+            if (!err) {
+                notificationHandler('Input', changes)
+            }
         });
+
+        Output.createChangeStream(function (err, changes) {
+            if (!err) {
+                notificationHandler('Output', changes)
+            }
+        });
+
+        Sink.createChangeStream(function (err, changes) {
+            if (!err) {
+                notificationHandler('Sink', changes)
+            }
+        });
+
+        // Core.createChangeStream(function (err, changes) {
+        //     if (!err) {
+        //         notificationHandler('Core', changes)
+        //     }
+        // });
     });
 };

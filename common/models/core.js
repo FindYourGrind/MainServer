@@ -2,16 +2,6 @@
 
 module.exports = function(Core) {
 
-    Core.on('set', function(coreInstance) {
-        let app = Core.app;
-        let logger = app.logger;
-        let coreId = coreInstance.getId();
-
-        logger.info('Core: ' + coreId + ' updated. Notification started');
-
-        app.wsInstance.emit('core-' + coreId + '-updated', coreInstance);
-    });
-
     /**
      * Remove Core with all ValueHolders
      * @param {Function(Error)} callback

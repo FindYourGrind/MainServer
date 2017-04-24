@@ -1,8 +1,10 @@
 <template>
     <div>
-        <md-button class="md-primary md-raised"
+        <md-button :class="openButtonCls"
                    id="openCreateSourceModalFormButton"
-                   @click.native="open">{{ sourceData ? "Edit Source" : "Create Source" }}</md-button>
+                   @click.native="open">{{ showOpenButtonIcon ? "" : (sourceData ? "Edit Source" : "Create Source") }}
+            <md-icon v-if="showOpenButtonIcon">edit</md-icon>
+        </md-button>
 
         <md-dialog md-open-from="#openCreateSourceModalFormButton"
                    ref="createSourceModalForm">
@@ -44,7 +46,24 @@
 <script>
     export default {
         name: 'CreateSourceModalForm',
-        props: ['workspaceData', 'sourceData'],
+        props: {
+            workspaceData: {
+                type: Object,
+                required: true
+            },
+            sourceData: {
+                type: Object,
+                required: false
+            },
+            openButtonCls: {
+                type: String,
+                default: 'md-primary md-raised'
+            },
+            showOpenButtonIcon: {
+                type: Boolean,
+                default: false
+            }
+        },
         data: function () {
             return {
                 sourceName: '',

@@ -8,6 +8,8 @@
                 </md-button>
                 <create-source-modal-form :workspaceData="workspaceData"
                                           :sourceData="sourceData"
+                                          openButtonCls="md-fab md-mini"
+                                          :showOpenButtonIcon="true"
                                           @edit="edit">
                 </create-source-modal-form>
             </md-layout>

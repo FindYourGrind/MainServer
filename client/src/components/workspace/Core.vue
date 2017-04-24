@@ -19,31 +19,33 @@
         <md-layout md-align="center">
             <md-layout md-align="start">
                 <create-input-modal-form :workspaceId="coreData.workspaceId"
-                                                :coreId="coreData.id"
-                                                @create="onInputCreate"></create-input-modal-form>
+                                         :coreId="coreData.id"
+                                         @create="onInputCreate"></create-input-modal-form>
             </md-layout>
             <md-layout md-align="center">
                 ID: {{ coreData.id }}
             </md-layout>
             <md-layout md-align="end">
                 <create-output-modal-form :workspaceId="coreData.workspaceId"
-                                                :coreId="coreData.id"
-                                                @create="onOutputCreate"></create-output-modal-form>
+                                          :coreId="coreData.id"
+                                          @create="onOutputCreate"></create-output-modal-form>
             </md-layout>
         </md-layout>
 
         <md-layout>
             <md-layout md-align="start" md-column>
                 <input-component v-for="input in coreData.relatedInputs"
-                              :key="input.id"
-                              :inputData="input"
-                              @remove="onInputRemove"></input-component>
+                                 :key="input.id"
+                                 :workspaceData="workspaceData"
+                                 :inputData="input"
+                                 @remove="onInputRemove"></input-component>
             </md-layout>
             <md-layout md-align="end" md-column>
                 <output-component v-for="output in coreData.relatedOutputs"
-                              :key="output.id"
-                              :outputData="output"
-                              @remove="onOutputRemove"></output-component>
+                                  :key="output.id"
+                                  :workspaceData="workspaceData"
+                                  :outputData="output"
+                                  @remove="onOutputRemove"></output-component>
             </md-layout>
         </md-layout>
     </div>
@@ -57,7 +59,7 @@
 
     export default {
         name: 'Core',
-        props: ['coreData'],
+        props: ['workspaceData', 'coreData'],
         components: {
             InputComponent,
             OutputComponent,

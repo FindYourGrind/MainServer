@@ -1,8 +1,10 @@
 <template>
     <div>
-        <md-button class="md-primary md-raised"
+        <md-button :class="openButtonCls"
                    id="openCreateSinkModalFormButton"
-                   @click.native="open">Create Sink</md-button>
+                   @click.native="open">{{ showOpenButtonIcon ? "" : (sinkData ? "Edit Sink" : "Create Sink") }}
+            <md-icon v-if="showOpenButtonIcon">edit</md-icon>
+        </md-button>
 
         <md-dialog md-open-from="#openCreateSinkModalFormButton"
                    ref="createSinkModalForm">
@@ -44,7 +46,24 @@
 <script>
     export default {
         name: 'CreateSinkModalForm',
-        props: ['workspaceData'],
+        props: {
+            workspaceData: {
+                type: Object,
+                required: true
+            },
+            sinkData: {
+                type: Object,
+                required: false
+            },
+            openButtonCls: {
+                type: String,
+                default: 'md-primary md-raised'
+            },
+            showOpenButtonIcon: {
+                type: Boolean,
+                default: false
+            }
+        },
         data: function () {
             return {
                 sinkName: '',
@@ -56,6 +75,12 @@
         methods: {
             open: function () {
                 let me = this;
+
+                if (me.sinkData) {
+                    me.sinkName = me.sinkData.name;
+                    me.sinkType = me.sinkData.type;
+                    me.outputId = me.sinkData.outputId;
+                }
 
                 this.$refs['createSinkModalForm'].open();
                 this.$http.get('api/Outputs', {
@@ -78,20 +103,52 @@
                 });
             },
             save: function () {
+                let me = this;
+
+                if (me.sinkData) {
+                    me.editSinke();
+                } else {
+                    me.createSink();
+                }
+            },
+            createSink: function () {
                 this.$http.post('api/Workspaces/' + this.workspaceData.id + '/relatedSinks', {
                     type: this.sinkType,
                     name: this.sinkName,
-                    outputId: this.outputId
+                    outputId: this.outputId,
+                    workspaceId: this.workspaceData.id,
+                    connected: this.outputId && this.outputId > 0
                 }).then(function (response) {
                     if (response.ok) {
                         return response.data;
                     } else {
-                        console.log('Error while saving the source data');
+                        console.log('Error while saving the sink data');
                     }
                 }, function () {
-                    console.log('Error while saving the source data');
-                }).then(function (sourcePayload) {
-                    this.$emit('create', sourcePayload);
+                    console.log('Error while saving the sink data');
+                }).then(function (sinkPayload) {
+                    this.$emit('create', sinkPayload);
+                }).then(this.close);
+            },
+            editSinke: function () {
+                let me = this;
+
+                me.$http.put('api/Sinks/' + me.sinkData.id, {
+                    type: this.sinkType,
+                    name: this.sinkName,
+                    outputId: this.outputId,
+                    workspaceId: this.workspaceData.id,
+                    connected: this.outputId && this.outputId > 0
+                }).then(function (response) {
+                    if (response.ok) {
+                        return response.data;
+                    } else {
+                        console.log('Error while saving the sink data');
+                    }
+                }, function () {
+                    console.log('Error while saving the sink data');
+                }).then(function (sinkPayload) {
+                    this.$emit('edit', sinkPayload);
                 }).then(this.close);
             },
             close: function () {

@@ -1,41 +1,52 @@
 <template>
     <div class="workspace-editor-root">
-        <md-layout md-gutter="8">
-            <md-layout md-flex="true"
-                       md-align="start">
-                <md-whiteframe md-elevation="3">
-                    <create-source-modal-form :workspaceData="workspace"
-                                              @create="ocSourceCreate"></create-source-modal-form>
-                    <source-component v-for="source in workspace.relatedSources"
-                                      :key="source.id"
-                                      :workspaceData="workspace"
-                                      :sourceData="source"
-                                      @remove="onSourceRemove"></source-component>
-                </md-whiteframe>
+        <div class="workspace-editor-scroll">
+            <md-layout md-gutter="8">
+                <md-layout md-flex="true"
+                           md-align="start">
+                    <md-whiteframe md-elevation="3">
+                        <create-source-modal-form :workspaceData="workspace"
+                                                  @create="ocSourceCreate"></create-source-modal-form>
+                        <source-component v-for="source in workspace.relatedSources"
+                                          :key="source.id"
+                                          :workspaceData="workspace"
+                                          :sourceData="source"
+                                          :ref="'source' + source.id"
+                                          @remove="onSourceRemove"></source-component>
+                    </md-whiteframe>
+                </md-layout>
+                <svg id="sourceToInputConnectivity"
+                     class="source-to-input-connectivity"
+                     ref="sourceToInputConnectivity"></svg>
+                <md-layout md-flex="true"
+                           md-align="center">
+                    <md-whiteframe md-elevation="3">
+                        <create-core-modal-form :workspaceId="workspace.id"
+                                                @create="onCoreCreate"></create-core-modal-form>
+                        <core v-for="core in workspace.relatedCores"
+                              :key="core.id"
+                              :workspaceData="workspace"
+                              :coreData="core"
+                              @remove="onCoreRemove"></core>
+                    </md-whiteframe>
+                </md-layout>
+                <svg id="sinkToOutputConnectivity"
+                     class="sink-to-output-connectivity"
+                     ref="sinkToOutputConnectivity"></svg>
+                <md-layout md-flex="true"
+                           md-align="end">
+                    <md-whiteframe md-elevation="3">
+                        <create-sink-modal-form :workspaceData="workspace"
+                                                @create="onSinkCreate"></create-sink-modal-form>
+                        <sink-component v-for="sink in workspace.relatedSinks"
+                                        :key="sink.id"
+                                        :workspaceData="workspace"
+                                        :sinkData="sink"
+                                        @remove="onSinkRemove"></sink-component>
+                    </md-whiteframe>
+                </md-layout>
             </md-layout>
-            <md-layout md-flex="true"
-                       md-align="center">
-                <md-whiteframe md-elevation="3">
-                    <create-core-modal-form :workspaceId="workspace.id"
-                                            @create="onCoreCreate"></create-core-modal-form>
-                    <core v-for="core in workspace.relatedCores"
-                          :key="core.id"
-                          :coreData="core"
-                          @remove="onCoreRemove"></core>
-                </md-whiteframe>
-            </md-layout>
-            <md-layout md-flex="true"
-                       md-align="end">
-                <md-whiteframe md-elevation="3">
-                    <create-sink-modal-form :workspaceData="workspace"
-                                            @create="onSinkCreate"></create-sink-modal-form>
-                    <sink-component v-for="sink in workspace.relatedSinks"
-                                    :key="sink.id"
-                                    :sinkData="sink"
-                                    @remove="onSinkRemove"></sink-component>
-                </md-whiteframe>
-            </md-layout>
-        </md-layout>
+        </div>
     </div>
 </template>
 
@@ -144,12 +155,51 @@
                     subjects.splice(indexToRemove, 1);
                 }
             }
+        },
+        updated: function () {
+            let me = this;
+            let sourceToInputConnectivity = me.$refs['sourceToInputConnectivity'];
+            let svgRect = sourceToInputConnectivity.getBoundingClientRect();
+
+            me.workspace.relatedSources.forEach(function (source) {
+                if (source.connected === true) {
+                    source.inputIdList.forEach(function (inputId) {
+                        let sourceEl = me.$refs['source' + source.id][0].$el;
+                        let sourceRect = sourceEl.getBoundingClientRect();
+                        let newLine = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+
+                        newLine.setAttribute('id', 'source-' + source.id + '-to-input-' + inputId + '-line');
+                        newLine.setAttribute('x1', svgRect.left);
+                        newLine.setAttribute('y1', sourceRect.top - svgRect.top + (sourceRect.height / 2));
+                        newLine.setAttribute('x2', '0');
+                        newLine.setAttribute('y2', sourceRect.top - svgRect.top + (sourceRect.height / 2));
+                        newLine.setAttribute("stroke", "black");
+
+                        sourceToInputConnectivity.append(newLine);
+                    });
+                }
+            });
         }
     }
 </script>
 
 <style scoped>
     .workspace-editor-root {
+        width: auto;
+        overflow-x: scroll;
+    }
 
+    .workspace-editor-scroll {
+
+    }
+
+    .source-to-input-connectivity {
+        background-color: red;
+        width: 165px;
+    }
+
+    .sink-to-output-connectivity {
+        background-color: red;
+        width: 165px;
     }
 </style>

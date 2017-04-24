@@ -42,6 +42,12 @@
       "type": "belongsTo",
       "model": "Account",
       "foreignKey": "id"
+    },
+    "inputs": {
+      "type": "hasMany",
+      "model": "Input",
+      "foreignKey": "workspaceId",
+      "through": "Core"
     }
   },
   "acls": [],

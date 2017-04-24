@@ -2,16 +2,6 @@
 
 module.exports = function(Output) {
 
-    Output.on('set', function(outputInstance) {
-        let app = Output.app;
-        let logger = app.logger;
-        let outputId = outputInstance.getId();
-
-        logger.info('Output: ' + outputId + ' updated. Notification started');
-
-        app.wsInstance.emit('output-' + outputId + '-updated', outputInstance);
-    });
-
     Output.observe('before delete', function beforeOutputDelete (ctx, next) {
         let logger = Output.app.logger;
         let outputRecordId = ctx.where.id;

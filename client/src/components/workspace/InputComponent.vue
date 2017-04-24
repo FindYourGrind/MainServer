@@ -22,7 +22,7 @@
 <script>
     export default {
         name: 'InputComponent',
-        props: ['inputData'],
+        props: ['workspaceData', 'inputData'],
         data: function () {
             return {}
         },
