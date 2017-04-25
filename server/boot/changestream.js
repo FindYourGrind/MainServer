@@ -11,14 +11,29 @@ module.exports = function(app) {
     function notificationHandler (modelName, changesStream) {
         //changes.pipe(es.stringify()).pipe(process.stdout);
         changesStream.on('data', function (change) {
-            let recordsIds = Number.isInteger(change.target) ? change.target : change.target.inq;
             let recordData = change.data;
 
-            [].concat(recordsIds).forEach(function (recordId) {
-                logger.info(modelName + ': ' + recordId + ' updated. Notification started (' + change.type + ')');
+            if (Number.isInteger(change.target) || (change.target && change.target.inq)) {
+                let recordsIds = Number.isInteger(change.target) ? change.target : change.target.inq;
 
-                app.wsInstance.emit(modelName.toLowerCase() + '-' + recordId + '-' + change.type, recordData);
-            });
+                [].concat(recordsIds).forEach(function (recordId) {
+                    logger.info(modelName + ': ' + recordId + ' updated. Notification started (' + change.type + ')');
+
+                    app.wsInstance.emit(modelName.toLowerCase() + '-' + recordId + '-' + change.type, recordData);
+                });
+            } else {
+                app.models[modelName].find(change.where)
+                    .then(function (items) {
+                        items.forEach(function (item) {
+                            logger.info(modelName + ': ' + item.getId() + ' updated. Notification started (' + change.type + ')');
+
+                            app.wsInstance.emit(modelName.toLowerCase() + '-' + item.getId() + '-' + change.type, recordData);
+                        });
+                    })
+                    .catch(function () {
+                        logger.warn('Error in changeStream for ' + modelName);
+                    });
+            }
         });
     }
 

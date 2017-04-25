@@ -33,18 +33,22 @@
         </md-layout>
 
         <md-layout>
-            <md-layout md-align="start" md-column>
+            <md-layout md-align="start">
                 <input-component v-for="input in coreData.relatedInputs"
                                  :key="input.id"
                                  :workspaceData="workspaceData"
                                  :inputData="input"
+                                 :ref="'input' + input.id"
+                                 :id="'input' + input.id"
                                  @remove="onInputRemove"></input-component>
             </md-layout>
-            <md-layout md-align="end" md-column>
+            <md-layout md-align="end">
                 <output-component v-for="output in coreData.relatedOutputs"
                                   :key="output.id"
                                   :workspaceData="workspaceData"
                                   :outputData="output"
+                                  :ref="'output' + output.id"
+                                  :id="'output' + output.id"
                                   @remove="onOutputRemove"></output-component>
             </md-layout>
         </md-layout>
@@ -127,8 +131,8 @@
 <style scoped>
   .core-root {
     width: 520px;
-    margin: 15px 5px 15px 5px;
-    padding: 5px;
+    margin: 5px 5px 5px 5px;
+    padding: 0;
     background-color: rgba(29, 30, 31, 0.45);
     border-radius: 5px;
   }

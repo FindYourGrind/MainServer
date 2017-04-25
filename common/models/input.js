@@ -5,17 +5,19 @@ module.exports = function(Input) {
     Input.observe('before delete', function beforeInputDelete (ctx, next) {
         let logger = Input.app.logger;
 
-        Input.findById(ctx.where.id)
-            .then(function (inputRecord) {
-                if (inputRecord.connected === true) {
-                    return inputRecord.disconnect(inputRecord.sourceId);
-                }
+        Input.find(ctx.where)
+            .then(function (inputRecords) {
+                inputRecords.forEach(function (inputRecord) {
+                    if (inputRecord.connected === true) {
+                        return inputRecord.disconnect(inputRecord.sourceId);
+                    }
+                });
             })
             .then(function () {
                 next();
             })
             .catch(function (err) {
-                logger.warn('Error while disconnecting Input: ' + ctx.where.id + ' - '  + err);
+                logger.warn('Error while disconnecting Inputs where: ' + JSON.stringify(ctx.where) + ' - ' + err);
 
                 next(err);
             });
