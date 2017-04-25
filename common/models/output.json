@@ -33,12 +33,6 @@
       "type": "hasMany",
       "model": "Sink",
       "foreignKey": "outputId"
-    },
-    "outputs": {
-      "type": "hasMany",
-      "model": "Output",
-      "foreignKey": "workspaceId",
-      "through": "Core"
     }
   },
   "acls": [],

@@ -54,7 +54,8 @@
 
                 me.$http.post(apiString, {
                     name: me.outputName,
-                    valueType: me.outputValueType
+                    valueType: me.outputValueType,
+                    workspaceId: me.workspaceId
                 }).then(function (response) {
                     if (response.ok) {
                         return response.data;

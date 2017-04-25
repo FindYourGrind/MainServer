@@ -48,6 +48,12 @@
       "model": "Input",
       "foreignKey": "workspaceId",
       "through": "Core"
+    },
+    "outputs": {
+      "type": "hasMany",
+      "model": "Output",
+      "foreignKey": "workspaceId",
+      "through": "Core"
     }
   },
   "acls": [],
