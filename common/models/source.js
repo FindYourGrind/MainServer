@@ -58,20 +58,18 @@ module.exports = function(Source) {
     Source.observe('before delete', function (ctx, next) {
         let logger = Source.app.logger;
 
-        Source.findById(ctx.where.id)
-            .then(function (sourceRecord) {
-                if (sourceRecord.connected === true) {
-                    return sourceRecord.disconnect(sourceRecord.inputIdList);
-                }
+        Source.find({ where: ctx.where })
+            .then(function (sourceRecords) {
+                return Source.disconnectFewSources(sourceRecords);
             })
             .then(function () {
-                logger.info('Source: ' + ctx.where.id + ' disconnected');
+                next();
             })
             .catch(function (err) {
-                logger.warn('Error while disconnecting Source: ' + ctx.where.id + ' - ' + err);
-            });
+                logger.warn('Error while disconnecting Sources (' + JSON.stringify(ctx.where) + '): ' + err);
 
-        next();
+                next(err);
+            });
     });
 
     /**
@@ -194,5 +192,29 @@ module.exports = function(Source) {
             connect: _.difference(newInputIdList, oldInputIdList),
             disconnect: _.difference(oldInputIdList, newInputIdList)
         }
-    }
+    };
+
+    Source.disconnectFewSources = function (sourceRecords) {
+        let app = Source.app;
+
+        return new Promise (function (resolve, reject) {
+            app.utility.conveyor((function* () {
+                for (let index = 0; index < sourceRecords.length; index++) {
+                    if (sourceRecords[index].connected === true) {
+                        yield sourceRecords[index].disconnect(sourceRecords[index].inputIdList);
+                    } else {
+                        yield new Promise (function (resolve) {
+                            resolve();
+                        });
+                    }
+                }
+            })(), function (err) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve();
+                }
+            });
+        });
+    };
 };

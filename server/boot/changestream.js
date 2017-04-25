@@ -62,10 +62,10 @@ module.exports = function(app) {
             }
         });
 
-        // Core.createChangeStream(function (err, changes) {
-        //     if (!err) {
-        //         notificationHandler('Core', changes)
-        //     }
-        // });
+        Core.createChangeStream(function (err, changes) {
+            if (!err) {
+                notificationHandler('Core', changes)
+            }
+        });
     });
 };

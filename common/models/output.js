@@ -1,25 +1,23 @@
 'use strict';
 
+
 module.exports = function(Output) {
 
-    Output.observe('before delete', function beforeOutputDelete (ctx, next) {
+    Output.observe('before delete', function (ctx, next) {
         let logger = Output.app.logger;
-        let outputRecordId = ctx.where.id;
 
-        Output.findById(outputRecordId)
-            .then(function (outputRecord) {
-                if (outputRecord.connected === true) {
-                    return outputRecord.disconnect(outputRecord.sinkIdList);
-                }
+        Output.find({ where: ctx.where })
+            .then(function (outputRecords) {
+                return Output.disconnectFewOutputs(outputRecords);
             })
             .then(function () {
-                logger.info('Output: ' + outputRecordId + ' disconnected');
+                next();
             })
             .catch(function (err) {
-                logger.warn('Error while disconnecting Output: ' + outputRecordId + ' - ' + err);
-            });
+                logger.warn('Error while disconnecting Outputs (' + JSON.stringify(ctx.where) + ': ' + err);
 
-        next();
+                next(err);
+            });
     });
 
     /**
@@ -123,5 +121,29 @@ module.exports = function(Output) {
                 }
             });
         });
-    }
+    };
+
+    Output.disconnectFewOutputs = function (outputRecords) {
+        let app = Output.app;
+
+        return new Promise (function (resolve, reject) {
+            app.utility.conveyor((function* () {
+                for (let index = 0; index < outputRecords.length; index++) {
+                    if (outputRecords[index].connected === true) {
+                        yield outputRecords[index].disconnect(outputRecords[index].sinkIdList);
+                    } else {
+                        yield new Promise (function (resolve) {
+                            resolve();
+                        });
+                    }
+                }
+            })(), function (err) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve();
+                }
+            });
+        });
+    };
 };

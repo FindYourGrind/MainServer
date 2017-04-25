@@ -5,19 +5,15 @@ module.exports = function(Input) {
     Input.observe('before delete', function beforeInputDelete (ctx, next) {
         let logger = Input.app.logger;
 
-        Input.find(ctx.where)
+        Input.find({ where: ctx.where })
             .then(function (inputRecords) {
-                inputRecords.forEach(function (inputRecord) {
-                    if (inputRecord.connected === true) {
-                        return inputRecord.disconnect(inputRecord.sourceId);
-                    }
-                });
+                return Input.disconnectFewInputs(inputRecords);
             })
             .then(function () {
                 next();
             })
             .catch(function (err) {
-                logger.warn('Error while disconnecting Inputs where: ' + JSON.stringify(ctx.where) + ' - ' + err);
+                logger.warn('Error while disconnecting Inputs (' + JSON.stringify(ctx.where) + '): ' + err);
 
                 next(err);
             });
@@ -85,6 +81,30 @@ module.exports = function(Input) {
                 }
 
                 reject(err);
+            });
+        });
+    };
+
+    Input.disconnectFewInputs = function (inputRecords) {
+        let app = Input.app;
+
+        return new Promise (function (resolve, reject) {
+            app.utility.conveyor((function* () {
+                for (let index = 0; index < inputRecords.length; index++) {
+                    if (inputRecords[index].connected === true) {
+                        yield inputRecords[index].disconnect(inputRecords[index].sourceId);
+                    } else {
+                        yield new Promise (function (resolve) {
+                            resolve();
+                        });
+                    }
+                }
+            })(), function (err) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve();
+                }
             });
         });
     };

@@ -82,7 +82,7 @@
                 let me = this;
                 let core = me.coreData;
 
-                this.$http.delete('api/Cores/' + core.id + '/completeRemoval').then(response => {
+                this.$http.delete('api/Cores/' + core.id).then(response => {
                     if (response.ok) {
                         me.$emit('remove', core.id);
                     }

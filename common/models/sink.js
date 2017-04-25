@@ -53,26 +53,21 @@ module.exports = function(Sink) {
         }
     });
 
-    Sink.observe('before delete', function beforeSinkDelete (ctx, next) {
+    Sink.observe('before delete', function (ctx, next) {
         let logger = Sink.app.logger;
 
-        Sink.findById(ctx.where.id)
-            .then(function (sinkRecord) {
-                if (sinkRecord.connected === true) {
-                    sinkRecord.disconnect(sinkRecord.outputId, function (err) {
-                        if (err) {
-                            throw err;
-                        }
-
-                        logger.info('Sink: ' + ctx.where.id + ' disconnected');
-                    });
-                }
+        Sink.find({ where: ctx.where })
+            .then(function (sinkRecords) {
+                return Sink.disconnectFewSinks(sinkRecords);
+            })
+            .then(function () {
+                next();
             })
             .catch(function (err) {
-                logger.warn('Error while disconnecting Sink: ' + ctx.where.id + ' - '  + err);
-            });
+                logger.warn('Error while disconnecting Sinks (' + JSON.stringify(ctx.where) + '): ' + err);
 
-        next();
+                next(err);
+            });
     });
 
     /**
@@ -188,5 +183,29 @@ module.exports = function(Sink) {
             connect: oldOutputId === newOutputId ? false : newOutputId,
             disconnect: oldOutputId === newOutputId ? false : oldOutputId
         }
-    }
+    };
+
+    Sink.disconnectFewSinks = function (sinkRecords) {
+        let app = Sink.app;
+
+        return new Promise (function (resolve, reject) {
+            app.utility.conveyor((function* () {
+                for (let index = 0; index < sinkRecords.length; index++) {
+                    if (sinkRecords[index].connected === true) {
+                        yield sinkRecords[index].disconnect(sinkRecords[index].outputId);
+                    } else {
+                        yield new Promise (function (resolve) {
+                            resolve();
+                        });
+                    }
+                }
+            })(), function (err) {
+                if (err) {
+                    reject(err);
+                } else {
+                    resolve();
+                }
+            });
+        });
+    };
 };
