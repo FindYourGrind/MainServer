@@ -5,7 +5,8 @@
                    @click.native="open">Create Core</md-button>
 
         <md-dialog md-open-from="#openCreateCoreModalFormButton"
-                   ref="createCoreModalForm">
+                   ref="createCoreModalForm"
+                   @close="resetFormData">
             <md-dialog-title>Create new Core</md-dialog-title>
 
             <md-dialog-content>

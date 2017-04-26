@@ -33,12 +33,24 @@
             </md-tab>
 
             <md-tab id="cores" md-label="Cores">
+                <cores ref="coresTable"></cores>
+            </md-tab>
+
+            <md-tab id="sources" md-label="Sources">
 
             </md-tab>
 
-            <md-tab id="sources" md-label="Sources"></md-tab>
+            <md-tab id="inputs" md-label="Inputs">
+                <inputs ref="inputsTable"></inputs>
+            </md-tab>
 
-            <md-tab id="sinks" md-label="Sinks"></md-tab>
+            <md-tab id="outputs" md-label="Outputs">
+                <outputs ref="outputsTable"></outputs>
+            </md-tab>
+
+            <md-tab id="sinks" md-label="Sinks">
+
+            </md-tab>
 
         </md-tabs>
     </div>
@@ -50,13 +62,19 @@
     import WorkspaceCard from './workspace/WorkspaceCard.vue';
     import CreateWorkspaceModalForm from './workspace/CreateWorkspaceModalForm.vue';
     import WorkspaceEditor from './workspace/WorkspaceEditor.vue';
+    import Cores from './cores/Cores.vue';
+    import Inputs from './inputs/Inputs.vue';
+    import Outputs from './outputs/Outputs.vue';
 
     export default {
         name: 'mainPage',
         components: {
             CreateWorkspaceModalForm,
             WorkspaceCard,
-            WorkspaceEditor
+            WorkspaceEditor,
+            Cores,
+            Inputs,
+            Outputs
         },
         data () {
             return {
@@ -103,43 +121,50 @@
             },
             onMainTabChanged: function (tabIndex) {
                 let me = this;
-              switch (tabIndex) {
-                case 0:
 
-                  break;
-                case 1:
-                  if (this.workspaceIdToOpen) {
-                    this.$http.get('api/Workspaces/' + me.workspaceIdToOpen, {
-                        params: {
-                            filter: '{"include": [{"relatedCores":["relatedInputs", "relatedOutputs"]}, "relatedSources", "relatedSinks"]}'
+                switch (tabIndex) {
+                    case 0:
+
+                        break;
+                    case 1:
+                        if (this.workspaceIdToOpen) {
+                            this.$http.get('api/Workspaces/' + me.workspaceIdToOpen, {
+                                params: {
+                                    filter: '{"include": [{"relatedCores":["relatedInputs", "relatedOutputs"]}, "relatedSources", "relatedSinks"]}'
+                                }
+                            }).then(function (response) {
+                                if (response.ok) {
+
+                                    if (!this.workspaces.find(function (workspace) {
+                                            return workspace.id === me.workspaceIdToOpen;
+                                        })) {
+                                        this.workspaces.push(response.data);
+                                    }
+
+                                    me.workspaceIdToOpen = undefined;
+                                }
+                            }, function (err) {
+                                console.log('Error while loading workspace with artifacts');
+                                me.workspaceIdToOpen = undefined;
+                            });
                         }
-                    }).then(function (response) {
-                      if (response.ok) {
+                        break;
+                    case 2:
+                        me.$refs['coresTable'].loadData();
+                        break;
+                    case 3:
 
-                        if (!this.workspaces.find(function (workspace) {
-                            return workspace.id === me.workspaceIdToOpen;
-                          })) {
-                          this.workspaces.push(response.data);
-                        }
+                        break;
+                    case 4:
+                        me.$refs['inputsTable'].loadData();
+                        break;
+                    case 5:
+                        me.$refs['outputsTable'].loadData();
+                        break;
+                    case 6:
 
-                        me.workspaceIdToOpen = undefined;
-                      }
-                    }, function (err) {
-                      console.log('Error while loading workspace with artifacts');
-                      me.workspaceIdToOpen = undefined;
-                    });
-                  }
-                  break;
-                case 2:
-
-                  break;
-                case 3:
-
-                  break;
-                case 4:
-
-                  break;
-              }
+                        break;
+                }
             },
             onWorkspaceTabChanged: function (tabIndex) {
               console.log(arguments);

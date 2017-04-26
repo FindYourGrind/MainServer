@@ -13,27 +13,17 @@ module.exports = function(app) {
         changesStream.on('data', function (change) {
             let recordData = change.data;
 
-            if (Number.isInteger(change.target) || (change.target && change.target.inq)) {
-                let recordsIds = Number.isInteger(change.target) ? change.target : change.target.inq;
+            app.models[modelName].find({ where: change.target ? { id : change.target } : change.where })
+                .then(function (items) {
+                    items.forEach(function (item) {
+                        logger.info(modelName + ': ' + item.getId() + ' updated. Notification started (' + change.type + ')');
 
-                [].concat(recordsIds).forEach(function (recordId) {
-                    logger.info(modelName + ': ' + recordId + ' updated. Notification started (' + change.type + ')');
-
-                    app.wsInstance.emit(modelName.toLowerCase() + '-' + recordId + '-' + change.type, recordData);
-                });
-            } else {
-                app.models[modelName].find(change.where)
-                    .then(function (items) {
-                        items.forEach(function (item) {
-                            logger.info(modelName + ': ' + item.getId() + ' updated. Notification started (' + change.type + ')');
-
-                            app.wsInstance.emit(modelName.toLowerCase() + '-' + item.getId() + '-' + change.type, recordData);
-                        });
-                    })
-                    .catch(function () {
-                        logger.warn('Error in changeStream for ' + modelName);
+                        app.wsInstance.emit(modelName.toLowerCase() + '-' + item.getId() + '-' + change.type, recordData);
                     });
-            }
+                })
+                .catch(function () {
+                    logger.warn('Error in changeStream for ' + modelName);
+                });
         });
     }
 
