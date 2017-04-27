@@ -13,6 +13,8 @@ module.exports = function(app) {
         changesStream.on('data', function (change) {
             let recordData = change.data;
 
+            app.wsInstance.emit('models-global-update');
+
             app.models[modelName].find({ where: change.target ? { id : change.target } : change.where })
                 .then(function (items) {
                     items.forEach(function (item) {

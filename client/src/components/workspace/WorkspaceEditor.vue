@@ -182,51 +182,65 @@
                 newLine.setAttribute("stroke-width", '3');
 
                 target.append(newLine);
+            },
+            updateConnectivity: function () {
+                let me = this;
+                let sourceToInputConnectivity = me.$refs['sourceToInputConnectivity'];
+                let sinkToOutputConnectivity = me.$refs['sinkToOutputConnectivity'];
+                let leftSvgRect = sourceToInputConnectivity.getBoundingClientRect();
+                let rightSvgRect = sinkToOutputConnectivity.getBoundingClientRect();
+
+                d3.select(sourceToInputConnectivity).selectAll("svg > *").remove();
+                d3.select(sinkToOutputConnectivity).selectAll("svg > *").remove();
+
+                me.workspace.relatedSources.forEach(function (source) {
+                    if (source.connected === true) {
+                        source.inputIdList.forEach(function (inputId) {
+                            let sourceEl = me.$refs['source' + source.id][0].$el;
+                            let sourceRect = sourceEl.getBoundingClientRect();
+                            let inputEl = me.$el.querySelector("#input" + inputId);
+                            let inputRect = inputEl.getBoundingClientRect();
+
+                            me.drawConnection(sourceToInputConnectivity,
+                                'source-' + source.id + '-to-input-' + inputId + '-line',
+                                0,
+                                sourceRect.top - leftSvgRect.top + (sourceRect.height / 2),
+                                leftSvgRect.width,
+                                inputRect.top - leftSvgRect.top + (inputRect.height / 2));
+                        });
+                    }
+                });
+
+                me.workspace.relatedSinks.forEach(function (sink) {
+                    if (sink.connected === true) {
+                        let sinkEl = me.$refs['sink' + sink.id][0].$el;
+                        let sinkRect = sinkEl.getBoundingClientRect();
+                        let outputEl = me.$el.querySelector("#output" + sink.outputId);
+                        let outputRect = outputEl.getBoundingClientRect();
+
+                        me.drawConnection(sinkToOutputConnectivity,
+                            'sink-' + sink.id + '-to-output-' + sink.outputId + '-line',
+                            0,
+                            outputRect.top - rightSvgRect.top + (outputRect.height / 2),
+                            rightSvgRect.width,
+                            sinkRect.top - rightSvgRect.top + (sinkRect.height / 2));
+                    }
+                });
             }
         },
         updated: function () {
             let me = this;
-            let sourceToInputConnectivity = me.$refs['sourceToInputConnectivity'];
-            let sinkToOutputConnectivity = me.$refs['sinkToOutputConnectivity'];
-            let leftSvgRect = sourceToInputConnectivity.getBoundingClientRect();
-            let rightSvgRect = sinkToOutputConnectivity.getBoundingClientRect();
 
-            d3.select(sourceToInputConnectivity).selectAll("svg > *").remove();
-            d3.select(sinkToOutputConnectivity).selectAll("svg > *").remove();
+            me.updateConnectivity();
+        },
+        socket: {
+            events: {
+                'models-global-update': function () {
+                    let me = this;
 
-            me.workspace.relatedSources.forEach(function (source) {
-                if (source.connected === true) {
-                    source.inputIdList.forEach(function (inputId) {
-                        let sourceEl = me.$refs['source' + source.id][0].$el;
-                        let sourceRect = sourceEl.getBoundingClientRect();
-                        let inputEl = me.$el.querySelector("#input" + inputId);
-                        let inputRect = inputEl.getBoundingClientRect();
-
-                        me.drawConnection(sourceToInputConnectivity,
-                            'source-' + source.id + '-to-input-' + inputId + '-line',
-                            0,
-                            sourceRect.top - leftSvgRect.top + (sourceRect.height / 2),
-                            leftSvgRect.width,
-                            inputRect.top - leftSvgRect.top + (inputRect.height / 2));
-                    });
+                    me.updateConnectivity();
                 }
-            });
-
-            me.workspace.relatedSinks.forEach(function (sink) {
-                if (sink.connected === true) {
-                    let sinkEl = me.$refs['sink' + sink.id][0].$el;
-                    let sinkRect = sinkEl.getBoundingClientRect();
-                    let outputEl = me.$el.querySelector("#output" + sink.outputId);
-                    let outputRect = outputEl.getBoundingClientRect();
-
-                    me.drawConnection(sinkToOutputConnectivity,
-                        'sink-' + sink.id + '-to-output-' + sink.outputId + '-line',
-                        0,
-                        outputRect.top - rightSvgRect.top + (outputRect.height / 2),
-                        rightSvgRect.width,
-                        sinkRect.top - rightSvgRect.top + (sinkRect.height / 2));
-                }
-            });
+            }
         }
     }
 </script>
