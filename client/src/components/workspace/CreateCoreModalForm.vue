@@ -32,6 +32,8 @@
 </template>
 
 <script>
+    import { mapGetters, mapMutations } from 'vuex';
+    
     export default {
         name: 'CreateCoreModalForm',
         props: ['workspaceId'],
@@ -48,7 +50,8 @@
             save: function () {
                 this.$http.post('api/Workspaces/' + this.workspaceId + '/relatedCores', {
                     name: this.coreName,
-                    type: this.coreType
+                    type: this.coreType,
+                    accountId: this.getUserId()
                 }).then(function (response) {
                     if (response.ok) {
                         return response.data;
@@ -68,7 +71,14 @@
             resetFormData: function () {
                 this.coreName = '';
                 this.coreType = '';
-            }
+            },
+            /**
+             *
+             */
+            ...mapGetters({
+                getUserId: 'userId',
+                getUserName: 'userName'
+            })
         }
     }
 </script>

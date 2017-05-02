@@ -21,6 +21,10 @@
     },
     "outputId": {
       "type": "number"
+    },
+    "accountId": {
+      "type": "number",
+      "required": true
     }
   },
   "validations": [],

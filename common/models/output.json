@@ -20,6 +20,10 @@
     "workspaceId": {
       "type": "number",
       "required": true
+    },
+    "accountId": {
+      "type": "number",
+      "required": true
     }
   },
   "validations": [],

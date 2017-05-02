@@ -1,12 +1,14 @@
 <template>
     <div class="workspace-editor-root">
+        <source-modal-form :workspaceData="workspace"
+                           @create="ocSourceCreate" ref="sourceModalForm"></source-modal-form>
+
         <md-layout>
             <md-layout></md-layout>
             <md-layout>
                 <div class="source-container-wrapper">
                     <div class="source-container-header">
-                        <create-source-modal-form :workspaceData="workspace"
-                                                  @create="ocSourceCreate"></create-source-modal-form>
+                        <md-button @click.native="$refs.sourceModalForm.open()">Create Source</md-button>
                     </div>
                     <div class="source-container">
                         <source-component v-for="source in workspace.relatedSources"
@@ -67,7 +69,7 @@
 <script>
     import Core from './Core.vue';
     import CreateCoreModalForm from './CreateCoreModalForm.vue';
-    import CreateSourceModalForm from './CreateSourceModalForm.vue';
+    import SourceModalForm from './SourceModalForm.vue';
     import CreateSinkModalForm from './CreateSinkModalForm.vue';
     import SourceComponent from './SourceComponent.vue';
     import SinkComponent from './SinkComponent.vue';
@@ -85,7 +87,7 @@
             SourceComponent,
             SinkComponent,
             CreateCoreModalForm,
-            CreateSourceModalForm,
+            SourceModalForm,
             CreateSinkModalForm
         },
         data: function () {

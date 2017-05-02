@@ -1,17 +1,21 @@
 <template xmlns:v-bind="http://www.w3.org/1999/xhtml">
     <div v-bind:class="[sourceData.connected ? 'connected' : 'disconnected', 'source-root']">
+        <source-modal-form ref="sourceModalForm"
+                           :workspaceData="workspaceData"
+                           :sourceData="sourceData"
+                           :editMode="true"
+                           @edit="edit"></source-modal-form>
+
         <md-layout md-align="center">
             <md-layout md-align="start">
                 <md-button class="md-fab md-mini"
                            @click.native="remove">
                     <md-icon>delete</md-icon>
                 </md-button>
-                <create-source-modal-form :workspaceData="workspaceData"
-                                          :sourceData="sourceData"
-                                          openButtonCls="md-fab md-mini"
-                                          :showOpenButtonIcon="true"
-                                          @edit="edit">
-                </create-source-modal-form>
+                <md-button class="md-fab md-mini"
+                           @click.native="$refs.sourceModalForm.open()">
+                    <md-icon>edit</md-icon>
+                </md-button>
             </md-layout>
             <md-layout class="source-data" md-align="end">
                 Input: {{ sourceData.name }}<br>
@@ -22,13 +26,13 @@
 </template>
 
 <script>
-    import CreateSourceModalForm from './CreateSourceModalForm.vue';
+    import SourceModalForm from './SourceModalForm.vue';
 
     export default {
         name: 'SourceComponent',
         props: ['workspaceData', 'sourceData'],
         components: {
-            CreateSourceModalForm
+            SourceModalForm
         },
         data: function () {
             return {}

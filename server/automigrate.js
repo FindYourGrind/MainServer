@@ -22,9 +22,11 @@ ds.automigrate(pgTables, function(er) {
         .then(() => {
             console.log('DB data filled');
             ds.disconnect();
+            process.exit(0);
         })
         .catch((err) => {
             console.log(err);
             ds.disconnect();
+            process.exit(0);
         });
 });

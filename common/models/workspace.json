@@ -19,6 +19,10 @@
       "type": "string",
       "required": false,
       "default": "api/FileContainers/ImagesContainer/download/defaultWorkspaceImage.png"
+    },
+    "accountId": {
+      "type": "number",
+      "required": true
     }
   },
   "validations": [],
