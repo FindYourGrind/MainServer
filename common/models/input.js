@@ -21,28 +21,30 @@ module.exports = function(Input) {
 
     /**
      *
-     * @param inputId
+     * @param inputIdList
      * @param value
      */
-    Input.setValueById = function (inputId, value) {
+    Input.updateInputsValue = function (inputIdList, value) {
         let app = Input.app;
+        let logger = app.logger;
+        let updateTimeStamp = new Date();
 
-        Input.findById(inputId)
-            .then(function (input) {
-                return input;
+        return new Promise (function (resolve, reject) {
+            Input.updateAll({ where: { id : { inq: inputIdList } } }, {
+                value: value,
+                updateTimeStamp: updateTimeStamp
             })
-            .then(function (input) {
-                return input.updateAttributes({
-                    value: value,
-                    updateTimeStamp: new Date()
+                .then(function () {
+                    logger.info('Inputs: ' + inputIdList + ' was updated');
+
+                    resolve();
+                })
+                .catch(function (err) {
+                    logger.error('Error while updating Inputs: ' + inputIdList + ' - ' + err);
+
+                    reject(err);
                 });
-            })
-            .then(function (input) {
-                app.emit('core-' + input.getCoreId() + '-input-' + input.getId() + '-value-set');
-            })
-            .catch(function () {
-                console.log('Error while set Input value');
-            });
+        });
     };
 
     /**

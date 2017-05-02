@@ -1,0 +1,32 @@
+[
+  {
+    "type": 1,
+    "name": "string",
+    "displayName": "Text",
+    "convert": "toString"
+  },
+  {
+    "type": 2,
+    "name": "integer",
+    "displayName": "Integer",
+    "convert": "toInteger"
+  },
+  {
+    "type": 3,
+    "name": "float",
+    "displayName": "Float",
+    "convert": "toFloat"
+  },
+  {
+    "type": 4,
+    "name": "date",
+    "displayName": "Date",
+    "convert": "toDate"
+  },
+  {
+    "type": 5,
+    "name": "object",
+    "displayName": "Complex",
+    "convert": "toComplex"
+  }
+]

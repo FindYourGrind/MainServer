@@ -18,11 +18,6 @@
                     </md-input-container>
 
                     <md-input-container>
-                        <label>Type</label>
-                        <md-input v-model.trim="sourceType"></md-input>
-                    </md-input-container>
-
-                    <md-input-container>
                         <label>Inputs Connections</label>
                         <md-select multiple
                                    v-model="inputIdList">
@@ -32,6 +27,26 @@
                                        :value="relatedInput.id">{{ relatedInput.name }}</md-option>
                         </md-select>
                     </md-input-container>
+
+                    <md-input-container>
+                        <label>Source Type</label>
+                        <md-select v-model.trim="sourceType" @change="onSourceTypeChange">
+                            <md-option v-for="sourceWorkerType in sourceWorkerTypes"
+                                       :key="sourceWorkerType.id"
+                                       :value="sourceWorkerType.type">{{ sourceWorkerType.name }}</md-option>
+                        </md-select>
+                    </md-input-container>
+
+                    <div v-if="selectedWorkerType">
+                        {{ selectedWorkerType.name + " configuration:" }}
+                        <md-input-container v-for="(field, index) in selectedWorkerType.configFields"
+                                            :key="index" :ref="'worker-config-' + field.name">
+                            <label> {{ field.displayName }}</label>
+                            <md-input v-if="field.type === 'string'" v-model.trim="workerConfig[field.name]" type="text"></md-input>
+                            <md-input v-else-if="field.type === 'number'" v-model.number="workerConfig[field.name]" type="number"></md-input>
+                        </md-input-container>
+                    </div>
+
                 </form>
             </md-dialog-content>
 
@@ -44,6 +59,8 @@
 </template>
 
 <script>
+    import { mapGetters, mapMutations } from 'vuex';
+
     export default {
         name: 'CreateSourceModalForm',
         props: {
@@ -69,7 +86,10 @@
                 sourceName: '',
                 sourceType: '',
                 inputIdList: '',
-                relatedInputs: []
+                workerConfig: {},
+                relatedInputs: [],
+                sourceWorkerTypes: [],
+                selectedWorkerType: null
             }
         },
         computed: {
@@ -85,10 +105,12 @@
                     me.sourceName = me.sourceData.name;
                     me.sourceType = me.sourceData.type;
                     me.inputIdList = me.sourceData.inputIdList;
+                    me.workerConfig = me.sourceData.workerConfig;
                 }
 
-                this.$refs['createSourceModalForm'].open();
-                this.$http.get('api/Inputs', {
+                me.$refs['createSourceModalForm'].open();
+
+                me.$http.get('api/Inputs', {
                     params: {
                         filter: JSON.stringify({
                             where: { and: [
@@ -101,14 +123,22 @@
                             ]}
                         })
                     }
-                }).then(response => {
-                    if (response.ok) {
-                        me.relatedInputs = response.data;
-                    } else {
-                        throw 'Error while loading available inputs';
-                    }
-                }).catch(err => {
-                    console.log(err);
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            me.relatedInputs = response.json();
+                            return me.$http.get('api/SourceWorkerTypes');
+                        } else {
+                            throw 'Error while loading available inputs';
+                        }
+                    })
+                    .then(function (response) {
+                        if (response.ok) {
+                            me.sourceWorkerTypes = response.json();
+                        }
+                    })
+                    .catch(err => {
+                        console.log(err);
                 });
             },
             save: function () {
@@ -121,12 +151,17 @@
                 }
             },
             createSource: function () {
-                this.$http.post('api/Workspaces/' + this.workspaceData.id + '/relatedSources', {
-                    type: this.sourceType,
-                    name: this.sourceName,
-                    inputIdList: this.inputIdArray,
-                    workspaceId: this.workspaceData.id,
-                    connected: this.inputIdArray.length > 0
+                let me = this;
+                let workerConfig = {};
+
+                me.$http.post('api/Workspaces/' + me.workspaceData.id + '/relatedSources', {
+                    type: me.sourceType,
+                    name: me.sourceName,
+                    inputIdList: me.inputIdArray,
+                    workspaceId: me.workspaceData.id,
+                    connected: me.inputIdArray.length > 0,
+                    accountId: me.getUserId(),
+                    workerConfig: me.workerConfig
                 }).then(function (response) {
                     if (response.ok) {
                         return response.data;
@@ -136,18 +171,21 @@
                 }, function () {
                     console.log('Error while saving the source data');
                 }).then(function (sourcePayload) {
-                    this.$emit('create', sourcePayload);
-                }).then(this.close);
+                    me.$emit('create', sourcePayload);
+                }).then(me.close);
             },
             editSource: function () {
                 let me = this;
+                let workerConfig = {};
 
                 me.$http.put('api/Sources/' + me.sourceData.id, {
-                    type: this.sourceType,
-                    name: this.sourceName,
-                    inputIdList: this.inputIdArray,
-                    workspaceId: this.workspaceData.id,
-                    connected: this.inputIdArray.length > 0
+                    type: me.sourceType,
+                    name: me.sourceName,
+                    inputIdList: me.inputIdArray,
+                    workspaceId: me.workspaceData.id,
+                    connected: me.inputIdArray.length > 0,
+                    accountId: me.getUserId(),
+                    workerConfig: me.workerConfig
                 }).then(function (response) {
                     if (response.ok) {
                         return response.data;
@@ -157,19 +195,34 @@
                 }, function () {
                     console.log('Error while saving the source data');
                 }).then(function (sourcePayload) {
-                    this.$emit('edit', sourcePayload);
-                }).then(this.close);
+                    me.$emit('edit', sourcePayload);
+                }).then(me.close);
             },
             close: function () {
                 this.resetFormData();
                 this.$refs['createSourceModalForm'].close();
             },
             resetFormData: function () {
-                this.sourceType = '';
-                this.sourceName = '';
-                this.inputIdList = '';
-                this.relatedInputs = [];
-            }
+                let me = this;
+
+                me.sourceType = '';
+                me.sourceName = '';
+                me.inputIdList = '';
+                me.relatedInputs = [];
+                me.workerConfig = {};
+                me.sourceWorkerTypes = [];
+                me.selectedWorkerType = null;
+
+            },
+            onSourceTypeChange: function (sourceType) {
+                let me = this;
+
+                me.selectedWorkerType = me.sourceWorkerTypes.find(item => item.type === sourceType);
+            },
+            ...mapGetters({
+                getUserId: 'userId',
+                getUserName: 'userName'
+            })
         }
     }
 </script>

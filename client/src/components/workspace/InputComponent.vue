@@ -1,9 +1,11 @@
 <template xmlns:v-bind="http://www.w3.org/1999/xhtml">
     <div v-bind:class="[inputData.connected ? 'connected' : 'disconnected', 'value-holder-root']">
         <md-layout md-align="center">
-            <md-layout md-align="start">
+            <md-layout class="input-data" md-align="start">
                 Input: {{ inputData.name }}<br>
                 ID: {{ inputData.id }}<br>
+                Value: {{ parseInt(inputData.value * 10) }}<br>
+                Update Time: {{ (new Date(inputData.updateTimeStamp)).toLocaleTimeString() }}
             </md-layout>
             <md-layout md-align="end">
                 <md-button class="md-fab md-mini"
@@ -51,6 +53,12 @@
                     me.inputData[dataKey] = data[dataKey];
                 });
             });
+
+            me.$socket.on('input-' + me.inputData.id + '-create', function (data) {
+                Object.keys(data).forEach(function (dataKey) {
+                    me.inputData[dataKey] = data[dataKey];
+                });
+            });
         }
     }
 </script>
@@ -70,5 +78,10 @@
 
     .connected {
         background-color: rgba(11, 235, 0, 0.45);
+    }
+
+    .input-data {
+        text-align: left;
+        font-size: 9px;
     }
 </style>

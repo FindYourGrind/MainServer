@@ -1,0 +1,9 @@
+{
+  "convert": {
+    "TO_STRING": "toString",
+    "TO_INTEGER": "toInteger",
+    "TO_FLOAT": "toFloat",
+    "TO_DATE": "toDate",
+    "TO_COMPLEX": "toComplex"
+  }
+}

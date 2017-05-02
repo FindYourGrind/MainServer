@@ -17,6 +17,10 @@
     "workspaceId": {
       "type": "number",
       "required": true
+    },
+    "accountId": {
+      "type": "number",
+      "required": true
     }
   },
   "validations": [],
@@ -31,6 +35,12 @@
       "model": "Source",
       "foreignKey": "id",
       "primaryKey": "sourceId"
+    },
+    "valueMapper": {
+      "type": "hasOne",
+      "model": "ValueMapper",
+      "foreignKey": "type",
+      "primaryKey": "valueType"
     }
   },
   "acls": [],

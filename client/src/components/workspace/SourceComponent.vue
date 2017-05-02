@@ -13,7 +13,7 @@
                                           @edit="edit">
                 </create-source-modal-form>
             </md-layout>
-            <md-layout md-align="end">
+            <md-layout class="source-data" md-align="end">
                 Input: {{ sourceData.name }}<br>
                 ID: {{ sourceData.id }}<br>
             </md-layout>
@@ -80,5 +80,11 @@
 
     .connected {
         background-color: rgba(11, 235, 0, 0.45);
+    }
+
+    .source-data {
+        float: left;
+        text-align: left;
+        font-size: 9px;
     }
 </style>

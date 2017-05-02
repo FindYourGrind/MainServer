@@ -1,0 +1,13 @@
+[
+  {
+    "type": 1,
+    "name": "Web Socket Source",
+    "configFields": [
+      {
+        "name": "eventName",
+        "displayName": "Event Name",
+        "type": "string"
+      }
+    ]
+  }
+]

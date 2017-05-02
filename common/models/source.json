@@ -24,6 +24,19 @@
         "number"
       ],
       "default": []
+    },
+    "workspaceId": {
+      "type": "number",
+      "required": true,
+      "default": 0
+    },
+    "accountId": {
+      "type": "number",
+      "required": true,
+      "default": 0
+    },
+    "workerConfig": {
+      "type": "object"
     }
   },
   "validations": [],

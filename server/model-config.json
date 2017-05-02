@@ -81,5 +81,13 @@
   "Output": {
     "dataSource": "pg",
     "public": true
+  },
+  "SourceWorkerType": {
+    "dataSource": "pg",
+    "public": true
+  },
+  "ValueMapper": {
+    "dataSource": "pg",
+    "public": true
   }
 }
