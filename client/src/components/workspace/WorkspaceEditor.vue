@@ -1,7 +1,8 @@
 <template>
     <div class="workspace-editor-root">
         <source-modal-form :workspaceData="workspace"
-                           @create="ocSourceCreate" ref="sourceModalForm"></source-modal-form>
+                           @create="ocSourceCreate"
+                           ref="sourceModalForm"></source-modal-form>
 
         <md-layout>
             <md-layout></md-layout>

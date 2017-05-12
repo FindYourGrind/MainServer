@@ -1,57 +1,51 @@
 <template>
-    <md-dialog md-open-from="#openCreateSourceModalFormButton"
-               ref="createSourceModalForm">
-        <md-dialog-title>{{ getDialogTitle() }}</md-dialog-title>
+    <item-form-dialog-carcass :editMode="editMode"
+                              subject="Source"
+                              :subjectData="sourceData"
+                              @beforeOpen="beforeOpen"
+                              @afterOpen="afterOpen"
+                              @onSave="onSave"
+                              @beforeClose="beforeClose"
+                              ref="modalFormCarcass">
+        <md-input-container>
+            <label>Name</label>
+            <md-input required v-model.trim="sourceName"></md-input>
+        </md-input-container>
 
-        <md-dialog-content class="dialog-content">
-            <md-spinner v-if="showStartSpinner" class="spinner" md-indeterminate></md-spinner>
-            <form novalidate @submit.stop.prevent="submit">
-                <md-input-container>
-                    <label>Name</label>
-                    <md-input required v-model.trim="sourceName"></md-input>
-                </md-input-container>
+        <md-input-container>
+            <label>Inputs Connections</label>
+            <md-select multiple
+                       v-model="inputIdList">
+                <md-subheader>{{ relatedInputs.length > 0 ? "Inputs" : "No Available Inputs" }}</md-subheader>
+                <md-option v-for="relatedInput in relatedInputs"
+                           :key="relatedInput.id"
+                           :value="relatedInput.id">{{ relatedInput.name }}</md-option>
+            </md-select>
+        </md-input-container>
 
-                <md-input-container>
-                    <label>Inputs Connections</label>
-                    <md-select multiple
-                               v-model="inputIdList">
-                        <md-subheader>{{ relatedInputs.length > 0 ? "Inputs" : "No Available Inputs" }}</md-subheader>
-                        <md-option v-for="relatedInput in relatedInputs"
-                                   :key="relatedInput.id"
-                                   :value="relatedInput.id">{{ relatedInput.name }}</md-option>
-                    </md-select>
-                </md-input-container>
+        <md-input-container>
+            <label>Source Type</label>
+            <md-select v-model.trim="sourceType" @change="onSourceTypeChange">
+                <md-option v-for="sourceWorkerType in sourceWorkerTypes"
+                           :key="sourceWorkerType.id"
+                           :value="sourceWorkerType.type">{{ sourceWorkerType.name }}</md-option>
+            </md-select>
+        </md-input-container>
 
-                <md-input-container>
-                    <label>Source Type</label>
-                    <md-select v-model.trim="sourceType" @change="onSourceTypeChange">
-                        <md-option v-for="sourceWorkerType in sourceWorkerTypes"
-                                   :key="sourceWorkerType.id"
-                                   :value="sourceWorkerType.type">{{ sourceWorkerType.name }}</md-option>
-                    </md-select>
-                </md-input-container>
-
-                <div v-if="selectedWorkerType">
-                    {{ selectedWorkerType.name + " configuration:" }}
-                    <md-input-container v-for="(field, index) in selectedWorkerType.configFields"
-                                        :key="index" :ref="'worker-config-' + field.name">
-                        <label> {{ field.displayName }}</label>
-                        <md-input v-if="field.type === 'string'" v-model.trim="workerConfig[field.name]" type="text"></md-input>
-                        <md-input v-else-if="field.type === 'number'" v-model.number="workerConfig[field.name]" type="number"></md-input>
-                    </md-input-container>
-                </div>
-
-            </form>
-        </md-dialog-content>
-
-        <md-dialog-actions>
-            <md-button class="md-primary" @click.native="close">Close</md-button>
-            <md-button class="md-primary" @click.native="save">Save</md-button>
-        </md-dialog-actions>
-    </md-dialog>
+        <div v-if="selectedWorkerType">
+            {{ selectedWorkerType.name + " configuration:" }}
+            <md-input-container v-for="(field, index) in selectedWorkerType.configFields"
+                                :key="index" :ref="'worker-config-' + field.name">
+                <label> {{ field.displayName }}</label>
+                <md-input v-if="field.type === 'string'" v-model.trim="workerConfig[field.name]" type="text"></md-input>
+                <md-input v-else-if="field.type === 'number'" v-model.number="workerConfig[field.name]" type="number"></md-input>
+            </md-input-container>
+        </div>
+    </item-form-dialog-carcass>
 </template>
 
 <script>
+    import ItemFormDialogCarcass from './dialogs/ItemFormDialogCarcass.vue';
     import { mapGetters, mapMutations } from 'vuex';
 
     export default {
@@ -70,7 +64,9 @@
                 default: false
             }
         },
-
+        components: {
+            ItemFormDialogCarcass
+        },
         data: function () {
             return {
                 sourceName: '',
@@ -98,7 +94,13 @@
         },
 
         methods: {
-            open: function () {
+            open() {
+                let me = this;
+
+                me.$refs['modalFormCarcass'].open();
+            },
+
+            beforeOpen() {
                 let me = this;
 
                 if (me.sourceData) {
@@ -107,13 +109,9 @@
                     me.inputIdList = me.sourceData.inputIdList;
                     me.workerConfig = me.sourceData.workerConfig;
                 }
-
-                me.$refs['createSourceModalForm'].open();
-
-                me.loadAssetData();
             },
 
-            loadAssetData: function () {
+            afterOpen() {
                 let me = this;
                 let relatedCoreIdList = me.relatedCoreIdList;
                 let whereCondition = {
@@ -146,14 +144,14 @@
                     })
                     .catch(function (err) {
                         console.log('Error while loading source asset data - ' + err);
-                        me.showDialogError(err);
+                        me.$refs['modalFormCarcass'].showDialogError(err);
                     });
             },
 
             /**
              *
              */
-            save: function () {
+            onSave: function () {
                 let me = this;
                 let url = 'api/Sources/' + (me.editMode ? me.sourceData.id : '');
                 let eventName = me.editMode === true ? 'edit' : 'create';
@@ -170,7 +168,7 @@
                     .then(function (response) {
                         if (response.ok) {
                             me.$emit(eventName, response.data);
-                            me.close();
+                            me.$refs['modalFormCarcass'].close();
                             me.showStartSpinner = false;
                         } else {
                             throw 'Response not ok';
@@ -178,14 +176,14 @@
                     })
                     .catch(function (err) {
                         console.log('Error while saving the source data - ' + err);
-                        me.showDialogError(err);
+                        me.$refs['modalFormCarcass'].showDialogError(err);
                     });
             },
 
             /**
              *
              */
-            close: function () {
+            beforeClose: function () {
                 let me = this;
 
                 me.sourceType = '';
@@ -195,8 +193,6 @@
                 me.workerConfig = {};
                 me.sourceWorkerTypes = [];
                 me.selectedWorkerType = null;
-
-                me.$refs['createSourceModalForm'].close();
             },
 
             /**
@@ -211,25 +207,6 @@
 
             /**
              *
-             * @param error
-             */
-            showDialogError: function (error) {
-                me.showStartSpinner = false;
-            },
-
-            /**
-             *
-             */
-            getDialogTitle: function () {
-                let me = this;
-
-                return me.editMode ?
-                    "Edit Source: " + me.sourceData.name + "(" + me.sourceData.id + ")" :
-                    "Create new Source";
-            },
-
-            /**
-             *
              */
             ...mapGetters({
                 getUserId: 'userId',
@@ -240,9 +217,5 @@
 </script>
 
 <style scoped>
-    .spinner {
-        position: absolute;
-        left: 40%;
-        top: 40%;
-    }
+
 </style>
