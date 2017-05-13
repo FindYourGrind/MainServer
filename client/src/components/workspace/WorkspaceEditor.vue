@@ -69,9 +69,9 @@
 
 <script>
     import Core from './Core.vue';
-    import CreateCoreModalForm from './CreateCoreModalForm.vue';
-    import SourceModalForm from './SourceModalForm.vue';
-    import CreateSinkModalForm from './CreateSinkModalForm.vue';
+    import CoreModalForm from './dialogs/CoreModalForm.vue';
+    import SourceModalForm from './dialogs/SourceModalForm.vue';
+    import SinkModalForm from './dialogs/SinkModalForm.vue';
     import SourceComponent from './SourceComponent.vue';
     import SinkComponent from './SinkComponent.vue';
     import * as d3 from 'd3';
@@ -87,9 +87,9 @@
             Core,
             SourceComponent,
             SinkComponent,
-            CreateCoreModalForm,
+            CoreModalForm,
             SourceModalForm,
-            CreateSinkModalForm
+            SinkModalForm
         },
         data: function () {
             return {}

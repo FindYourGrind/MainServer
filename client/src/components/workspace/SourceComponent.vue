@@ -26,7 +26,7 @@
 </template>
 
 <script>
-    import SourceModalForm from './SourceModalForm.vue';
+    import SourceModalForm from './dialogs/SourceModalForm.vue';
 
     export default {
         name: 'SourceComponent',

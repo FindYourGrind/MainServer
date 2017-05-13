@@ -34,7 +34,7 @@
 
 <script>
     export default {
-        name: 'CreateOutputModalForm',
+        name: 'OutputModalForm',
         props: ['workspaceId', 'coreId'],
         data: function () {
             return {

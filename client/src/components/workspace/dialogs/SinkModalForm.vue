@@ -45,7 +45,7 @@
 
 <script>
     export default {
-        name: 'CreateSinkModalForm',
+        name: 'SinkModalForm',
         props: {
             workspaceData: {
                 type: Object,

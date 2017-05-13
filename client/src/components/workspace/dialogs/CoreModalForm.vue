@@ -35,7 +35,7 @@
     import { mapGetters, mapMutations } from 'vuex';
     
     export default {
-        name: 'CreateCoreModalForm',
+        name: 'CoreModalForm',
         props: ['workspaceId'],
         data: function () {
             return {

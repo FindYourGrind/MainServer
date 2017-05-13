@@ -58,8 +58,8 @@
 <script>
     import InputComponent from "./InputComponent.vue";
     import OutputComponent from "./OutputComponent.vue";
-    import CreateInputModalForm from "./CreateInputModalForm.vue";
-    import CreateOutputModalForm from "./CreateOutputModalForm.vue";
+    import InputModalForm from "./dialogs/InputModalForm.vue";
+    import OutputModalForm from "./dialogs/OutputModalForm.vue";
 
     export default {
         name: 'Core',
@@ -67,8 +67,8 @@
         components: {
             InputComponent,
             OutputComponent,
-            CreateInputModalForm,
-            CreateOutputModalForm
+            InputModalForm,
+            OutputModalForm
         },
         data: function () {
             return {}

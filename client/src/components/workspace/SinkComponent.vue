@@ -22,13 +22,13 @@
 </template>
 
 <script>
-    import CreateSinkModalForm from './CreateSinkModalForm.vue';
+    import SinkModalForm from './dialogs/SinkModalForm.vue';
 
     export default {
         name: 'SinkComponent',
         props: ['workspaceData', 'sinkData'],
         components: {
-            CreateSinkModalForm
+            SinkModalForm
         },
         data: function () {
             return {}

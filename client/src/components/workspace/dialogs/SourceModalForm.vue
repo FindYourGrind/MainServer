@@ -45,7 +45,7 @@
 </template>
 
 <script>
-    import ItemFormDialogCarcass from './dialogs/ItemFormDialogCarcass.vue';
+    import ItemFormDialogCarcass from './ItemFormDialogCarcass.vue';
     import { mapGetters, mapMutations } from 'vuex';
 
     export default {

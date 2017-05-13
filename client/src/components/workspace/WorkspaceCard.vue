@@ -1,56 +1,78 @@
 <template>
-    <md-card>
-        <md-card-media md-ratio="16:9">
-            <img :src="iconSrc" alt="Workspace Image">
-        </md-card-media>
+    <div class="workspace-card-root">
+        <workspace-modal-form :editMode="true"
+                              :workspaceData="workspaceData"
+                              ref="workspaceModalForm"></workspace-modal-form>
 
-        <md-card-header><h3>{{ title }}</h3></md-card-header>
+        <md-card>
+            <md-card-media md-ratio="16:9">
+                <img :src="workspaceData.descriptionImage" alt="Workspace Image">
+            </md-card-media>
 
-        <md-card-content>{{ description }}</md-card-content>
+            <md-card-header><h3>{{ workspaceData.name }}</h3></md-card-header>
 
-        <md-card-actions>
-            <md-layout md-align="start" md-gutter="16">
-                <md-layout md-flex="25" md-flex-offset="2">
-                    <md-button class="md-fab md-mini"
-                               @click.native="open(itemId)">
-                        <md-icon>apps</md-icon>
-                    </md-button>
+            <md-card-content>{{ workspaceData.description }}</md-card-content>
+
+            <md-card-actions>
+                <md-layout md-align="start" md-gutter="16">
+                    <md-layout md-flex="25" md-flex-offset="2">
+                        <md-button class="md-fab md-mini"
+                                   @click.native="open">
+                            <md-icon>apps</md-icon>
+                        </md-button>
+                    </md-layout>
                 </md-layout>
-            </md-layout>
 
-            <md-button class="md-fab md-mini"
-                       @click.native="edit(itemId)">
-                <md-icon>edit</md-icon>
-            </md-button>
-            <md-button class="md-fab md-mini"
-                       @click.native="remove(itemId)">
-                <md-icon>delete</md-icon>
-            </md-button>
-        </md-card-actions>
-    </md-card>
+                <md-button class="md-fab md-mini"
+                           @click.native="$refs.workspaceModalForm.open()">
+                    <md-icon>edit</md-icon>
+                </md-button>
+                <md-button class="md-fab md-mini"
+                           @click.native="remove">
+                    <md-icon>delete</md-icon>
+                </md-button>
+            </md-card-actions>
+        </md-card>
+    </div>
 </template>
 
 <script>
+    import WorkspaceModalForm from './dialogs/WorkspaceModalForm.vue';
+
     export default {
         name: 'WorkspaceCard',
-        props: ['itemId', 'title', 'description', 'iconSrc'],
+        components: {
+            WorkspaceModalForm
+        },
+        props: {
+            workspaceData: {
+                type: Object,
+                required: true
+            }
+        },
         data: function () {
             return {}
         },
         methods: {
-            open: function (id) {
-                this.$emit('open', id)
+            open: function () {
+                let me = this;
+
+                this.$emit('open', me.workspaceData.id)
             },
-            edit: function (id) {
-                this.$emit('edit', id)
+            edit: function () {
+                let me = this;
+
+                this.$emit('edit', me.workspaceData.id)
             },
-            remove: function (id) {
-                this.$http.delete('api/Workspaces/' + id).then(function (response) {
+            remove: function () {
+                let me = this;
+
+                this.$http.delete('api/Workspaces/' + me.workspaceData.id).then(function (response) {
 
                 }, function (err) {
 
                 }).then(function () {
-                    this.$emit('remove', id)
+                    this.$emit('remove', me.workspaceData.id)
                 });
             }
         }

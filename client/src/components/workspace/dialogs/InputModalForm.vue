@@ -34,7 +34,7 @@
 
 <script>
     export default {
-        name: 'CreateInputModalForm',
+        name: 'InputModalForm',
         props: ['workspaceId', 'coreId'],
         data: function () {
             return {

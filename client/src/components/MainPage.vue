@@ -1,18 +1,18 @@
 <template>
     <div class="main-page">
+        <workspace-modal-form @create="workspaceCreated"
+                              ref="workspaceModalForm"></workspace-modal-form>
+
         <md-tabs class="md-transparent"
                  md-elevation="1"
                  ref="mainTabs"
                  @change="onMainTabChanged">
             <md-tab id="workspaces" md-label="Workspaces">
-                <create-workspace-modal-form @create="workspaceCreated"></create-workspace-modal-form>
+                <md-button @click.native="$refs.workspaceModalForm.open()">Create Workspace</md-button>
 
                 <div>
                     <div class="workspace-wrapper" v-for="workspace in workspacesCards" :key="workspace.id">
-                        <workspace-card :itemId="workspace.id"
-                                        :title="workspace.name"
-                                        :description="workspace.description"
-                                        :iconSrc="workspace.descriptionImage"
+                        <workspace-card :workspaceData="workspace"
                                         @open="goToWorkspace"
                                         @edit="editWorkspace"
                                         @remove="deleteWorkspace">
@@ -58,18 +58,18 @@
 
 <script>
     import Vue from 'vue';
-    import { mapGetters, mapMutations } from 'vuex';
     import WorkspaceCard from './workspace/WorkspaceCard.vue';
-    import CreateWorkspaceModalForm from './workspace/CreateWorkspaceModalForm.vue';
+    import WorkspaceModalForm from './workspace/dialogs/WorkspaceModalForm.vue';
     import WorkspaceEditor from './workspace/WorkspaceEditor.vue';
     import Cores from './cores/Cores.vue';
     import Inputs from './inputs/Inputs.vue';
     import Outputs from './outputs/Outputs.vue';
+    import { mapGetters, mapMutations } from 'vuex';
 
     export default {
         name: 'mainPage',
         components: {
-            CreateWorkspaceModalForm,
+            WorkspaceModalForm,
             WorkspaceCard,
             WorkspaceEditor,
             Cores,
