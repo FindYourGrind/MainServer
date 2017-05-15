@@ -2,6 +2,7 @@
     <div class="workspace-card-root">
         <workspace-modal-form :editMode="true"
                               :workspaceData="workspaceData"
+                              @edit="edit"
                               ref="workspaceModalForm"></workspace-modal-form>
 
         <md-card>

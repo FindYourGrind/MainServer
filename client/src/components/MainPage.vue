@@ -102,7 +102,9 @@
                 });
             },
             editWorkspace: function (id) {
-                console.log(id);
+                let me = this;
+
+                me.updateWorkspacesList();
             },
             deleteWorkspace: function (id) {
                 let removedWorkspaceIndex = this.workspacesCards.findIndex(function (workspace) {

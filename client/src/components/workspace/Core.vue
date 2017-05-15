@@ -1,12 +1,27 @@
 <template>
     <div class="core-root">
+        <core-modal-form :workspaceData="workspaceData"
+                         :coreData="coreData"
+                         :editMode="true"
+                         @edit="edit"
+                         ref="coreModalForm"></core-modal-form>
+        <input-modal-form :workspaceData="workspaceData"
+                          :coreData="coreData"
+                          @create="onInputCreate"
+                          ref="inputModalForm"></input-modal-form>
+        <output-modal-form :workspaceData="workspaceData"
+                           :coreData="coreData"
+                           @create="onOutputCreate"
+                           ref="outputModalForm"></output-modal-form>
+
+
         <md-layout md-align="center">
             <md-layout md-align="center">
                 {{ coreData.name }}
             </md-layout>
             <md-layout md-align="end">
                 <md-button class="md-fab md-mini"
-                           @click.native="edit">
+                           @click.native="$refs.coreModalForm.open()">
                     <md-icon>edit</md-icon>
                 </md-button>
                 <md-button class="md-fab md-mini"
@@ -18,17 +33,19 @@
 
         <md-layout md-align="center">
             <md-layout md-align="start">
-                <create-input-modal-form :workspaceId="coreData.workspaceId"
-                                         :coreId="coreData.id"
-                                         @create="onInputCreate"></create-input-modal-form>
+                <md-button class="md-fab md-mini"
+                           @click.native="$refs.inputModalForm.open()">
+                    <md-icon>add</md-icon>
+                </md-button>
             </md-layout>
             <md-layout md-align="center">
                 ID: {{ coreData.id }}
             </md-layout>
             <md-layout md-align="end">
-                <create-output-modal-form :workspaceId="coreData.workspaceId"
-                                          :coreId="coreData.id"
-                                          @create="onOutputCreate"></create-output-modal-form>
+                <md-button class="md-fab md-mini"
+                           @click.native="$refs.outputModalForm.open()">
+                    <md-icon>add</md-icon>
+                </md-button>
             </md-layout>
         </md-layout>
 
@@ -37,6 +54,7 @@
                 <input-component v-for="input in coreData.relatedInputs"
                                  :key="input.id"
                                  :workspaceData="workspaceData"
+                                 :coreData="coreData"
                                  :inputData="input"
                                  :ref="'input' + input.id"
                                  :id="'input' + input.id"
@@ -46,6 +64,7 @@
                 <output-component v-for="output in coreData.relatedOutputs"
                                   :key="output.id"
                                   :workspaceData="workspaceData"
+                                  :coreData="coreData"
                                   :outputData="output"
                                   :ref="'output' + output.id"
                                   :id="'output' + output.id"
@@ -58,6 +77,7 @@
 <script>
     import InputComponent from "./InputComponent.vue";
     import OutputComponent from "./OutputComponent.vue";
+    import CoreModalForm from "./dialogs/CoreModalForm.vue";
     import InputModalForm from "./dialogs/InputModalForm.vue";
     import OutputModalForm from "./dialogs/OutputModalForm.vue";
 
@@ -67,6 +87,7 @@
         components: {
             InputComponent,
             OutputComponent,
+            CoreModalForm,
             InputModalForm,
             OutputModalForm
         },
@@ -76,7 +97,9 @@
         computed: {},
         methods: {
             edit: function () {
+                let me = this;
 
+                me.$emit('edit', me.coreData);
             },
             remove: function () {
                 let me = this;
@@ -124,6 +147,15 @@
                     relatedOutputs.splice(indexToRemove, 1);
                 }
             }
+        },
+        created: function () {
+            let me = this;
+
+            me.$socket.on('core-' + me.coreData.id + '-update', function (data) {
+                Object.keys(data).forEach(function (dataKey) {
+                    me.coreData[dataKey] = data[dataKey];
+                });
+            });
         }
     }
 </script>

@@ -8,12 +8,12 @@
                               ref="modalFormCarcass">
         <md-input-container>
             <label>Name</label>
-            <md-input required v-model.trim="workspaceName"></md-input>
+            <md-input required v-model.trim="name"></md-input>
         </md-input-container>
 
         <md-input-container>
             <label>Description</label>
-            <md-textarea v-model.trim="workspaceDescription"></md-textarea>
+            <md-textarea v-model.trim="description"></md-textarea>
         </md-input-container>
 
         <md-input-container>
@@ -31,6 +31,9 @@
 
     export default {
         name: 'WorkspaceModalForm',
+        components: {
+            ItemFormDialogCarcass
+        },
         props: {
             workspaceData: {
                 type: Object
@@ -40,31 +43,34 @@
                 default: false
             }
         },
-        components: {
-            ItemFormDialogCarcass
-        },
         data: function () {
             return {
-                workspaceName: '',
-                workspaceDescription: '',
+                name: '',
+                description: '',
                 imageName: '',
-                workspaceImage: null
+                descriptionImage: null
             }
         },
         methods: {
+            /**
+             *
+             */
             open() {
                 let me = this;
 
                 me.$refs['modalFormCarcass'].open();
             },
 
+            /**
+             *
+             */
             beforeOpen() {
                 let me = this;
 
                 if (me.workspaceData) {
-                    me.workspaceName = me.workspaceData.name;
-                    me.workspaceDescription = me.workspaceData.description;
-                    me.workspaceImage = me.workspaceData.descriptionImage;
+                    me.name = me.workspaceData.name;
+                    me.description = me.workspaceData.description;
+                    me.descriptionImage = me.workspaceData.descriptionImage;
                 }
             },
 
@@ -73,22 +79,23 @@
              */
             onSave: function () {
                 let me = this;
-                let createPromise;
-                let eventName = me.editMode === true ? 'edit' : 'create';
 
-                if (this.workspaceImage && this.imageName) {
-                    createPromise = this.saveWorkspaceImage().then(this.saveWorkspacePayload);
-                } else {
-                    createPromise = this.saveWorkspacePayload({
-                        name: this.workspaceName,
-                        description: this.workspaceDescription,
-                        accountId: this.getUserId()
+                (me.descriptionImage && me.imageName ?
+                    me.saveWorkspaceImage()
+                        .then(me.saveWorkspacePayload) :
+                    me.saveWorkspacePayload({
+                        name: me.name,
+                        description: me.description,
+                        accountId: me.getUserId()
+                    }))
+                    .then(workspacePayload => {
+                        me.$emit(me.editMode === true ? 'edit' : 'create', workspacePayload);
+                        me.$refs['modalFormCarcass'].close();
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        me.$refs['modalFormCarcass'].showDialogError(err);
                     });
-                }
-
-                createPromise.then(function (workspacePayload) {
-                    this.$emit(eventName, workspacePayload);
-                }).then(me.$refs['modalFormCarcass'].close());
             },
 
             /**
@@ -97,34 +104,35 @@
             beforeClose: function () {
                 let me = this;
 
-                me.workspaceName = '';
-                me.workspaceDescription = '';
+                me.name = '';
+                me.description = '';
                 me.workspaceImageName = '';
-                me.workspaceImage = null;
+                me.descriptionImage = null;
             },
 
             /**
              *
              */
             saveWorkspaceImage: function () {
-                return this.$http.post('api/FileContainers/ImagesContainer/upload', this.workspaceImage, {
+                let me = this;
+
+                return me.$http.post('api/FileContainers/ImagesContainer/upload', me.descriptionImage, {
                     headers: {
                         "Content-Type": "multipart/form-data"
                     }
-                }).then(function (response) {
-                    if (response.ok) {
-                        return {
-                            name: this.workspaceName,
-                            description: this.workspaceDescription,
-                            descriptionImage: PATH_TO_IMAGES + this.imageName,
-                            accountId: this.getUserId()
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            return {
+                                name: me.name,
+                                description: me.description,
+                                descriptionImage: PATH_TO_IMAGES + me.imageName,
+                                accountId: me.getUserId()
+                            }
+                        } else {
+                            throw 'Error while uploading the workspace image';
                         }
-                    } else {
-                        console.log('Error while uploading the workspace image');
-                    }
-                }, function () {
-                    console.log('Error while uploading the workspace image');
-                });
+                    });
             },
 
             /**
@@ -132,25 +140,25 @@
              */
             saveWorkspacePayload: function (payload) {
                 let me = this;
-                let url = 'api/Workspaces/' + (me.editMode ? me.workspaceData.id : '');
 
-                return this.$http.put(url, payload).then(function (response) {
-                    if (response.ok) {
-                        return response.data;
-                    } else {
-                        console.log('Error while saving the workspace data');
-                    }
-                }, function () {
-                    console.log('Error while saving the workspace data');
-                });
+                return me.$http.put('api/Workspaces/' + (me.editMode ? me.workspaceData.id : ''), payload)
+                    .then(response => {
+                        if (response.ok) {
+                            return response.json();
+                        } else {
+                            throw 'Error while saving the workspace data';
+                        }
+                    });
             },
 
             /**
              *
              */
             onImageSelected: function (file) {
-                this.workspaceImage = new FormData();
-                this.workspaceImage.append('result', file);
+                let me = this;
+
+                me.descriptionImage = new FormData();
+                me.descriptionImage.append('result', file);
             },
 
             /**

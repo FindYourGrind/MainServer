@@ -1,10 +1,10 @@
-<template xmlns:v-bind="http://www.w3.org/1999/xhtml">
-    <div v-bind:class="[sourceData.connected ? 'connected' : 'disconnected', 'source-root']">
-        <source-modal-form ref="sourceModalForm"
-                           :workspaceData="workspaceData"
+<template>
+    <div :class="[sourceData.connected ? 'connected' : 'disconnected', 'source-root']">
+        <source-modal-form :workspaceData="workspaceData"
                            :sourceData="sourceData"
                            :editMode="true"
-                           @edit="edit"></source-modal-form>
+                           @edit="edit"
+                           ref="sourceModalForm"></source-modal-form>
 
         <md-layout md-align="center">
             <md-layout md-align="start">
@@ -18,7 +18,7 @@
                 </md-button>
             </md-layout>
             <md-layout class="source-data" md-align="end">
-                Input: {{ sourceData.name }}<br>
+                Name: {{ sourceData.name }}<br>
                 ID: {{ sourceData.id }}<br>
             </md-layout>
         </md-layout>
@@ -30,39 +30,63 @@
 
     export default {
         name: 'SourceComponent',
-        props: ['workspaceData', 'sourceData'],
         components: {
             SourceModalForm
+        },
+        props: {
+            workspaceData: {
+                type: Object,
+                required: true
+            },
+            sourceData: {
+                type: Object,
+                required: true
+            }
         },
         data: function () {
             return {}
         },
-        computed: {
-
-        },
         methods: {
+            /**
+             *
+             */
             edit: function () {
+                let me = this;
 
+                me.$emit('edit', me.sourceData);
             },
+
+            /**
+             *
+             */
             remove: function () {
                 let me = this;
-                let source = me.sourceData;
 
-                this.$http.delete('api/Sources/' + source.id).then(response => {
-                    if (response.ok) {
-                        me.$emit('remove', source.id);
-                    }
-                }, err => {
-                    console.log(err);
-                });
+                me.$http.delete('api/Sources/' + me.sourceData.id)
+                    .then(response => {
+                        if (response.ok) {
+                            me.$emit('remove', me.sourceData.id);
+                        } else {
+                            throw 'Error while removing Source';
+                        }
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        //TODO add error notification
+                    });
             },
         },
         created: function () {
             let me = this;
+            let eventList = [
+                'source-' + me.sourceData.id + '-update'
+            ];
 
-            me.$socket.on('source-' + me.sourceData.id + '-update', function (data) {
-                Object.keys(data).forEach(function (dataKey) {
-                    me.sourceData[dataKey] = data[dataKey];
+            eventList.forEach(event => {
+                me.$socket.on(event, data => {
+                    Object.keys(data).forEach(dataKey => {
+                        me.sourceData[dataKey] = data[dataKey];
+                    });
                 });
             });
         }

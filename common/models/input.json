@@ -12,7 +12,8 @@
       "default": false
     },
     "sourceId": {
-      "type": "number"
+      "type": "number",
+      "required": false
     },
     "workspaceId": {
       "type": "number",

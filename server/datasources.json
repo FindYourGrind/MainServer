@@ -28,6 +28,7 @@
     "password": "mongodb",
     "name": "mongo",
     "user": "sinksource",
-    "connector": "mongodb"
+    "connector": "mongodb",
+    "lazyConnect": true
   }
 }

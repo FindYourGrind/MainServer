@@ -1,81 +1,133 @@
 <template>
-    <div>
-        <md-button class="md-fab md-mini"
-                   id="openCreateInputModalFormButton"
-                   @click.native="open">
-          <md-icon>add</md-icon>
-        </md-button>
+    <item-form-dialog-carcass :editMode="editMode"
+                              subject="Input"
+                              :subjectData="inputData"
+                              @beforeOpen="beforeOpen"
+                              @afterOpen="afterOpen"
+                              @onSave="onSave"
+                              @beforeClose="beforeClose"
+                              ref="modalFormCarcass">
 
-        <md-dialog md-open-from="#openCreateInputModalFormButton"
-                   ref="createInputModalForm">
-            <md-dialog-title>Create new Input</md-dialog-title>
+        <md-input-container>
+            <label>Name</label>
+            <md-input required v-model.trim="name"></md-input>
+        </md-input-container>
 
-            <md-dialog-content>
-                <form novalidate @submit.stop.prevent="submit">
-                    <md-input-container>
-                        <label>Name</label>
-                        <md-input required v-model.trim="inputName"></md-input>
-                    </md-input-container>
+        <md-input-container>
+            <label>Value Type</label>
+            <md-input v-model.trim="valueType"></md-input>
+        </md-input-container>
 
-                    <md-input-container>
-                      <label>Value Type</label>
-                      <md-input v-model.trim="inputValueType"></md-input>
-                    </md-input-container>
-                </form>
-            </md-dialog-content>
-
-            <md-dialog-actions>
-                <md-button class="md-primary" @click.native="close">Close</md-button>
-                <md-button class="md-primary" @click.native="save">Save</md-button>
-            </md-dialog-actions>
-        </md-dialog>
-    </div>
+    </item-form-dialog-carcass>
 </template>
 
 <script>
+    import ItemFormDialogCarcass from './ItemFormDialogCarcass.vue';
+    import { mapGetters, mapMutations } from 'vuex';
+
     export default {
         name: 'InputModalForm',
-        props: ['workspaceId', 'coreId'],
-        data: function () {
-            return {
-                inputName: '',
-                inputValueType: ''
+        components: {
+            ItemFormDialogCarcass
+        },
+        props: {
+            workspaceData: {
+                type: Object,
+                required: true
+            },
+            coreData: {
+                type: Object,
+                required: true
+            },
+            inputData: {
+                type: Object,
+                required: false
+            },
+            editMode: {
+                type: Boolean,
+                default: false
             }
         },
-        methods: {
-            open: function () {
-                this.$refs['createInputModalForm'].open();
-            },
-            save: function () {
-                let me = this;
-                let apiString = me.coreId ?
-                  'api/Cores/' + me.coreId + '/relatedInputs' :
-                  'api/Workspaces/' + me.workspaceId + '/relatedInputs';
-
-                me.$http.post(apiString, {
-                    name: me.inputName,
-                    valueType: me.inputValueType,
-                    workspaceId: me.workspaceId
-                }).then(function (response) {
-                    if (response.ok) {
-                        return response.data;
-                    } else {
-                        console.log('Error while saving the Input data');
-                    }
-                }, function () {
-                    console.log('Error while saving the Input data');
-                }).then(function (inputPayload) {
-                    me.$emit('create', inputPayload);
-                }).then(me.close);
-            },
-            close: function () {
-                this.resetFormData();
-                this.$refs['createInputModalForm'].close();
-            },
-            resetFormData: function () {
-                this.inputName = '';
-                this.inputValueType = '';
+        data: function () {
+            return {
+                name: '',
+                valueType: ''
             }
+        },
+
+        methods: {
+            /**
+             *
+             */
+            open() {
+                let me = this;
+
+                me.$refs['modalFormCarcass'].open();
+            },
+
+            /**
+             *
+             */
+            beforeOpen() {
+                let me = this;
+
+                if (me.inputData) {
+                    me.name = me.inputData.name;
+                    me.valueType = me.inputData.valueType;
+                }
+            },
+
+            /**
+             *
+             */
+            afterOpen() {
+
+            },
+
+            /**
+             *
+             */
+            onSave: function () {
+                let me = this;
+
+                me.$http.put('api/Inputs/' + (me.editMode ? me.inputData.id : ''), {
+                    name: me.name,
+                    valueType: me.valueType,
+                    workspaceId: me.workspaceData.id,
+                    coreId: me.coreData.id,
+                    accountId: me.getUserId()
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            me.$emit(me.editMode === true ? 'edit' : 'create', response.json());
+                            me.$refs['modalFormCarcass'].close();
+                        } else {
+                            throw 'Input response not ok';
+                        }
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        me.$refs['modalFormCarcass'].showDialogError(err);
+                    });
+            },
+
+            /**
+             *
+             */
+            beforeClose: function () {
+                let me = this;
+
+                me.name = '';
+                me.valueType = '';
+            },
+
+            /**
+             *
+             */
+            ...mapGetters({
+                getUserId: 'userId',
+                getUserName: 'userName'
+            })
         }
     }
 </script>

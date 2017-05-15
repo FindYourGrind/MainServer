@@ -1,51 +1,43 @@
 <template>
-    <div>
-        <md-button :class="openButtonCls"
-                   id="openCreateSinkModalFormButton"
-                   @click.native="open">{{ showOpenButtonIcon ? "" : (sinkData ? "Edit Sink" : "Create Sink") }}
-            <md-icon v-if="showOpenButtonIcon">edit</md-icon>
-        </md-button>
+    <item-form-dialog-carcass :editMode="editMode"
+                              subject="Sink"
+                              :subjectData="sinkData"
+                              @beforeOpen="beforeOpen"
+                              @afterOpen="afterOpen"
+                              @onSave="onSave"
+                              @beforeClose="beforeClose"
+                              ref="modalFormCarcass">
+        <md-input-container>
+            <label>Name</label>
+            <md-input required v-model.trim="name"></md-input>
+        </md-input-container>
 
-        <md-dialog md-open-from="#openCreateSinkModalFormButton"
-                   ref="createSinkModalForm">
-            <md-dialog-title>Create new Sink</md-dialog-title>
+        <md-input-container>
+            <label>Type</label>
+            <md-input v-model.trim="type"></md-input>
+        </md-input-container>
 
-            <md-dialog-content>
-                <form novalidate @submit.stop.prevent="submit">
-                    <md-input-container>
-                        <label>Name</label>
-                        <md-input required v-model.trim="sinkName"></md-input>
-                    </md-input-container>
-
-                    <md-input-container>
-                        <label>Type</label>
-                        <md-input v-model.trim="sinkType"></md-input>
-                    </md-input-container>
-
-                    <md-input-container>
-                        <label>Output Connection</label>
-                        <md-select v-model="outputId">
-                            <md-subheader>{{ relatedOutputs.length > 0 ? "Outputs" : "No Available Outputs" }}</md-subheader>
-                            <md-option v-for="relatedOutput in relatedOutputs"
-                                       :key="relatedOutput.id"
-                                       :value="relatedOutput.id">{{ relatedOutput.name }}</md-option>
-                        </md-select>
-                    </md-input-container>
-
-                </form>
-            </md-dialog-content>
-
-            <md-dialog-actions>
-                <md-button class="md-primary" @click.native="close">Close</md-button>
-                <md-button class="md-primary" @click.native="save">Save</md-button>
-            </md-dialog-actions>
-        </md-dialog>
-    </div>
+        <md-input-container>
+            <label>Output Connection</label>
+            <md-select v-model="outputId">
+                <md-subheader>{{ relatedOutputs.length > 0 ? "Outputs" : "No Available Outputs" }}</md-subheader>
+                <md-option v-for="relatedOutput in relatedOutputs"
+                           :key="relatedOutput.id"
+                           :value="relatedOutput.id">{{ relatedOutput.name }}</md-option>
+            </md-select>
+        </md-input-container>
+    </item-form-dialog-carcass>
 </template>
 
 <script>
+    import ItemFormDialogCarcass from './ItemFormDialogCarcass.vue';
+    import { mapGetters, mapMutations } from 'vuex';
+
     export default {
         name: 'SinkModalForm',
+        components: {
+            ItemFormDialogCarcass
+        },
         props: {
             workspaceData: {
                 type: Object,
@@ -55,112 +47,117 @@
                 type: Object,
                 required: false
             },
-            openButtonCls: {
-                type: String,
-                default: 'md-primary md-raised'
-            },
-            showOpenButtonIcon: {
+            editMode: {
                 type: Boolean,
                 default: false
             }
         },
         data: function () {
             return {
-                sinkName: '',
-                sinkType: '',
+                name: '',
+                type: '',
                 outputId: '',
                 relatedOutputs: []
             }
         },
+
         methods: {
-            open: function () {
+            /**
+             *
+             */
+            open() {
+                let me = this;
+
+                me.$refs['modalFormCarcass'].open();
+            },
+
+            /**
+             *
+             */
+            beforeOpen() {
                 let me = this;
 
                 if (me.sinkData) {
-                    me.sinkName = me.sinkData.name;
-                    me.sinkType = me.sinkData.type;
+                    me.name = me.sinkData.name;
+                    me.type = me.sinkData.type;
                     me.outputId = me.sinkData.outputId;
                 }
+            },
 
-                this.$refs['createSinkModalForm'].open();
-                this.$http.get('api/Outputs', {
+            /**
+             *
+             */
+            afterOpen() {
+                let me = this;
+
+                me.$http.get('api/Outputs', {
                     params: {
                         filter: JSON.stringify({
                             where: { or: [ { workspaceId: me.workspaceData.id }, { coreId: {
                                 inq: me.workspaceData.relatedCores.map(function (core) {
                                     return core.id;
-                                })}}]}
+                                } ) } } ] }
                         })
                     }
                 }).then(response => {
                     if (response.ok) {
-                        me.relatedOutputs = response.data;
+                        me.relatedOutputs = response.json();
                     } else {
-                        throw 'Error while loading available outpus=ts';
+                        throw 'Error while loading available outputs';
                     }
                 }).catch(err => {
                     console.log(err);
+                    me.$refs['modalFormCarcass'].showDialogError(err);
                 });
             },
-            save: function () {
+
+            /**
+             *
+             */
+            onSave: function () {
                 let me = this;
 
-                if (me.sinkData) {
-                    me.editSinke();
-                } else {
-                    me.createSink();
-                }
+                me.$http.put('api/Sinks/' + (me.editMode ? me.sinkData.id : ''), {
+                    type: me.type,
+                    name: me.name,
+                    outputId: me.outputId,
+                    workspaceId: me.workspaceData.id,
+                    connected: me.outputId && me.outputId > 0,
+                    accountId: me.getUserId()
+                })
+                    .then(response => {
+                        if (response.ok) {
+                            me.$emit(me.editMode === true ? 'edit' : 'create', response.json());
+                            me.$refs['modalFormCarcass'].close();
+                        } else {
+                            throw 'Error while saving the sink data';
+                        }
+                    })
+                    .catch(err => {
+                        console.log(err);
+                        me.$refs['modalFormCarcass'].showDialogError(err);
+                    });
             },
-            createSink: function () {
-                this.$http.post('api/Workspaces/' + this.workspaceData.id + '/relatedSinks', {
-                    type: this.sinkType,
-                    name: this.sinkName,
-                    outputId: this.outputId,
-                    workspaceId: this.workspaceData.id,
-                    connected: this.outputId && this.outputId > 0
-                }).then(function (response) {
-                    if (response.ok) {
-                        return response.data;
-                    } else {
-                        console.log('Error while saving the sink data');
-                    }
-                }, function () {
-                    console.log('Error while saving the sink data');
-                }).then(function (sinkPayload) {
-                    this.$emit('create', sinkPayload);
-                }).then(this.close);
-            },
-            editSinke: function () {
+
+            /**
+             *
+             */
+            beforeClose: function () {
                 let me = this;
 
-                me.$http.put('api/Sinks/' + me.sinkData.id, {
-                    type: this.sinkType,
-                    name: this.sinkName,
-                    outputId: this.outputId,
-                    workspaceId: this.workspaceData.id,
-                    connected: this.outputId && this.outputId > 0
-                }).then(function (response) {
-                    if (response.ok) {
-                        return response.data;
-                    } else {
-                        console.log('Error while saving the sink data');
-                    }
-                }, function () {
-                    console.log('Error while saving the sink data');
-                }).then(function (sinkPayload) {
-                    this.$emit('edit', sinkPayload);
-                }).then(this.close);
+                me.type = '';
+                me.name = '';
+                me.outputId = '';
+                me.relatedOutputs = [];
             },
-            close: function () {
-                this.resetFormData();
-                this.$refs['createSinkModalForm'].close();
-            },
-            resetFormData: function () {
-                this.sinkType = '';
-                this.sinkName = '';
-                this.outputId = '';
-                this.relatedOutputs = [];
-            }
+
+            /**
+             *
+             */
+            ...mapGetters({
+                getUserId: 'userId',
+                getUserName: 'userName'
+            })
         }
     }
 </script>

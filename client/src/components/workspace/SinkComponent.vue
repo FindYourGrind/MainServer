@@ -1,23 +1,32 @@
 <template>
-    <div :class="[sinkData.connected ? 'connected' : 'disconnected', 'sink-root']">
-        <md-layout md-align="center">
-            <md-layout md-align="start">
-                Input: {{ sinkData.name }}<br>
-                ID: {{ sinkData.id }}<br>
+    <div class="sink-component-root">
+        <sink-modal-form :workspaceData="workspaceData"
+                         :sinkData="sinkData"
+                         :editMode="true"
+                         @edit="edit"
+                         ref="sinkModalForm">
+        </sink-modal-form>
+
+        <div :class="[sinkData.connected ? 'connected' : 'disconnected', 'sink-root']">
+            <md-layout class="sink-data" :md-row="true" md-align="center">
+                <md-layout md-flex="true" md-align="start">
+                    Input: {{ sinkData.name }}<br>
+                    ID: {{ sinkData.id }}<br>
+                </md-layout>
+                <md-layout md-align="end">
+                    <md-button class="md-fab md-mini"
+                               @click.native="$refs.sinkModalForm.open()">
+                        <md-icon>edit</md-icon>
+                    </md-button>
+                </md-layout>
+                <md-layout md-align="end">
+                    <md-button class="md-fab md-mini"
+                               @click.native="remove">
+                        <md-icon>delete</md-icon>
+                    </md-button>
+                </md-layout>
             </md-layout>
-            <md-layout md-align="end">
-                <create-sink-modal-form :workspaceData="workspaceData"
-                                        :sinkData="sinkData"
-                                        openButtonCls="md-fab md-mini"
-                                        :showOpenButtonIcon="true"
-                                        @edit="edit">
-                </create-sink-modal-form>
-                <md-button class="md-fab md-mini"
-                           @click.native="remove">
-                    <md-icon>delete</md-icon>
-                </md-button>
-            </md-layout>
-        </md-layout>
+        </div>
     </div>
 </template>
 
@@ -38,7 +47,9 @@
         },
         methods: {
             edit: function () {
+                let me = this;
 
+                me.$emit('edit', me.sinkData.id);
             },
             remove: function () {
                 let me = this;
@@ -80,5 +91,11 @@
 
     .connected {
         background-color: rgba(11, 235, 0, 0.45);
+    }
+
+    .sink-data {
+        float: left;
+        text-align: left;
+        font-size: 9px;
     }
 </style>

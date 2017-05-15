@@ -1,8 +1,15 @@
 <template>
     <div class="workspace-editor-root">
         <source-modal-form :workspaceData="workspace"
-                           @create="ocSourceCreate"
+                           @create="onSourceCreate"
                            ref="sourceModalForm"></source-modal-form>
+        <core-modal-form :workspaceData="workspace"
+                         @create="onCoreCreate"
+                         ref="coreModalForm"></core-modal-form>
+        <sink-modal-form :workspaceData="workspace"
+                         @create="onSinkCreate"
+                         ref="sinkModalForm"></sink-modal-form>
+
 
         <md-layout>
             <md-layout></md-layout>
@@ -29,8 +36,7 @@
             <md-layout>
                 <div class="core-container-wrapper">
                     <div class="core-container-header">
-                        <create-core-modal-form :workspaceId="workspace.id"
-                                                @create="onCoreCreate"></create-core-modal-form>
+                        <md-button @click.native="$refs.coreModalForm.open()">Create Core</md-button>
                     </div>
                     <div class="core-container">
                         <core v-for="core in workspace.relatedCores"
@@ -49,8 +55,7 @@
             <md-layout>
                 <div class="sink-container-wrapper">
                     <div class="sink-container-header">
-                        <create-sink-modal-form :workspaceData="workspace"
-                                                @create="onSinkCreate"></create-sink-modal-form>
+                        <md-button @click.native="$refs.sinkModalForm.open()">Create Sink</md-button>
                     </div>
                     <div class="sink-container">
                         <sink-component v-for="sink in workspace.relatedSinks"
@@ -99,7 +104,7 @@
              *
              * @param sourcePayload
              */
-            ocSourceCreate: function (sourcePayload) {
+            onSourceCreate: function (sourcePayload) {
                 this.addWorkspaceSubject(SOURCES_STRING, sourcePayload);
             },
 

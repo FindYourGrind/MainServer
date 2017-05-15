@@ -9,7 +9,7 @@
                               ref="modalFormCarcass">
         <md-input-container>
             <label>Name</label>
-            <md-input required v-model.trim="sourceName"></md-input>
+            <md-input required v-model.trim="name"></md-input>
         </md-input-container>
 
         <md-input-container>
@@ -25,7 +25,7 @@
 
         <md-input-container>
             <label>Source Type</label>
-            <md-select v-model.trim="sourceType" @change="onSourceTypeChange">
+            <md-select v-model.trim="type" @change="onSourceTypeChange">
                 <md-option v-for="sourceWorkerType in sourceWorkerTypes"
                            :key="sourceWorkerType.id"
                            :value="sourceWorkerType.type">{{ sourceWorkerType.name }}</md-option>
@@ -50,6 +50,9 @@
 
     export default {
         name: 'SourceModalForm',
+        components: {
+            ItemFormDialogCarcass
+        },
         props: {
             workspaceData: {
                 type: Object,
@@ -64,22 +67,17 @@
                 default: false
             }
         },
-        components: {
-            ItemFormDialogCarcass
-        },
         data: function () {
             return {
-                sourceName: '',
-                sourceType: '',
+                name: '',
+                type: '',
                 inputIdList: '',
                 workerConfig: {},
                 relatedInputs: [],
                 sourceWorkerTypes: [],
-                selectedWorkerType: null,
-                showStartSpinner: true
+                selectedWorkerType: null
             }
         },
-
         computed: {
             inputIdArray: function () {
                 let me = this;
@@ -92,25 +90,33 @@
                 return me.workspaceData.relatedCores ? me.workspaceData.relatedCores.map(core => core.id) : [];
             }
         },
-
         methods: {
+            /**
+             *
+             */
             open() {
                 let me = this;
 
                 me.$refs['modalFormCarcass'].open();
             },
 
+            /**
+             *
+             */
             beforeOpen() {
                 let me = this;
 
                 if (me.sourceData) {
-                    me.sourceName = me.sourceData.name;
-                    me.sourceType = me.sourceData.type;
+                    me.name = me.sourceData.name;
+                    me.type = me.sourceData.type;
                     me.inputIdList = me.sourceData.inputIdList;
                     me.workerConfig = me.sourceData.workerConfig;
                 }
             },
 
+            /**
+             *
+             */
             afterOpen() {
                 let me = this;
                 let relatedCoreIdList = me.relatedCoreIdList;
@@ -126,7 +132,7 @@
                 };
 
                 me.$http.get('api/Inputs', { params: { filter: JSON.stringify(whereCondition) } })
-                    .then(function (response) {
+                    .then(response => {
                         if (response.ok) {
                             me.relatedInputs = response.json();
                             return me.$http.get('api/SourceWorkerTypes');
@@ -134,16 +140,15 @@
                             throw 'Error while loading available inputs';
                         }
                     })
-                    .then(function (response) {
+                    .then(response => {
                         if (response.ok) {
                             me.sourceWorkerTypes = response.json();
-                            me.showStartSpinner = false;
                         } else {
                             throw 'Error while loading available inputs';
                         }
                     })
-                    .catch(function (err) {
-                        console.log('Error while loading source asset data - ' + err);
+                    .catch(err => {
+                        console.log(err);
                         me.$refs['modalFormCarcass'].showDialogError(err);
                     });
             },
@@ -153,29 +158,26 @@
              */
             onSave: function () {
                 let me = this;
-                let url = 'api/Sources/' + (me.editMode ? me.sourceData.id : '');
-                let eventName = me.editMode === true ? 'edit' : 'create';
 
-                me.$http.put(url, {
-                    name: me.sourceName,
-                    type: me.sourceType,
+                me.$http.put('api/Sources/' + (me.editMode ? me.sourceData.id : ''), {
+                    name: me.name,
+                    type: me.type,
                     connected: me.inputIdArray.length > 0,
                     inputIdList: me.inputIdArray,
                     workerConfig: me.workerConfig,
                     workspaceId: me.workspaceData.id,
                     accountId: me.getUserId()
                 })
-                    .then(function (response) {
+                    .then(response => {
                         if (response.ok) {
-                            me.$emit(eventName, response.data);
+                            me.$emit(me.editMode === true ? 'edit' : 'create', response.json());
                             me.$refs['modalFormCarcass'].close();
-                            me.showStartSpinner = false;
                         } else {
-                            throw 'Response not ok';
+                            throw 'Error while saving the Source data';
                         }
                     })
-                    .catch(function (err) {
-                        console.log('Error while saving the source data - ' + err);
+                    .catch(err => {
+                        console.log(err);
                         me.$refs['modalFormCarcass'].showDialogError(err);
                     });
             },
@@ -186,8 +188,8 @@
             beforeClose: function () {
                 let me = this;
 
-                me.sourceType = '';
-                me.sourceName = '';
+                me.type = '';
+                me.name = '';
                 me.inputIdList = '';
                 me.relatedInputs = [];
                 me.workerConfig = {};

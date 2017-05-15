@@ -1,5 +1,12 @@
 <template>
     <div :class="[outputData.connected ? 'connected' : 'disconnected', 'value-holder-root']">
+        <output-modal-form :workspaceData="workspaceData"
+                           :coreData="coreData"
+                           :outputData="outputData"
+                           :editMode="true"
+                           @edit="edit"
+                           ref="outputModalForm"></output-modal-form>
+
         <md-layout md-align="center">
             <md-layout md-align="start">
                 <md-button class="md-fab md-mini"
@@ -7,11 +14,11 @@
                     <md-icon>delete</md-icon>
                 </md-button>
                 <md-button class="md-fab md-mini"
-                           @click.native="edit">
+                           @click.native="$refs.outputModalForm.open()">
                     <md-icon>edit</md-icon>
                 </md-button>
             </md-layout>
-            <md-layout md-align="end">
+            <md-layout class="output-data" md-align="end">
                 Output: {{ outputData.name }}<br>
                 ID: {{ outputData.id }}<br>
             </md-layout>
@@ -20,9 +27,14 @@
 </template>
 
 <script>
+    import OutputModalForm from './dialogs/OutputModalForm.vue';
+
     export default {
         name: 'OutputComponent',
-        props: ['workspaceData', 'outputData'],
+        props: ['workspaceData', 'coreData', 'outputData'],
+        components: {
+            OutputModalForm
+        },
         data: function () {
             return {}
         },
@@ -70,5 +82,10 @@
 
     .connected {
         background-color: rgba(11, 235, 0, 0.45);
+    }
+
+    .output-data {
+        text-align: left;
+        font-size: 9px;
     }
 </style>
