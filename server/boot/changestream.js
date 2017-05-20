@@ -7,9 +7,9 @@ module.exports = function(app) {
     let Output = app.models.Output;
     let Sink = app.models.Sink;
     let Core = app.models.Core;
+    let Workspace = app.models.Workspace;
 
     function notificationHandler (modelName, changesStream) {
-        //changes.pipe(es.stringify()).pipe(process.stdout);
         changesStream.on('data', function (change) {
             let recordData = change.data;
 
@@ -57,6 +57,12 @@ module.exports = function(app) {
         Core.createChangeStream(function (err, changes) {
             if (!err) {
                 notificationHandler('Core', changes)
+            }
+        });
+
+        Workspace.createChangeStream(function (err, changes) {
+            if (!err) {
+                notificationHandler('Workspace', changes)
             }
         });
     });

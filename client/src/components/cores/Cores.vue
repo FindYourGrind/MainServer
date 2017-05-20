@@ -33,6 +33,8 @@
 </template>
 
 <script>
+    import { mapGetters, mapMutations } from 'vuex';
+
     export default {
         name: 'Cores',
         props: [],
@@ -51,7 +53,15 @@
             loadData: function () {
                 let me = this;
 
-                me.$http.get('api/Cores')
+                me.$http.get('api/Cores', {
+                    params: {
+                        filter: {
+                            where: {
+                                accountId: this.getUserId()
+                            }
+                        }
+                    }
+                })
                     .then(function (response) {
                         if (response.ok === true) {
                             me.coreList = response.json();
@@ -62,7 +72,15 @@
                     .catch(function (err) {
                         console.log(err);
                     });
-            }
+            },
+
+            /**
+             *
+             */
+            ...mapGetters({
+                getUserId: 'userId',
+                getUserName: 'userName'
+            })
         },
         created: function () {
             let me = this;
