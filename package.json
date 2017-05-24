@@ -5,8 +5,7 @@
   "scripts": {
     "lint": "eslint .",
     "start": "node .",
-    "posttest": "npm run lint && nsp check",
-    "buidUIAndSrart": "npm run --prefix ./client build && node ."
+    "posttest": "npm run lint && nsp check"
   },
   "dependencies": {
     "compression": "^1.0.3",
