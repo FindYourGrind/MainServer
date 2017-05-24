@@ -1,0 +1,7 @@
+version: 0.0
+os: linux
+hooks:
+  AfterInstall:
+    - location: deploy_hooks/InstallUIDependencies.sh
+      timeout: 360
+      runas: root

@@ -19,3 +19,7 @@ node_modules
 npm-debug.log
 .elasticbeanstalk/
 .idea/
+# Elastic Beanstalk Files
+.elasticbeanstalk/*
+!.elasticbeanstalk/*.cfg.yml
+!.elasticbeanstalk/*.global.yml
