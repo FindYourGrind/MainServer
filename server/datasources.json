@@ -4,7 +4,7 @@
     "connector": "memory"
   },
   "pg": {
-    "host": "aa1uacf0g1jyfet.cfgfayo9bfiw.us-west-2.rds.amazonaws.com",
+    "host": "aawjnfceri9xap.cfgfayo9bfiw.us-west-2.rds.amazonaws.com",
     "port": 5432,
     "database": "ebdb",
     "password": "postgres",
