@@ -39,7 +39,7 @@ if (accessToken) {
 store.commit('userAccessToken', accessToken || '');
 store.commit('userId', userId || -1);
 
-//Vue.http.options.root = (Config.httpOnly ? 'http' : 'https') + '://localhost:3000';
+Vue.http.options.root = (Config.httpOnly ? 'http' : 'https') + '://localhost:3000';
 Vue.http.headers.common['Authorization'] = accessToken;
 
 if (accessToken && userId) {

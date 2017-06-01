@@ -9,8 +9,8 @@ let ws = {
     io: IO,
     connect: function (options) {
         let me = this;
-        //let host = me.protocol + '://localhost:3000';
-        let host = '/';
+        let host = me.protocol + '://localhost:3000';
+        //let host = '/';
 
         if (me.isConnectionExists === false) {
             Vue.use(VueWebsocket, host, options);

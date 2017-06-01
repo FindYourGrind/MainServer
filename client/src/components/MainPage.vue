@@ -37,7 +37,7 @@
             </md-tab>
 
             <md-tab id="sources" md-label="Sources">
-
+                <sources ref="sourcesTable"></sources>
             </md-tab>
 
             <md-tab id="inputs" md-label="Inputs">
@@ -49,7 +49,7 @@
             </md-tab>
 
             <md-tab id="sinks" md-label="Sinks">
-
+                <sinks ref="sinksTable"></sinks>
             </md-tab>
 
         </md-tabs>
@@ -61,9 +61,11 @@
     import WorkspaceCard from './workspace/WorkspaceCard.vue';
     import WorkspaceModalForm from './workspace/dialogs/WorkspaceModalForm.vue';
     import WorkspaceEditor from './workspace/WorkspaceEditor.vue';
-    import Cores from './cores/Cores.vue';
-    import Inputs from './inputs/Inputs.vue';
-    import Outputs from './outputs/Outputs.vue';
+    import Cores from './items_grids/Cores.vue';
+    import Inputs from './items_grids/Inputs.vue';
+    import Outputs from './items_grids/Outputs.vue';
+    import Sinks from './items_grids/Sinks.vue';
+    import Sources from './items_grids/Sources.vue';
     import { mapGetters, mapMutations } from 'vuex';
 
     export default {
@@ -74,7 +76,9 @@
             WorkspaceEditor,
             Cores,
             Inputs,
-            Outputs
+            Outputs,
+            Sinks,
+            Sources
         },
         data () {
             return {
@@ -155,7 +159,7 @@
                         me.$refs['coresTable'].loadData();
                         break;
                     case 3:
-
+                        me.$refs['sourcesTable'].loadData();
                         break;
                     case 4:
                         me.$refs['inputsTable'].loadData();
@@ -164,7 +168,7 @@
                         me.$refs['outputsTable'].loadData();
                         break;
                     case 6:
-
+                        me.$refs['sinksTable'].loadData();
                         break;
                 }
             },
