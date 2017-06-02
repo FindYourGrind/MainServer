@@ -6,7 +6,9 @@ module.exports = function (app) {
     winston.addColors({
         info: 'green',
         warn: 'yellow',
-        error: 'red'
+        error: 'red',
+        senecaInfo: 'blue',
+        senecaError: 'red'
     });
 
     app.logger = new (winston.Logger)({
