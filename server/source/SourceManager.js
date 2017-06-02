@@ -1,15 +1,27 @@
-const WebSocketSource = require('./WebSocketSource');
 const sourceConstants = require('./constants.json');
 
 let app = require('../server');
+let logger = app.logger;
 let sourceProcessIDPool = new Set();
 
-function createCommandMessage (command) {
-    return JSON.stringify({ command: command })
-}
+const SOURCE_FACTORY_ROLE = 'sourceFactory';
 
-function sendCommandToSourceProcess (sourceId, command) {
-    app.emit(sourceConstants.SOURCE_PROCESS_PREFIX + sourceId, createCommandMessage(command));
+
+function actSeneca (role, command, data, callback) {
+    app.seneca.act({
+            role: role,
+            cmd: command,
+            data: data
+        },
+        (err, result) => {
+            logger.senecaError(err !== null ?
+                'Error while doing command: [' + command + '] on role: [' + role + ']: ' + err :
+                'Result for command: [' + command + '] on role: [' + role + ']: ' + result);
+
+            if (callback) {
+                callback(err, result);
+            }
+        });
 }
 
 class SourceManager {
@@ -18,45 +30,39 @@ class SourceManager {
         let sourceId = sourceRecord.getId();
 
         if (!sourceProcessIDPool.has(sourceId)) {
-            let logger = app.logger;
-            let sourceProcess;
-
-            switch (sourceRecord.type) {
-                case 1:
-                    sourceProcess = new WebSocketSource(sourceRecord);
-                    break;
-                default:
-                    logger.warn('SourceManager: Unknown Source Type: ' + sourceRecord.type);
-                    return;
-            }
-
-            sourceProcessIDPool.add(sourceId);
-            sourceProcess.execute();
+            actSeneca(SOURCE_FACTORY_ROLE, 'create', sourceRecord.__data, (err) => {
+                if (!err) {
+                    sourceProcessIDPool.add(sourceId);
+                }
+            });
         }
     }
 
     static deleteSourceProcess (sourceRecordId) {
-        if (sourceProcessIDPool.has(sourceRecordId)) {
-            sendCommandToSourceProcess(sourceRecordId, sourceConstants.DELETE_PROCESS_COMMAND);
-            sourceProcessIDPool.delete(sourceRecordId);
+        if (!sourceProcessIDPool.has(sourceRecordId)) {
+            actSeneca(SOURCE_FACTORY_ROLE, 'delete', { id: sourceRecordId }, (err) => {
+                if (!err) {
+                    sourceProcessIDPool.delete(sourceRecordId);
+                }
+            });
         }
     }
 
     static runSourceProcess (sourceRecordId) {
-        if (sourceProcessIDPool.has(sourceRecordId)) {
-            sendCommandToSourceProcess(sourceRecordId, sourceConstants.RUN_PROCESS_COMMAND);
+        if (!sourceProcessIDPool.has(sourceRecordId)) {
+            actSeneca(SOURCE_FACTORY_ROLE, 'run', { id: sourceRecordId });
         }
     }
 
     static stopSourceProcess (sourceRecordId) {
-        if (sourceProcessIDPool.has(sourceRecordId)) {
-            sendCommandToSourceProcess(sourceRecordId, sourceConstants.STOP_PROCESS_COMMAND);
+        if (!sourceProcessIDPool.has(sourceRecordId)) {
+            actSeneca(SOURCE_FACTORY_ROLE, 'stop', { id: sourceRecordId });
         }
     }
 
     static updateSourceProcess (sourceRecordId) {
-        if (sourceProcessIDPool.has(sourceRecordId)) {
-            sendCommandToSourceProcess(sourceRecordId, sourceConstants.UPDATE_PROCESS_COMMAND);
+        if (!sourceProcessIDPool.has(sourceRecordId)) {
+            actSeneca(SOURCE_FACTORY_ROLE, 'update', { id: sourceRecordId });
         }
     }
 }

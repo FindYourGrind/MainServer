@@ -1,33 +1,44 @@
 {
-  "db": {
-    "name": "db",
-    "connector": "memory"
-  },
-  "pg": {
-    "host": "aacw63yvsk0uzy.cfgfayo9bfiw.us-west-2.rds.amazonaws.com",
-    "port": 5432,
-    "database": "ebdb",
-    "password": "postgres",
-    "name": "pg",
-    "user": "postgres",
-    "connector": "postgresql"
-  },
-  "files": {
-    "name": "files",
-    "connector": "loopback-component-storage",
-    "provider": "filesystem",
-    "root": "./server/storage",
-    "maxFileSize": "10485760"
-  },
-  "mongo": {
-    "host": "localhost",
-    "port": 27017,
-    "url": "mongodb://sinksource:mongodb@localhost:27017/main_server",
-    "database": "main_server",
-    "password": "mongodb",
-    "name": "mongo",
-    "user": "sinksource",
-    "connector": "mongodb",
-    "lazyConnect": true
-  }
+    "db": {
+        "name": "db",
+        "connector": "memory"
+    },
+    "pg": {
+        "host": "localhost",
+        "port": 5432,
+        "url": "postgres://postgres:postgres@localhost:5432/main_server",
+        "database": "main_server",
+        "password": "postgres",
+        "name": "pg",
+        "user": "postgres",
+        "connector": "postgresql"
+    },
+    "pgAWS": {
+        "host": "aacw63yvsk0uzy.cfgfayo9bfiw.us-west-2.rds.amazonaws.com",
+        "port": 5432,
+        "database": "ebdb",
+        "password": "postgres",
+        "name": "pgAWS",
+        "user": "postgres",
+        "connector": "postgresql",
+        "lazyConnect": true
+    },
+    "files": {
+        "name": "files",
+        "connector": "loopback-component-storage",
+        "provider": "filesystem",
+        "root": "./server/storage",
+        "maxFileSize": "10485760"
+    },
+    "mongo": {
+        "host": "localhost",
+        "port": 27017,
+        "url": "mongodb://sinksource:mongodb@localhost:27017/main_server",
+        "database": "main_server",
+        "password": "mongodb",
+        "name": "mongo",
+        "user": "sinksource",
+        "connector": "mongodb",
+        "lazyConnect": true
+    }
 }

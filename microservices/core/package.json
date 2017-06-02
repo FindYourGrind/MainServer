@@ -1,11 +1,12 @@
 {
-  "name": "core",
-  "version": "1.0.0",
-  "description": "",
-  "main": "CoreFactory.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
-  "license": "ISC"
+    "name": "core",
+    "version": "1.0.0",
+    "description": "",
+    "main": "CoreFactory.js",
+    "scripts": {
+        "start": "node .",
+        "test": "echo \"Error: no test specified\" && exit 1"
+    },
+    "author": "",
+    "license": "ISC"
 }

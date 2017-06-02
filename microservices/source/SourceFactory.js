@@ -1,32 +1,28 @@
-let seneca = require('seneca')();
+let Source = require('./Source');
 
-const ROLE = 'sourceFactory';
-const OK_RESPONSE = 'ok';
+let sourcePool = new Map();
 
-seneca.use(function () {
-    seneca.add({ role: ROLE, cmd: 'create' }, (message, callback) => {
-        console.log('create source', message.data);
-        callback(null, { response: OK_RESPONSE })
-    });
+class SourceFactory {
 
-    seneca.add({ role: ROLE, cmd: 'delete' }, (message, callback) => {
-        console.log('delete source', message.data);
-        callback(null, { response: OK_RESPONSE })
-    });
+    static create (sourceData) {
+        sourcePool.set(sourceData.id, new Source(sourceData));
+    }
 
-    seneca.add({ role: ROLE, cmd: 'update' }, (message, callback) => {
-        console.log('update source', message.data);
-        callback(null, { response: OK_RESPONSE })
-    });
+    static remove (sourceId) {
+        sourcePool.delete(sourceId);
+    }
 
-    seneca.add({ role: ROLE, cmd: 'run' }, (message, callback) => {
-        console.log('run source', message.data);
-        callback(null, { response: OK_RESPONSE })
-    });
+    static update (sourceData) {
+        sourcePool.get(sourceData.id).update(sourceData);
+    }
 
-    seneca.add({ role: ROLE, cmd: 'stop' }, (message, callback) => {
-        console.log('stop source', message.data);
-        callback(null, { response: OK_RESPONSE })
-    });
-}).listen();
+    static run (sourceId) {
+        sourcePool.get(sourceId).run();
+    }
 
+    static stop (sourceId) {
+        sourcePool.get(sourceId).stop();
+    }
+}
+
+module.exports = SourceFactory;

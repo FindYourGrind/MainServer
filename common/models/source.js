@@ -10,18 +10,20 @@ module.exports = function(Source) {
         let logger = app.logger;
         let sourceRecord = ctx.instance;
 
-        SourceManager.createSourceProcess(sourceRecord);
+        if (ctx.isNewInstance && sourceRecord) {
+            SourceManager.createSourceProcess(sourceRecord);
 
-        if (ctx.isNewInstance && sourceRecord &&  sourceRecord.inputIdList.length > 0) {
-            sourceRecord.connect(sourceRecord.inputIdList)
-                .then(function () {
-                    next();
-                })
-                .catch(function (err) {
-                    logger.info('Error while connecting Source: ' + sourceRecord.getId() + ' - ' + err);
+            if (sourceRecord.inputIdList.length > 0) {
+                sourceRecord.connect(sourceRecord.inputIdList)
+                    .then(function () {
+                        next();
+                    })
+                    .catch(function (err) {
+                        logger.info('Error while connecting Source: ' + sourceRecord.getId() + ' - ' + err);
 
-                    next(err);
-                });
+                        next(err);
+                    });
+            }
         } else {
             SourceManager.updateSourceProcess(sourceRecord.getId());
 

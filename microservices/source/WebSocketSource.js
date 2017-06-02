@@ -1,5 +1,4 @@
-let app = require('../server');
-const sourceConstants = require('./constants.json');
+const sourceConstants = require('./../../server/source/constants.json');
 
 class WebSocketSource {
 
@@ -14,8 +13,6 @@ class WebSocketSource {
         app.addListener(sourceConstants.SOURCE_PROCESS_PREFIX + me.sourceRecord.getId(), function (message) {
             me.commandListener(message);
         });
-
-        logger.info('Worker for Source: ' + me.sourceRecord.id + ' created');
     }
 
     execute () {
