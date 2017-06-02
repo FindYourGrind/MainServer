@@ -1,5 +1,7 @@
 const SourceManager = require('../source/SourceManager');
 
+const ROLE = 'sourceFactory';
+
 module.exports = function (app, cb) {
     const logger = app.logger;
 
@@ -11,8 +13,25 @@ module.exports = function (app, cb) {
                 sourceRecords.forEach(function (sourceRecord) {
                     SourceManager.createSourceProcess(sourceRecord);
 
+                    app.seneca.act({role: ROLE, cmd: 'create', data: sourceRecord.getData()}, (err, result) => {
+                        if (err) {
+                            logger.error('Error while creating Source');
+                        }
+
+                        console.log(result)
+                    });
+
                     if (sourceRecord.connected === true) {
                         SourceManager.runSourceProcess(sourceRecord.getId());
+
+                        app.seneca.act({role: ROLE, cmd: 'run', data: sourceRecord.getData()}, (err, result) => {
+                            if (err) {
+                                logger.error('Error while running Source');
+                            }
+
+                            console.log(result)
+                        });
+
                     }
                 });
             })

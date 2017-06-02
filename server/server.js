@@ -1,12 +1,12 @@
 'use strict';
-var https = require('https');
-var http = require('http');
-var configSSL = require('./ConfigSSL');
-var bodyParser = require('body-parser');
-var loopback = require('loopback');
-var boot = require('loopback-boot');
+let https = require('https');
+let http = require('http');
+let configSSL = require('./ConfigSSL');
+let bodyParser = require('body-parser');
+let loopback = require('loopback');
+let boot = require('loopback-boot');
 
-var app = module.exports = loopback();
+let app = module.exports = loopback();
 
 app.config = require('../config.json');
 
