@@ -1,5 +1,7 @@
-let seneca = require('seneca')();
+let Seneca = require('seneca');
 
 module.exports = function (app) {
-    app.seneca = seneca.client();
+    app.seneca = Seneca({ log:'silent' })
+        .listen(10555)
+        .client(10556);
 };

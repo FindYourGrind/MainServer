@@ -1,4 +1,4 @@
-let es = require('event-stream');
+let SourceManager = require('../source/SourceManager');
 
 module.exports = function(app) {
     let logger = app.logger;
@@ -9,61 +9,77 @@ module.exports = function(app) {
     let Core = app.models.Core;
     let Workspace = app.models.Workspace;
 
-    function notificationHandler (modelName, changesStream) {
-        changesStream.on('data', function (change) {
-            let recordData = change.data;
+    function webSocketPublisher (modelName, change) {
+        let recordData = change.data;
 
-            app.wsInstance.emit('models-global-update');
+        app.wsInstance.emit('models-global-update');
 
-            app.models[modelName].find({ where: change.target ? { id : change.target } : change.where })
+        app.models[modelName].find({ where: change.target ? { id : change.target } : change.where })
+            .then(function (items) {
+                items.forEach(function (item) {
+                    logger.info(modelName + ': ' + item.getId() + ' updated. Notification by WebSocket started (' + change.type + ')');
+
+                    app.wsInstance.emit(modelName.toLowerCase() + '-' + item.getId() + '-' + change.type, recordData);
+                });
+            })
+            .catch(function () {
+                logger.warn('Error in changeStream for ' + modelName);
+            });
+    }
+
+    function microServicesPublisher (modelName, change) {
+        let recordData = change.data;
+        let canUpdate = true;
+        let publishHandler;
+
+        switch (modelName) {
+            case Source.modelName:
+                publishHandler = SourceManager.updateSourceProcess;
+                break;
+            default:
+                canUpdate = false;
+                break;
+        }
+
+        if (canUpdate) {
+            app.models[modelName].find({where: change.target ? {id: change.target} : change.where})
                 .then(function (items) {
                     items.forEach(function (item) {
-                        logger.info(modelName + ': ' + item.getId() + ' updated. Notification started (' + change.type + ')');
+                        logger.info(modelName + ': ' + item.getId() + ' updated. Notification Micro Services started (' + change.type + ')');
 
-                        app.wsInstance.emit(modelName.toLowerCase() + '-' + item.getId() + '-' + change.type, recordData);
+                        publishHandler(recordData);
                     });
                 })
                 .catch(function () {
                     logger.warn('Error in changeStream for ' + modelName);
                 });
+        }
+    }
+
+    function notificationHandler (modelName, changeStream) {
+        changeStream.on('data', (change) => {
+            webSocketPublisher(modelName, change);
+            microServicesPublisher(modelName, change);
         });
+
+    }
+
+    function changeStreamHandler (err, change) {
+        let modelName = this.modelName;
+
+        if (!err) {
+            notificationHandler(modelName, change)
+        } else {
+            logger.warn('Error while creating Change Stream for ' + modelName + ': ' + err);
+        }
     }
 
     app.on('wsReady', function () {
-        Source.createChangeStream(function (err, changes) {
-            if (!err) {
-                notificationHandler('Source', changes)
-            }
-        });
-
-        Input.createChangeStream(function (err, changes) {
-            if (!err) {
-                notificationHandler('Input', changes)
-            }
-        });
-
-        Output.createChangeStream(function (err, changes) {
-            if (!err) {
-                notificationHandler('Output', changes)
-            }
-        });
-
-        Sink.createChangeStream(function (err, changes) {
-            if (!err) {
-                notificationHandler('Sink', changes)
-            }
-        });
-
-        Core.createChangeStream(function (err, changes) {
-            if (!err) {
-                notificationHandler('Core', changes)
-            }
-        });
-
-        Workspace.createChangeStream(function (err, changes) {
-            if (!err) {
-                notificationHandler('Workspace', changes)
-            }
-        });
+        Source.createChangeStream(changeStreamHandler.bind(Source));
+        Input.createChangeStream(changeStreamHandler.bind(Input));
+        Output.createChangeStream(changeStreamHandler.bind(Output));
+        Sink.createChangeStream(changeStreamHandler.bind(Sink));
+        Core.createChangeStream(changeStreamHandler.bind(Core));
+        Workspace.createChangeStream(changeStreamHandler.bind(Workspace));
     });
 };

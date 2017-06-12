@@ -3,20 +3,36 @@
 let winston = require('winston');
 
 module.exports = function (app) {
-    winston.addColors({
-        info: 'green',
-        warn: 'yellow',
-        error: 'red',
-        senecaInfo: 'blue',
-        senecaError: 'red'
-    });
+    let loggerConfiguration = {
+        levels: {
+            info: 99,
+            warn: 1,
+            error: 2,
+            senecaInfo: 3,
+            senecaError: 4,
+            sourceMicroService: 5,
+            sourceMicroServiceErr: 6
+        },
+        colors: {
+            info: 'green',
+            warn: 'orange',
+            error: 'red',
+            senecaInfo: 'green',
+            senecaError: 'red',
+            sourceMicroService: 'green',
+            sourceMicroServiceErr: 'red'
+        }
+    };
 
     app.logger = new (winston.Logger)({
+        levels: loggerConfiguration.levels,
+        colors: loggerConfiguration.colors,
         transports: [
             new (winston.transports.Console)({
+                name: 'consoleTransport',
+                level:'info',
                 colorize: true
-            }),
-            //new (winston.transports.File)({ filename: __dirname + '/../log/serverLog.log' })
+            })
         ]
     });
 };

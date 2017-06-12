@@ -25,7 +25,7 @@ module.exports = function(Source) {
                     });
             }
         } else {
-            SourceManager.updateSourceProcess(sourceRecord.getId());
+            SourceManager.updateSourceProcess(sourceRecord);
 
             next();
         }
