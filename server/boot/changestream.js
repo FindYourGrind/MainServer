@@ -1,4 +1,4 @@
-let SourceManager = require('../source/SourceManager');
+let SourceManager = require('../microserviceManager/source/SourceManager');
 
 module.exports = function(app) {
     let logger = app.logger;
@@ -14,17 +14,23 @@ module.exports = function(app) {
 
         app.wsInstance.emit('models-global-update');
 
-        app.models[modelName].find({ where: change.target ? { id : change.target } : change.where })
-            .then(function (items) {
-                items.forEach(function (item) {
-                    logger.info(modelName + ': ' + item.getId() + ' updated. Notification by WebSocket started (' + change.type + ')');
+        if (change.type !== 'remove') {
+            app.models[modelName].find({where: change.target ? {id: change.target} : change.where})
+                .then(function (items) {
+                    items.forEach(function (item) {
+                        logger.info(modelName + ': ' + item.getId() + ' updated. Notification by WebSocket started (' + change.type + ')');
 
-                    app.wsInstance.emit(modelName.toLowerCase() + '-' + item.getId() + '-' + change.type, recordData);
+                        app.wsInstance.emit(modelName.toLowerCase() + '-' + item.getId() + '-' + change.type, recordData);
+                    });
+                })
+                .catch(function () {
+                    logger.warn('Error in changeStream for ' + modelName);
                 });
-            })
-            .catch(function () {
-                logger.warn('Error in changeStream for ' + modelName);
-            });
+        } else {
+            logger.info(modelName + ': ' + change.target + ' updated. Notification by WebSocket started (' + change.type + ')');
+
+            app.wsInstance.emit(modelName.toLowerCase() + '-' + change.target + '-' + change.type);
+        }
     }
 
     function microServicesPublisher (modelName, change) {
@@ -34,7 +40,19 @@ module.exports = function(app) {
 
         switch (modelName) {
             case Source.modelName:
-                publishHandler = SourceManager.updateSourceProcess;
+                switch (change.type) {
+                    case 'create':
+                        publishHandler = SourceManager.createSourceProcess;
+                        break;
+                    case 'update':
+                        publishHandler = SourceManager.updateSourceProcess;
+                        break;
+                    case 'remove':
+                        publishHandler = SourceManager.removeSourceProcess;
+                        break;
+                    default:
+                        canUpdate = false;
+                }
                 break;
             default:
                 canUpdate = false;
@@ -42,17 +60,26 @@ module.exports = function(app) {
         }
 
         if (canUpdate) {
-            app.models[modelName].find({where: change.target ? {id: change.target} : change.where})
-                .then(function (items) {
-                    items.forEach(function (item) {
-                        logger.info(modelName + ': ' + item.getId() + ' updated. Notification Micro Services started (' + change.type + ')');
+            if (change.type !== 'remove') {
+                app.models[modelName].find({where: change.target ? {id: change.target} : change.where})
+                    .then(function (items) {
+                        items.forEach(function (item) {
+                            logger.info(modelName + ': ' + item.getId() + ' updated. Notification Micro Services started (' + change.type + ')');
 
-                        publishHandler(recordData);
+                            publishHandler(recordData)
+                                .catch((err) => {
+                                    logger.warn('Error while processing ' + modelName + ' micro service: - ' + err);
+                                });
+                        });
+                    })
+                    .catch(function () {
+                        logger.warn('Error in changeStream for ' + modelName);
                     });
-                })
-                .catch(function () {
-                    logger.warn('Error in changeStream for ' + modelName);
-                });
+            } else {
+                logger.info(modelName + ': ' + change.target + ' deleted. Notification Micro Services started (' + change.type + ')');
+
+                publishHandler(change.target);
+            }
         }
     }
 

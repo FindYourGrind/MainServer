@@ -1,6 +1,5 @@
 'use strict';
 
-const SourceManager = require('../../server/source/SourceManager');
 let _ = require('lodash');
 
 module.exports = function(Source) {
@@ -11,8 +10,6 @@ module.exports = function(Source) {
         let sourceRecord = ctx.instance;
 
         if (ctx.isNewInstance && sourceRecord) {
-            SourceManager.createSourceProcess(sourceRecord);
-
             if (sourceRecord.inputIdList.length > 0) {
                 sourceRecord.connect(sourceRecord.inputIdList)
                     .then(function () {
@@ -23,10 +20,10 @@ module.exports = function(Source) {
 
                         next(err);
                     });
+            } else {
+                next();
             }
         } else {
-            SourceManager.updateSourceProcess(sourceRecord);
-
             next();
         }
     });
@@ -68,10 +65,6 @@ module.exports = function(Source) {
 
         Source.find({ where: ctx.where })
             .then(function (sourceRecords) {
-                sourceRecords.forEach(function (sourceRecord) {
-                    SourceManager.deleteSourceProcess(sourceRecord.getId());
-                });
-
                 return Source.disconnectFewSources(sourceRecords);
             })
             .then(function () {
@@ -109,8 +102,6 @@ module.exports = function(Source) {
                 })
                 .then(function (source) {
                     logger.info('Source: ' + me.getId() + ' connected to next Inputs: ' + inputIdList.toString());
-
-                    SourceManager.runSourceProcess(source.getId());
 
                     if (callback) {
                         callback(null, source)
@@ -165,8 +156,6 @@ module.exports = function(Source) {
                 })
                 .then(function () {
                     logger.info('Source: ' + me.getId() + ' disconnected from next Inputs: ' + inputIdList.toString());
-
-                    SourceManager.stopSourceProcess(me.getId());
 
                     if (callback) {
                         callback(null);

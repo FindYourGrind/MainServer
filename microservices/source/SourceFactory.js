@@ -10,6 +10,7 @@ class SourceFactory {
     }
 
     static remove (sourceId, callback) {
+        sourcePool.get(sourceId).remove();
         sourcePool.delete(sourceId);
         callback();
     }

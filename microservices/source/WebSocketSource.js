@@ -1,4 +1,4 @@
-const sourceConstants = require('./../../server/source/constants.json');
+const sourceConstants = require('../../server/microserviceManager/constants.json');
 
 class WebSocketSource {
 

@@ -1,0 +1,20 @@
+{
+    "commands": {
+        "CREATE": "create",
+        "UPDATE": "update",
+        "REMOVE": "remove",
+        "READY": "ready"
+    },
+
+    "source": {
+        "ROLE": "sourceFactory"
+    },
+
+    "sink": {
+
+    },
+
+    "core": {
+
+    }
+}

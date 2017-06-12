@@ -33,6 +33,11 @@ module.exports = function (app) {
                 level:'info',
                 colorize: true
             })
+        ],
+        filters:   [
+            function (level, msg) {
+               return msg.replace(/(\r\n|\n|\r)/gm,"");
+            }
         ]
     });
 };

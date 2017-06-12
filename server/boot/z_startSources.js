@@ -1,4 +1,4 @@
-const SourceManager = require('../source/SourceManager');
+const SourceManager = require('../microserviceManager/source/SourceManager');
 
 module.exports = function (app, cb) {
     const logger = app.logger;
@@ -10,16 +10,19 @@ module.exports = function (app, cb) {
 
                 sourceModel.find()
                     .then(function (sourceRecords) {
-                        sourceRecords.forEach(function (sourceRecord) {
-                            SourceManager.createSourceProcess(sourceRecord)
-                                .then(() => {
-                                    if (sourceRecord.connected === true) {
-                                        return SourceManager.runSourceProcess(sourceRecord.getId());
-                                    }
-                                })
-                                .then(() => { callback(); })
-                                .catch((err) => { throw err; });
-                        });
+                        if (sourceRecords.length > 0) {
+                            sourceRecords.forEach(function (sourceRecord) {
+                                SourceManager.createSourceProcess(sourceRecord)
+                                    .then(() => {
+                                        callback();
+                                    })
+                                    .catch((err) => {
+                                        throw err;
+                                    });
+                            });
+                        } else {
+                            callback();
+                        }
                     })
                     .catch(function (err) {
                         logger.error('Error while queueing Source Records: ' + err);

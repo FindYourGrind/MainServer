@@ -1,7 +1,0 @@
-{
-  "DELETE_PROCESS_COMMAND": "source_delete",
-  "RUN_PROCESS_COMMAND": "source_run",
-  "STOP_PROCESS_COMMAND": "source_stop",
-  "UPDATE_PROCESS_COMMAND": "source_update",
-  "SOURCE_PROCESS_PREFIX": "source_process"
-}

@@ -16,6 +16,10 @@ class Source {
     update(sourceData) {
         console.log('update source', this.sourceData.id);
     }
+
+    remove () {
+        console.log('remove source', this.sourceData.id);
+    }
 }
 
 module.exports = Source;

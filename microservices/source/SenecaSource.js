@@ -14,25 +14,13 @@ seneca
         });
 
         seneca.add({role: ROLE, cmd: 'remove'}, (message, callback) => {
-            SourceFactory.remove(message.data, (err) => {
+            SourceFactory.remove(message.data.id, (err) => {
                 callback(err, {response: err ? ERROR_RESPONSE : OK_RESPONSE})
             });
         });
 
         seneca.add({role: ROLE, cmd: 'update'}, (message, callback) => {
             SourceFactory.update(message.data, (err) => {
-                callback(err, {response: err ? ERROR_RESPONSE : OK_RESPONSE})
-            });
-        });
-
-        seneca.add({role: ROLE, cmd: 'run'}, (message, callback) => {
-            SourceFactory.run(message.data.id, (err) => {
-                callback(err, {response: err ? ERROR_RESPONSE : OK_RESPONSE})
-            });
-        });
-
-        seneca.add({role: ROLE, cmd: 'stop'}, (message, callback) => {
-            SourceFactory.stop(message.data, (err) => {
                 callback(err, {response: err ? ERROR_RESPONSE : OK_RESPONSE})
             });
         });
