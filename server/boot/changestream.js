@@ -1,4 +1,5 @@
-let SourceManager = require('../microserviceManager/source/SourceManager');
+let SourceManager = require('../microServiceManager/source/SourceManager');
+let SinkManager = require('../microServiceManager/sink/SinkManager');
 
 module.exports = function(app) {
     let logger = app.logger;
@@ -42,13 +43,28 @@ module.exports = function(app) {
             case Source.modelName:
                 switch (change.type) {
                     case 'create':
-                        publishHandler = SourceManager.createSourceProcess;
+                        publishHandler = SourceManager.create;
                         break;
                     case 'update':
-                        publishHandler = SourceManager.updateSourceProcess;
+                        publishHandler = SourceManager.update;
                         break;
                     case 'remove':
-                        publishHandler = SourceManager.removeSourceProcess;
+                        publishHandler = SourceManager.remove;
+                        break;
+                    default:
+                        canUpdate = false;
+                }
+                break;
+            case Sink.modelName:
+                switch (change.type) {
+                    case 'create':
+                        publishHandler = SinkManager.create;
+                        break;
+                    case 'update':
+                        publishHandler = SinkManager.update;
+                        break;
+                    case 'remove':
+                        publishHandler = SinkManager.remove;
                         break;
                     default:
                         canUpdate = false;
@@ -78,7 +94,10 @@ module.exports = function(app) {
             } else {
                 logger.info(modelName + ': ' + change.target + ' deleted. Notification Micro Services started (' + change.type + ')');
 
-                publishHandler(change.target);
+                publishHandler(change.target)
+                    .catch((err) => {
+                        logger.warn('Error while processing ' + modelName + ' micro service: - ' + err);
+                    });
             }
         }
     }

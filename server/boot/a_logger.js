@@ -10,8 +10,12 @@ module.exports = function (app) {
             error: 2,
             senecaInfo: 3,
             senecaError: 4,
-            sourceMicroService: 5,
-            sourceMicroServiceErr: 6
+            microServiceInfo: 5,
+            microServiceErr: 6,
+            sourceMicroServiceInfo: 7,
+            sourceMicroServiceErr: 8,
+            sinkMicroServiceInfo: 9,
+            sinkMicroServiceErr: 10
         },
         colors: {
             info: 'green',
@@ -19,8 +23,12 @@ module.exports = function (app) {
             error: 'red',
             senecaInfo: 'green',
             senecaError: 'red',
-            sourceMicroService: 'green',
-            sourceMicroServiceErr: 'red'
+            microServiceInfo: 'green',
+            microServiceErr: 'red',
+            sourceMicroServiceInfo: 'green',
+            sourceMicroServiceErr: 'red',
+            sinkMicroServiceInfo: 'green',
+            sinkMicroServiceErr: 'red'
         }
     };
 

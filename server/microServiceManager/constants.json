@@ -7,14 +7,16 @@
     },
 
     "source": {
-        "ROLE": "sourceFactory"
+        "ROLE": "sourceFactory",
+        "PATH": "microservices/source/SenecaSource.js"
     },
 
     "sink": {
-
+        "ROLE": "sinkFactory",
+        "PATH": "microservices/sink/SenecaSink.js"
     },
 
     "core": {
-
+        "ROLE": "coreFactory"
     }
 }
