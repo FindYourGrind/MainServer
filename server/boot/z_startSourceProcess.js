@@ -3,20 +3,22 @@ const SourceManager = require('../microServiceManager/source/SourceManager');
 module.exports = function (app, cb) {
     const logger = app.logger;
 
-    app.on('started', function () {
+    app.on('started', () => {
         (new SourceManager()).start()
             .then(() => {
                 return app.models.Source.find()
             })
-            .then(function (sourceRecords) {
+            .then((sourceRecords) => {
                 if (sourceRecords.length > 0) {
-                    sourceRecords.forEach(function (sourceRecord) {
-                        SourceManager.create(sourceRecord).catch((err) => { throw err; });
+                    return app.utility.promiseConveyor(function (resolve, reject) {
+                        sourceRecords.forEach((sourceRecord) => {
+                            SourceManager.create(sourceRecord).then(resolve).catch(reject);
+                        });
                     });
                 }
             })
             .catch((err) => {
-                logger.error('Error while running Source Process: ' + err);
+                logger.error('Error while running Source Process Manager: ' + err);
             });
     });
 

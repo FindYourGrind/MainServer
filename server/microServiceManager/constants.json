@@ -17,6 +17,7 @@
     },
 
     "core": {
-        "ROLE": "coreFactory"
+        "ROLE": "coreFactory",
+        "PATH": "microservices/core/SenecaCore.js"
     }
 }

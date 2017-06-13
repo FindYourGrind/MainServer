@@ -42,7 +42,7 @@ class MicroServiceManager {
             if (me.pid === -1) {
                 let logger = app.logger;
                 let sourceMicroServiceProcess = fork(me.path, [], {
-                    //execArgv: ['--inspect'],
+                    execArgv: [],
                     stdio: ['pipe', 'pipe', 'pipe', 'ipc']
                 });
 

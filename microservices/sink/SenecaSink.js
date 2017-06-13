@@ -28,7 +28,7 @@ seneca
     .ready((err) => {
         seneca.act({ role: ROLE, cmd: 'ready', data: { err: err } }, (err, result) => {
             if (!err) {
-                console.log('do smth on start with', result);
+                console.log('Sink process ready');
             }
         });
     })

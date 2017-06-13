@@ -1,5 +1,6 @@
 let SourceManager = require('../microServiceManager/source/SourceManager');
 let SinkManager = require('../microServiceManager/sink/SinkManager');
+let CoreManager = require('../microServiceManager/core/CoreManager');
 
 module.exports = function(app) {
     let logger = app.logger;
@@ -70,6 +71,21 @@ module.exports = function(app) {
                         canUpdate = false;
                 }
                 break;
+            case Core.modelName:
+                switch (change.type) {
+                    case 'create':
+                        publishHandler = CoreManager.create;
+                        break;
+                    case 'update':
+                        publishHandler = CoreManager.update;
+                        break;
+                    case 'remove':
+                        publishHandler = CoreManager.remove;
+                        break;
+                    default:
+                        canUpdate = false;
+                }
+                break;
             default:
                 canUpdate = false;
                 break;
@@ -82,21 +98,18 @@ module.exports = function(app) {
                         items.forEach(function (item) {
                             logger.info(modelName + ': ' + item.getId() + ' updated. Notification Micro Services started (' + change.type + ')');
 
-                            publishHandler(recordData)
-                                .catch((err) => {
-                                    logger.warn('Error while processing ' + modelName + ' micro service: - ' + err);
-                                });
+                            publishHandler(recordData).catch((err) => { throw err; });
                         });
                     })
-                    .catch(function () {
-                        logger.warn('Error in changeStream for ' + modelName);
+                    .catch(function (err) {
+                        logger.error('Error in changeStream for ' + modelName + ' - ' + err);
                     });
             } else {
                 logger.info(modelName + ': ' + change.target + ' deleted. Notification Micro Services started (' + change.type + ')');
 
                 publishHandler(change.target)
                     .catch((err) => {
-                        logger.warn('Error while processing ' + modelName + ' micro service: - ' + err);
+                        logger.error('Error while processing ' + modelName + ' micro service: - ' + err);
                     });
             }
         }
