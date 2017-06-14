@@ -68,6 +68,60 @@ class CoreManager extends MicroServiceManager {
             }
         });
     }
+
+    static createInput (inputRecord) {
+        let inputId = inputRecord.getId();
+
+        return new Promise((resolve, reject) => {
+            if (!coreProcessIDPool.has(inputId)) {
+                MicroServiceManager.act(constants.core.ROLE, constants.commands.CREATE, inputRecord.__data, (err, result) => {
+                    if (!err) {
+                        coreProcessIDPool.add(inputId);
+                        resolve(result);
+                    } else {
+                        reject('Error while creating Input: ' + inputId + ' - ' + err);
+                    }
+                });
+            } else {
+                reject('Input with id: ' + inputId + ' already created');
+            }
+        });
+    }
+
+    static removeInput (inputId) {
+        return new Promise((resolve, reject) => {
+            if (coreProcessIDPool.has(inputId)) {
+                MicroServiceManager.act(constants.core.ROLE, constants.commands.REMOVE, { id: inputId }, (err, result) => {
+                    if (!err) {
+                        coreProcessIDPool.delete(inputId);
+                        resolve(result);
+                    } else {
+                        reject('Error while removing Core Process: ' + inputId + ' - ' + err);
+                    }
+                });
+            } else {
+                reject('No such Sink Process with id: ' + coreRecordId);
+            }
+        });
+    }
+
+    static updateInput (coreRecord) {
+        let coreId = coreRecord.getId();
+
+        return new Promise((resolve, reject) => {
+            if (coreProcessIDPool.has(coreId)) {
+                MicroServiceManager.act(constants.core.ROLE, constants.commands.UPDATE, coreRecord.__data, (err, result) => {
+                    if (!err) {
+                        resolve(result);
+                    } else {
+                        reject('Error while updating Core Process: ' + coreId + ' - ' + err);
+                    }
+                });
+            } else {
+                reject('No such Core Process with id: ' + coreId);
+            }
+        });
+    }
 }
 
 module.exports = CoreManager;

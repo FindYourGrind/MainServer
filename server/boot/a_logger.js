@@ -15,7 +15,9 @@ module.exports = function (app) {
             sourceMicroServiceInfo: 7,
             sourceMicroServiceErr: 8,
             sinkMicroServiceInfo: 9,
-            sinkMicroServiceErr: 10
+            sinkMicroServiceErr: 10,
+            coreMicroServiceInfo: 11,
+            coreMicroServiceErr: 12
         },
         colors: {
             info: 'green',
@@ -28,7 +30,9 @@ module.exports = function (app) {
             sourceMicroServiceInfo: 'green',
             sourceMicroServiceErr: 'red',
             sinkMicroServiceInfo: 'green',
-            sinkMicroServiceErr: 'red'
+            sinkMicroServiceErr: 'red',
+            coreMicroServiceInfo: 'green',
+            coreMicroServiceErr: 'red'
         }
     };
 

@@ -86,6 +86,36 @@ module.exports = function(app) {
                         canUpdate = false;
                 }
                 break;
+            case Input.modelName:
+                switch (change.type) {
+                    case 'create':
+                        publishHandler = CoreManager.createInput;
+                        break;
+                    case 'update':
+                        publishHandler = CoreManager.updateInput;
+                        break;
+                    case 'remove':
+                        publishHandler = CoreManager.removeInput;
+                        break;
+                    default:
+                        canUpdate = false;
+                }
+                break;
+            case Output.modelName:
+                switch (change.type) {
+                    case 'create':
+                        publishHandler = CoreManager.createOutput;
+                        break;
+                    case 'update':
+                        publishHandler = CoreManager.updateOutput;
+                        break;
+                    case 'remove':
+                        publishHandler = CoreManager.removeOutput;
+                        break;
+                    default:
+                        canUpdate = false;
+                }
+                break;
             default:
                 canUpdate = false;
                 break;
