@@ -128,7 +128,7 @@ module.exports = function(app) {
                         items.forEach(function (item) {
                             logger.info(modelName + ': ' + item.getId() + ' updated. Notification Micro Services started (' + change.type + ')');
 
-                            publishHandler(recordData).catch((err) => { throw err; });
+                            publishHandler(item).catch((err) => { throw err; });
                         });
                     })
                     .catch(function (err) {

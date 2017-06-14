@@ -23,6 +23,7 @@ module.exports = function (app) {
         },
 
         promiseConveyor: function (func) {
+            let finalResult;
             let generator = (function* () {
                 yield new Promise ((resolve, reject) => {
                     func(resolve, reject);
@@ -35,11 +36,12 @@ module.exports = function (app) {
                 return new Promise ((resolve, reject) => {
                     if (!next.done) {
                         next.value
-                            .then(() => {
+                            .then((result) => {
+                                finalResult = result;
                                 return nextIteration(generator);
                             })
-                            .then(() => {
-                                resolve();
+                            .then((result) => {
+                                resolve(result);
                             })
                             .catch((err) => {
                                 generator.throw(err);
@@ -48,7 +50,7 @@ module.exports = function (app) {
                                 reject(err)
                             })
                     } else {
-                        resolve();
+                        resolve(finalResult);
                     }
                 });
             }

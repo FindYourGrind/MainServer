@@ -1,6 +1,9 @@
 let Core = require('./Core');
 
 let corePool = new Map();
+let inputToCoreMap = new Map();
+let outputToCoreMap = new Map();
+
 
 class CoreFactory {
 
@@ -31,32 +34,36 @@ class CoreFactory {
     }
 
     static createInput (inputData, callback) {
-
+        corePool.get(inputData.coreId).createInput(inputData);
+        inputToCoreMap.set(inputData.id, inputData.coreId);
         callback();
     }
 
     static removeInput (inputId, callback) {
-
+        corePool.get(inputToCoreMap.get(inputId)).removeInput(inputId);
+        inputToCoreMap.delete(inputId);
         callback();
     }
 
     static updateInput (inputData, callback) {
-
+        corePool.get(inputData.coreId).updateInput(inputData);
         callback();
     }
 
     static createOutput (outputData, callback) {
-
+        corePool.get(outputData.coreId).createOutput(outputData);
+        outputToCoreMap.set(outputData.id, outputData.coreId);
         callback();
     }
 
     static removeOutput (outputId, callback) {
-
+        corePool.get(outputToCoreMap.get(outputId)).removeOutput(outputId);
+        outputToCoreMap.delete(outputId);
         callback();
     }
 
     static updateOutput (outputData, callback) {
-
+        corePool.get(outputData.coreId).updateOutput(outputData);
         callback();
     }
 }

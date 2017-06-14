@@ -2,6 +2,8 @@ const constants = require('../constants.json');
 
 let MicroServiceManager = require('../MicroServiceManager');
 let coreProcessIDPool = new Set();
+let inputProcessIDPool = new Set();
+let outputProcessIDPool = new Set();
 
 
 class CoreManager extends MicroServiceManager {
@@ -73,10 +75,10 @@ class CoreManager extends MicroServiceManager {
         let inputId = inputRecord.getId();
 
         return new Promise((resolve, reject) => {
-            if (!coreProcessIDPool.has(inputId)) {
-                MicroServiceManager.act(constants.core.ROLE, constants.commands.CREATE, inputRecord.__data, (err, result) => {
+            if (!inputProcessIDPool.has(inputId)) {
+                MicroServiceManager.act(constants.core.ROLE, constants.commands.CREATE_INPUT, inputRecord.__data, (err, result) => {
                     if (!err) {
-                        coreProcessIDPool.add(inputId);
+                        inputProcessIDPool.add(inputId);
                         resolve(result);
                     } else {
                         reject('Error while creating Input: ' + inputId + ' - ' + err);
@@ -90,35 +92,89 @@ class CoreManager extends MicroServiceManager {
 
     static removeInput (inputId) {
         return new Promise((resolve, reject) => {
-            if (coreProcessIDPool.has(inputId)) {
-                MicroServiceManager.act(constants.core.ROLE, constants.commands.REMOVE, { id: inputId }, (err, result) => {
+            if (inputProcessIDPool.has(inputId)) {
+                MicroServiceManager.act(constants.core.ROLE, constants.commands.REMOVE_INPUT, { id: inputId }, (err, result) => {
                     if (!err) {
-                        coreProcessIDPool.delete(inputId);
+                        inputProcessIDPool.delete(inputId);
                         resolve(result);
                     } else {
-                        reject('Error while removing Core Process: ' + inputId + ' - ' + err);
+                        reject('Error while removing Input Process: ' + inputId + ' - ' + err);
                     }
                 });
             } else {
-                reject('No such Sink Process with id: ' + coreRecordId);
+                reject('No such Input with id: ' + inputId);
             }
         });
     }
 
-    static updateInput (coreRecord) {
-        let coreId = coreRecord.getId();
+    static updateInput (inputRecord) {
+        let inputId = inputRecord.getId();
 
         return new Promise((resolve, reject) => {
-            if (coreProcessIDPool.has(coreId)) {
-                MicroServiceManager.act(constants.core.ROLE, constants.commands.UPDATE, coreRecord.__data, (err, result) => {
+            if (inputProcessIDPool.has(inputId)) {
+                MicroServiceManager.act(constants.core.ROLE, constants.commands.UPDATE_INPUT, inputRecord.__data, (err, result) => {
                     if (!err) {
                         resolve(result);
                     } else {
-                        reject('Error while updating Core Process: ' + coreId + ' - ' + err);
+                        reject('Error while updating Input: ' + inputId + ' - ' + err);
                     }
                 });
             } else {
-                reject('No such Core Process with id: ' + coreId);
+                reject('No such Input with id: ' + inputId);
+            }
+        });
+    }
+
+    static createOutput (outputRecord) {
+        let outputId = outputRecord.getId();
+
+        return new Promise((resolve, reject) => {
+            if (!outputProcessIDPool.has(outputId)) {
+                MicroServiceManager.act(constants.core.ROLE, constants.commands.CREATE_OUTPUT, outputRecord.__data, (err, result) => {
+                    if (!err) {
+                        outputProcessIDPool.add(outputId);
+                        resolve(result);
+                    } else {
+                        reject('Error while creating Output: ' + outputId + ' - ' + err);
+                    }
+                });
+            } else {
+                reject('Output with id: ' + outputId + ' already created');
+            }
+        });
+    }
+
+    static removeOutput (outputId) {
+        return new Promise((resolve, reject) => {
+            if (outputProcessIDPool.has(outputId)) {
+                MicroServiceManager.act(constants.core.ROLE, constants.commands.REMOVE_OUTPUT, { id: outputId }, (err, result) => {
+                    if (!err) {
+                        outputProcessIDPool.delete(outputId);
+                        resolve(result);
+                    } else {
+                        reject('Error while removing Output Process: ' + outputId + ' - ' + err);
+                    }
+                });
+            } else {
+                reject('No such Output with id: ' + outputId);
+            }
+        });
+    }
+
+    static updateOutput (outputRecord) {
+        let outputId = outputRecord.getId();
+
+        return new Promise((resolve, reject) => {
+            if (outputProcessIDPool.has(outputId)) {
+                MicroServiceManager.act(constants.core.ROLE, constants.commands.UPDATE_OUTPUT, outputRecord.__data, (err, result) => {
+                    if (!err) {
+                        resolve(result);
+                    } else {
+                        reject('Error while updating Output: ' + outputId + ' - ' + err);
+                    }
+                });
+            } else {
+                reject('No such Output with id: ' + outputId);
             }
         });
     }
