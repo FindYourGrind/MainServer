@@ -3,7 +3,13 @@
         "CREATE": "create",
         "UPDATE": "update",
         "REMOVE": "remove",
-        "READY": "ready"
+        "READY": "ready",
+        "CREATE_INPUT": "createInput",
+        "UPDATE_INPUT": "updateInput",
+        "REMOVE_INPUT": "removeInput",
+        "CREATE_OUTPUT": "createOutput",
+        "UPDATE_OUTPUT": "updateOutput",
+        "REMOVE_OUTPUT": "removeOutput"
     },
 
     "source": {
