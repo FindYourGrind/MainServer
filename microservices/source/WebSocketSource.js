@@ -1,12 +1,13 @@
+let Source = require('./Source');
 const sourceConstants = require('.././constants.json');
 
-class WebSocketSource {
+class WebSocketSource extends Source {
 
     constructor (sourceRecord) {
         let me = this;
-        let logger = app.logger;
 
-        me.sourceRecord = sourceRecord;
+        super(sourceRecord);
+
         me.isInRun = false;
         me.onNamespaceConnectionHandler = null;
 

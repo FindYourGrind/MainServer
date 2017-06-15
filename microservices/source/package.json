@@ -10,6 +10,9 @@
     "author": "",
     "license": "ISC",
     "dependencies": {
-        "seneca": "^3.3.0"
+        "seneca": "^3.3.0",
+        "seneca-entity": "^2.0.2",
+        "seneca-postgres-store": "^2.3.0",
+        "seneca-standard-query": "0.0.5"
     }
 }

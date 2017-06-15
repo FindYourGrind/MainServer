@@ -1,3 +1,4 @@
+let senecaSource = require('./SenecaSource');
 let Source = require('./Source');
 
 let sourcePool = new Map();
@@ -5,8 +6,10 @@ let sourcePool = new Map();
 class SourceFactory {
 
     static create (sourceData, callback) {
-        sourcePool.set(sourceData.id, new Source(sourceData));
-        callback();
+        senecaSource.make('SourceWorkerType').list$((err, sourceTypes) => {
+            sourcePool.set(sourceData.id, new Source(sourceData));
+            callback();
+        });
     }
 
     static remove (sourceId, callback) {
