@@ -6,6 +6,8 @@ let bodyParser = require('body-parser');
 let loopback = require('loopback');
 let boot = require('loopback-boot');
 
+require('events').EventEmitter.defaultMaxListeners = 100;
+
 let app = module.exports = loopback();
 
 app.config = require('../config.json');

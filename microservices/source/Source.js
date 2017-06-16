@@ -1,24 +1,47 @@
 class Source {
+    constructor(sourceData, sourceType) {
+        let me = this;
 
-    constructor(sourceData) {
-        this.sourceData = sourceData;
-        console.log('create source', sourceData.id);
+        me.health = false;
+        me.sourceData = sourceData;
+        me.sourceType = sourceType;
     }
 
-    run() {
-        console.log('run source', this.sourceData.id);
+    init () {
+        return new Promise((resolve, reject) => {
+            reject('Init method should be implemented');
+        });
     }
 
-    stop() {
-        console.log('stop source', this.sourceData.id);
+    enable () {
+        return new Promise((resolve, reject) => {
+            reject('Enable method should be implemented');
+        });
     }
 
-    update(sourceData) {
-        console.log('update source', this.sourceData.id);
+    disable () {
+        return new Promise((resolve, reject) => {
+            reject('Disable method should be implemented');
+        });
     }
 
-    remove () {
-        console.log('remove source', this.sourceData.id);
+    update (sourceData) {
+        let me = this;
+
+        return me.disable()
+            .then(() => {
+                me.sourceData = sourceData;
+                return me.init();
+            });
+    }
+
+    getHealth () {
+        let me = this;
+        return me.health;
+    }
+
+    notifyInputs () {
+
     }
 }
 

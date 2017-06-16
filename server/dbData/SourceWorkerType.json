@@ -1,13 +1,39 @@
 [
-  {
-    "type": 1,
-    "name": "Web Socket Source",
-    "configFields": [
-      {
-        "name": "eventName",
-        "displayName": "Event Name",
-        "type": "string"
-      }
-    ]
-  }
+    {
+        "type": 1,
+        "name": "Web Socket Source",
+        "configFields": [
+            {
+                "name": "protocol",
+                "displayName": "Protocol",
+                "type": "string",
+                "options": ["ws", "wss"],
+                "required": true
+            },
+            {
+                "name": "host",
+                "displayName": "Host Name",
+                "type": "string",
+                "required": true
+            },
+            {
+                "name": "endpoint",
+                "displayName": "Endpoint Event",
+                "type": "string"
+            }
+        ]
+    },
+    {
+        "type": 2,
+        "name": "Timer Source",
+        "configFields": [
+            {
+                "name": "counter",
+                "displayName": "Counter",
+                "type": "number",
+                "minValue": 0,
+                "required": true
+            }
+        ]
+    }
 ]

@@ -1,36 +1,51 @@
 let senecaSource = require('./SenecaSource');
 let Source = require('./Source');
+let WebSocketSource = require('./WebSocketSource');
 
 let sourcePool = new Map();
 
 class SourceFactory {
 
-    static create (sourceData, callback) {
-        senecaSource.make('SourceWorkerType').list$((err, sourceTypes) => {
-            sourcePool.set(sourceData.id, new Source(sourceData));
-            callback();
+    static create (sourceData) {
+        return new Promise((resolve, reject) => {
+            senecaSource.make('SourceWorkerType').list$({ type: sourceData.type }, (err, sourceTypes) => {
+                if (err) {
+                    reject(err);
+                } else if (sourceTypes.length === 0) {
+                    reject('No such source type: ' + sourceData.type);
+                } else {
+                    let source;
+
+                    switch(sourceTypes[0].type) {
+                        case 1:
+                            source = new WebSocketSource(sourceData, sourceTypes[0]);
+                            break;
+                        default:
+                            reject('No such source type: ' + sourceData.type);
+                            break;
+                    }
+
+                    source.init()
+                        .then((result) => {
+                            sourcePool.set(sourceData.id, source);
+                            resolve(result);
+                        })
+                        .catch(reject);
+                }
+            });
         });
     }
 
-    static remove (sourceId, callback) {
-        sourcePool.get(sourceId).remove();
-        sourcePool.delete(sourceId);
-        callback();
+    static remove (sourceId) {
+        return sourcePool.get(sourceId).disable().then(() => { sourcePool.delete(sourceId); });
     }
 
-    static update (sourceData, callback) {
-        sourcePool.get(sourceData.id).update(sourceData);
-        callback();
+    static update (sourceData) {
+        return sourcePool.get(sourceData.id).update(sourceData);
     }
 
-    static run (sourceId, callback) {
-        sourcePool.get(sourceId).run();
-        callback();
-    }
-
-    static stop (sourceId, callback) {
-        sourcePool.get(sourceId).stop();
-        callback();
+    static getHealth (sourceId) {
+        return sourcePool.get(sourceId).getHealth();
     }
 }
 

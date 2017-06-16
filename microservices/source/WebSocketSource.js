@@ -1,127 +1,78 @@
 let Source = require('./Source');
-const sourceConstants = require('.././constants.json');
+let SocketClient = require('socket.io-client');
 
 class WebSocketSource extends Source {
 
-    constructor (sourceRecord) {
+    constructor (sourceData, sourceType) {
+        super(sourceData, sourceType);
+
+        this.socketClient = null;
+        this.url = '';
+    }
+
+    init () {
         let me = this;
+        let sourceData = me.sourceData;
 
-        super(sourceRecord);
+        return new Promise ((resolve, reject) => {
+            me.url = `${sourceData.workerConfig.protocol || ''}://${sourceData.workerConfig.host || ''}${sourceData.workerConfig.endpoint || ''}`;
 
-        me.isInRun = false;
-        me.onNamespaceConnectionHandler = null;
-
-        app.addListener(sourceConstants.SOURCE_PROCESS_PREFIX + me.sourceRecord.getId(), function (message) {
-            me.commandListener(message);
+            if (sourceData.connected === true) {
+                me.enable().then(resolve).catch(reject);
+            } else {
+                resolve();
+            }
         });
     }
 
-    execute () {
+    enable () {
         let me = this;
-        let logger = app.logger;
-        let userNamespace = app.wsUserNamespaces.get(me.sourceRecord.accountId);
-        let SourceWorkerTypeModel = app.models.SourceWorkerType;
-        let InputModel = app.models.Input;
+        let sourceData = me.sourceData;
+        let socketClient = me.socketClient;
 
-        SourceWorkerTypeModel.findOne({ where: { type: me.sourceRecord.type }})
-            .then(function (workerTypeRecord) {
-                me.onNamespaceConnectionHandler = function (socket) {
-                    socket.on(me.sourceRecord.workerConfig[workerTypeRecord.configFields[0].name], function (data) {
-                        if (me.isInRun === true) {
-                            InputModel.updateInputsValue(me.sourceRecord.inputIdList, data)
-                                .catch((err) => { throw err });
-                        }
-                    });
-                };
+        return new Promise ((resolve, reject) => {
+            if (sourceData.connected === true) {
+                socketClient = SocketClient(me.url, { forceNew: true });
 
-                userNamespace.on('connection', me.onNamespaceConnectionHandler);
-            })
-            .catch(function (err) {
-                logger.error('Error while loading SourceWorkerType: ' + me.sourceRecord.type + ' - ' + err);
-            });
+                console.log("Source " + sourceData.id + " start connecting to WS on " + me.url);
+
+                socketClient.on('connect', () => {
+                    console.log("Source " + sourceData.id + " connected to WS on " + me.url);
+                    me.health = true;
+                });
+
+                socketClient.on('connect_error', (err) => {
+                    console.log("Source " + sourceData.id + " error while connecting to WS on " + me.url + ' - ' + err);
+                    me.health = true;
+                });
+
+                socketClient.on('disconnect', () => {
+                    console.log("Source " + sourceData.id + " disconnected from WS on " + me.url);
+                    me.health = false;
+                });
+
+                socketClient.on('event', function (data) {
+                    console.log(data);
+                });
+            }
+
+            resolve();
+        });
     }
 
-    commandListener (message) {
+    disable () {
         let me = this;
-        let processCommand = JSON.parse(message).command;
+        let sourceData = me.sourceData;
+        let socketClient = me.socketClient;
 
-        switch (processCommand) {
-            case sourceConstants.DELETE_PROCESS_COMMAND:
-                me.remove();
-                break;
-            case sourceConstants.RUN_PROCESS_COMMAND:
-                me.run();
-                break;
-            case sourceConstants.STOP_PROCESS_COMMAND:
-                me.stop();
-                break;
-            case sourceConstants.UPDATE_PROCESS_COMMAND:
-                me.update();
-                break;
-            default:
-                me.logger.warn('Undefined Source process command: ' + processCommand);
-                return;
-        }
-    }
+        return new Promise ((resolve, reject) => {
+            if (sourceData.connected === false && socketClient) {
+                socketClient.disconnect();
+                socketClient = null;
+            }
 
-    remove () {
-        let me = this;
-        let logger = app.logger;
-        let userNamespace = app.wsUserNamespaces.get(me.sourceRecord.accountId);
-
-        me.stop();
-
-        userNamespace.removeListener('connection', me.onNamespaceConnectionHandler);
-        app.removeAllListeners(sourceConstants.SOURCE_PROCESS_PREFIX + me.sourceRecord.getId());
-
-        logger.info('Worker for Source: ' + me.sourceRecord.id + ' removed');
-
-        delete this;
-    }
-
-    run () {
-        let me = this;
-        let logger = app.logger;
-
-        me.isInRun = true;
-
-        logger.info('Worker for Source: ' + me.sourceRecord.id + ' is in run');
-    }
-
-    stop () {
-        let me = this;
-        let logger = app.logger;
-
-        me.isInRun = false;
-
-        logger.info('Worker for Source: ' + me.sourceRecord.id + ' is in stop');
-    }
-
-    update () {
-        let me = this;
-        let logger = app.logger;
-        let isWasRunning = me.isInRun;
-        let userNamespace = app.wsUserNamespaces.get(me.sourceRecord.accountId);
-
-        me.stop();
-
-        me.sourceRecord.reload()
-            .then(function (newSourceRecord) {
-                me.sourceRecord = newSourceRecord;
-
-                userNamespace.removeListener('connection', me.onNamespaceConnectionHandler);
-
-                me.execute();
-
-                if (isWasRunning === true) {
-                    me.run();
-                }
-
-                logger.info('Worker for Source: ' + me.sourceRecord.id + ' was updated');
-            })
-            .catch(function (err) {
-                logger.error('Error while updating worker for Source: ' + me.sourceRecord.id + ' - ' + err);
-            })
+            resolve();
+        });
     }
 }
 

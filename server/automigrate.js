@@ -1,6 +1,8 @@
 let server = require('./server');
 let UpgradeDB = require('./dbData/UpgradeDB');
 
+require('events').EventEmitter.defaultMaxListeners = 100;
+
 let ds = server.dataSources.pg;
 let pgTables = server.models()
   .filter(function (model) {

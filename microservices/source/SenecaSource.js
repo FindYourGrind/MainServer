@@ -5,7 +5,6 @@ const ROLE = 'sourceFactory';
 const OK_RESPONSE = 'ok';
 const ERROR_RESPONSE = 'error';
 
-
 const DB_CONFIG = {
     name: 'main_server',
     host: 'localhost',
@@ -19,26 +18,40 @@ seneca
     .use(require('seneca-postgres-store'), DB_CONFIG)
     .use(function () {
         seneca.add({role: ROLE, cmd: 'create'}, (message, callback) => {
-            SourceFactory.create(message.data, (err) => {
-                callback(err, {response: err ? ERROR_RESPONSE : OK_RESPONSE})
-            });
+            SourceFactory.create(message.data)
+                .then(() => {
+                    callback(null, { response: OK_RESPONSE })
+                })
+                .catch((err) => {
+                    callback(err, { response: ERROR_RESPONSE, info: err  })
+                });
         });
 
         seneca.add({role: ROLE, cmd: 'remove'}, (message, callback) => {
-            SourceFactory.remove(message.data.id, (err) => {
-                callback(err, {response: err ? ERROR_RESPONSE : OK_RESPONSE})
-            });
+            SourceFactory.remove(message.data.id)
+                .then(() => {
+                    callback(null, { response: OK_RESPONSE })
+                })
+                .catch((err) => {
+                    callback(err, { response: ERROR_RESPONSE, info: err  })
+                });
         });
 
         seneca.add({role: ROLE, cmd: 'update'}, (message, callback) => {
-            SourceFactory.update(message.data, (err) => {
-                callback(err, {response: err ? ERROR_RESPONSE : OK_RESPONSE})
-            });
+            SourceFactory.update(message.data)
+                .then(() => {
+                    callback(null, { response: OK_RESPONSE })
+                })
+                .catch((err) => {
+                    callback(err, { response: ERROR_RESPONSE, info: err })
+                });
+        });
+
+        seneca.add({role: ROLE, cmd: 'getHealth'}, (message, callback) => {
+            callback(null, { response: OK_RESPONSE, health: SourceFactory.getHealth(message.data.id) })
         });
     })
     .ready((err) => {
-        SourceFactory.create({id:1}, (err) => {});
-
         seneca.act({ role: ROLE, cmd: 'ready', data: { err: err } }, (err, result) => {
             if (!err) {
                 console.log('Source process ready');
