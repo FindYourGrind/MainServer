@@ -1,12 +1,14 @@
 let senecaSource = require('./SenecaSource');
 let Source = require('./Source');
 let WebSocketSource = require('./WebSocketSource');
+let TimerSource = require('./TimerSource');
+let TelegramSource = require('./TelegramSource');
 
 let sourcePool = new Map();
 
 class SourceFactory {
 
-    static create (sourceData) {
+    static create (sourceData, notificationCallback) {
         return new Promise((resolve, reject) => {
             senecaSource.make('SourceWorkerType').list$({ type: sourceData.type }, (err, sourceTypes) => {
                 if (err) {
@@ -18,7 +20,13 @@ class SourceFactory {
 
                     switch(sourceTypes[0].type) {
                         case 1:
-                            source = new WebSocketSource(sourceData, sourceTypes[0]);
+                            source = new WebSocketSource(sourceData, sourceTypes[0], notificationCallback);
+                            break;
+                        case 2:
+                            source = new TimerSource(sourceData, sourceTypes[0], notificationCallback);
+                            break;
+                        case 3:
+                            source = new TelegramSource(sourceData, sourceTypes[0], notificationCallback);
                             break;
                         default:
                             reject('No such source type: ' + sourceData.type);
@@ -37,7 +45,11 @@ class SourceFactory {
     }
 
     static remove (sourceId) {
-        return sourcePool.get(sourceId).disable().then(() => { sourcePool.delete(sourceId); });
+        let sourceInstance = sourcePool.get(sourceId);
+        return sourceInstance.disable().then(() => {
+            sourceInstance = null;
+            sourcePool.delete(sourceId);
+        });
     }
 
     static update (sourceData) {

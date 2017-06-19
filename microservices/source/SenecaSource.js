@@ -18,12 +18,14 @@ seneca
     .use(require('seneca-postgres-store'), DB_CONFIG)
     .use(function () {
         seneca.add({role: ROLE, cmd: 'create'}, (message, callback) => {
-            SourceFactory.create(message.data)
+            SourceFactory.create(message.data, (data, inputs) => {
+                seneca.act({role: ROLE, cmd: 'notifyInputs', data: { inputs: inputs, data: data }});
+            })
                 .then(() => {
-                    callback(null, { response: OK_RESPONSE })
+                    callback(null, {response: OK_RESPONSE})
                 })
                 .catch((err) => {
-                    callback(err, { response: ERROR_RESPONSE, info: err  })
+                    callback(err, {response: ERROR_RESPONSE, info: err})
                 });
         });
 

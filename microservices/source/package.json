@@ -10,6 +10,7 @@
     "author": "",
     "license": "ISC",
     "dependencies": {
+        "node-telegram-bot-api": "^0.27.1",
         "seneca": "^3.3.0",
         "seneca-entity": "^2.0.2",
         "seneca-postgres-store": "^2.3.0",

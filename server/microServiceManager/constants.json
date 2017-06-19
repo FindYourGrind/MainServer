@@ -14,7 +14,10 @@
 
     "source": {
         "ROLE": "sourceFactory",
-        "PATH": "microservices/source/SenecaSource.js"
+        "PATH": "microservices/source/SenecaSource.js",
+        "commands": {
+            "NOTIFY_INPUTS": "notifyInputs"
+        }
     },
 
     "sink": {

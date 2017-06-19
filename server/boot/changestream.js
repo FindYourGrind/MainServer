@@ -123,12 +123,14 @@ module.exports = function(app) {
 
         if (canUpdate) {
             if (change.type !== 'remove') {
-                app.models[modelName].find({where: change.target ? {id: change.target} : change.where})
+                app.models[modelName].find({ where: change.target ? { id: change.target } : change.where })
                     .then(function (items) {
-                        items.forEach(function (item) {
-                            logger.info(modelName + ': ' + item.getId() + ' updated. Notification Micro Services started (' + change.type + ')');
+                        return app.utility.promiseConveyor((resolve, reject) => {
+                            items.forEach(function (item) {
+                                logger.info(modelName + ': ' + item.getId() + ' updated. Notification Micro Services started (' + change.type + ')');
 
-                            publishHandler(item).catch((err) => { throw err; });
+                                publishHandler(item).then(resolve).catch(reject);
+                            });
                         });
                     })
                     .catch(function (err) {

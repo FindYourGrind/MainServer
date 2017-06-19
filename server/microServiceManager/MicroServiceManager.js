@@ -64,15 +64,12 @@ class MicroServiceManager {
                     sourceMicroServiceProcess.kill(me.pid);
                 });
 
-                app.seneca.use(() => {
-                    app.seneca.add({role: me.role, cmd: constants.commands.READY}, function (message, callback) {
-                        if (!message.err) {
-                            resolve(message);
-                            callback();
-                        } else {
-                            reject(message.err);
-                        }
-                    });
+                me.on(constants.commands.READY, (err, data) => {
+                    if (err) {
+                        reject(err);
+                    } else {
+                        resolve(data);
+                    }
                 });
             } else {
                 reject('Process has been started already');
@@ -87,6 +84,15 @@ class MicroServiceManager {
             process.kill(me.pid);
             me.pid = -1;
         }
+    }
+
+    on (command, callback) {
+        let me = this;
+
+        app.seneca.add({role: me.role, cmd: command}, function (message, result) {
+            callback(message.err, message.data);
+            result();
+        });
     }
 }
 

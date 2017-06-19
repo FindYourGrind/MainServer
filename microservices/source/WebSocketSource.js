@@ -3,8 +3,8 @@ let SocketClient = require('socket.io-client');
 
 class WebSocketSource extends Source {
 
-    constructor (sourceData, sourceType) {
-        super(sourceData, sourceType);
+    constructor () {
+        super(...arguments);
 
         this.socketClient = null;
         this.url = '';
@@ -34,8 +34,6 @@ class WebSocketSource extends Source {
             if (sourceData.connected === true) {
                 socketClient = SocketClient(me.url, { forceNew: true });
 
-                console.log("Source " + sourceData.id + " start connecting to WS on " + me.url);
-
                 socketClient.on('connect', () => {
                     console.log("Source " + sourceData.id + " connected to WS on " + me.url);
                     me.health = true;
@@ -52,7 +50,7 @@ class WebSocketSource extends Source {
                 });
 
                 socketClient.on('event', function (data) {
-                    console.log(data);
+                    me.notifyInputs(data);
                 });
             }
 
@@ -62,13 +60,12 @@ class WebSocketSource extends Source {
 
     disable () {
         let me = this;
-        let sourceData = me.sourceData;
-        let socketClient = me.socketClient;
 
         return new Promise ((resolve, reject) => {
-            if (sourceData.connected === false && socketClient) {
-                socketClient.disconnect();
-                socketClient = null;
+            if (me.socketClient) {
+                me.socketClient.disconnect();
+                me.socketClient = null;
+                me.health = false;
             }
 
             resolve();

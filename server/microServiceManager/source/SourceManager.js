@@ -13,6 +13,10 @@ class SourceManager extends MicroServiceManager {
 
         me.loggerInfoName = 'sourceMicroServiceInfo';
         me.loggerErrName = 'sourceMicroServiceErr';
+
+        me.on(constants.source.commands.NOTIFY_INPUTS, (err, data) => {
+            console.log(data);
+        });
     }
 
     static create (sourceRecord) {

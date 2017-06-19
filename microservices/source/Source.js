@@ -1,10 +1,11 @@
 class Source {
-    constructor(sourceData, sourceType) {
+    constructor(sourceData, sourceType, notificationCallback) {
         let me = this;
 
         me.health = false;
         me.sourceData = sourceData;
         me.sourceType = sourceType;
+        me.notificationCallback = notificationCallback;
     }
 
     init () {
@@ -40,8 +41,12 @@ class Source {
         return me.health;
     }
 
-    notifyInputs () {
+    notifyInputs (data) {
+        let me = this;
 
+        if (me.notificationCallback) {
+            me.notificationCallback(data, me.sourceData.inputIdList);
+        }
     }
 }
 

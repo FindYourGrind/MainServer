@@ -9,7 +9,7 @@
                               ref="modalFormCarcass">
         <md-input-container>
             <label>Name</label>
-            <md-input required v-model.trim="name"></md-input>
+            <md-input required v-model.trim="name" required></md-input>
         </md-input-container>
 
         <md-input-container>
@@ -37,8 +37,11 @@
             <md-input-container v-for="(field, index) in selectedWorkerType.configFields"
                                 :key="index" :ref="'worker-config-' + field.name">
                 <label> {{ field.displayName }}</label>
-                <md-input v-if="field.type === 'string'" v-model.trim="workerConfig[field.name]" type="text"></md-input>
-                <md-input v-else-if="field.type === 'number'" v-model.number="workerConfig[field.name]" type="number"></md-input>
+                <md-input v-if="field.type === 'string'" v-model.trim="workerConfig[field.name]" type="text" required="field.required"></md-input>
+                <md-input v-else-if="field.type === 'number'" v-model.number="workerConfig[field.name]" type="number" required="field.required"></md-input>
+                <md-select v-else-if="field.type === 'select'" v-model.trim="workerConfig[field.name]" required="field.required">
+                    <md-option v-for="(option, index) in field.options" :value="option" :key="index">{{ option }}</md-option>
+                </md-select>
             </md-input-container>
         </div>
     </item-form-dialog-carcass>
