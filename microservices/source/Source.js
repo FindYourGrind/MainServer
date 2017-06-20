@@ -48,6 +48,14 @@ class Source {
             me.notificationCallback(data, me.sourceData.inputIdList);
         }
     }
+
+    notifyCustomInputs (inputs, data) {
+        let me = this;
+
+        if (me.notificationCallback) {
+            me.notificationCallback(data, inputs);
+        }
+    }
 }
 
 module.exports = Source;
