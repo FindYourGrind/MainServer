@@ -1,98 +1,128 @@
 let Source = require('./Source');
 let TelegramBot = require('node-telegram-bot-api');
 
-let telegramInstanceMap = new Map();
+let telegramSourceBotMap = new Map();
+
+class TelegramSourceBot {
+    constructor (token) {
+        this.instance = new TelegramBot(token, { polling: true });
+        this.uses = 0;
+        this.commands = new Map();
+        this.inputsForCommand = new Map();
+    }
+
+    getInstance () { return this.instance; }
+
+    addUse () { this.use += 1; }
+
+    removeUse () { this.use -= 1; }
+
+    getUses () { return this.uses }
+
+    addCommand (command, id, connected) {
+        if (this.commands.has(command)) {
+            this.commands.get(command).set(id, connected);
+        } else {
+            this.commands.set(command, new Map().set(id, connected))
+        }
+    }
+
+    removeCommand (command, id) {
+        if (this.commands.has(command)) {
+            let idMap = this.commands.get(command);
+            idMap.delete(id);
+
+            if (idMap.size === 0) {
+                this.commands.delete(command);
+            }
+        }
+    }
+
+    getCommand (command) { return this.commands.get(command); }
+
+    hasCommand (command) { return this.commands.has(command); }
+
+    addInputs (command, inputs) {
+        if (this.inputsForCommand.has(command)) {
+            inputs.forEach((input) => {
+                this.inputsForCommand.get(command).add(input);
+            });
+        } else {
+            this.inputsForCommand.set(command, new Set(inputs));
+        }
+    }
+
+    removeInputs (command, inputs) {
+        if (this.inputsForCommand.has(command)) {
+            inputs.forEach((input) => {
+                this.inputsForCommand.get(command).delete(input);
+            });
+        }
+    }
+
+    getInputs (command) {
+        let result = null;
+
+        if (this.inputsForCommand.has(command)) {
+            result = Array.from(this.inputsForCommand.get(command));
+        }
+
+        return result;
+    }
+}
 
 class TelegramSource extends Source {
 
-    static createTelegramInstance (token, command, idList) {
-        let telegramInstance;
+    static getTelegramSourceBot (sourceData, onMessage) {
+        let telegramSourceBot;
+        let token = sourceData.workerConfig.token;
+        let inputs = sourceData.inputIdList;
 
-        if (telegramInstanceMap.has(token)) {
-            let telegramInstanceObject = telegramInstanceMap.get(token);
-
-            telegramInstanceObject.uses += 1;
-            telegramInstance = telegramInstanceObject.instance;
-
-            if (telegramInstanceObject.inputs.has(command)) {
-                let commandInputs = telegramInstanceObject.inputs.get(command);
-
-                idList.forEach((id) => {
-                    commandInputs.add(id);
-                });
-            } else {
-                telegramInstanceObject.inputs.set(command, new Set(idList));
-            }
+        if (telegramSourceBotMap.has(token)) {
+            telegramSourceBot = telegramSourceBotMap.get(token);
+            telegramSourceBot.addUse();
+            telegramSourceBot.addInputs(sourceData.workerConfig.command, inputs);
         } else {
-            telegramInstance = new TelegramBot(token, { polling: true });
-            telegramInstanceMap.set(token, {
-                instance: telegramInstance,
-                uses: 1,
-                inputs: new Map().set(command, new Set(idList)),
-                listeners: new Set(command)
-            });
+            telegramSourceBot = new TelegramSourceBot(token);
+            telegramSourceBotMap.set(token, telegramSourceBot);
+            telegramSourceBot.addUse();
+            telegramSourceBot.addInputs(sourceData.workerConfig.command, inputs);
+            telegramSourceBot.on('message', onMessage);
         }
 
-        return telegramInstance;
+        return telegramSourceBot;
     }
 
-    static getTelegramInstanceObject (token) {
-        let telegramInstanceObject = null;
+    static updateTelegramSourceBot (newSourceData, oldSourceData) {}
 
-        if (telegramInstanceMap.has(token)) {
-            telegramInstanceObject = telegramInstanceMap.get(token);
-        }
+    static removeTelegramSourceBot (sourceData) {
+        let telegramSourceBot;
+        let token = sourceData.workerConfig.token;
+        let command = sourceData.workerConfig.command;
+        let inputs = sourceData.inputIdList;
 
-        return telegramInstanceObject;
-    }
-
-    static removeTelegramInstance (token, command, idList) {
         return new Promise ((resolve, reject) => {
-            if (telegramInstanceMap.has(token)) {
-                let telegramInstanceObject = telegramInstanceMap.get(token);
+            if (telegramSourceBotMap.has(token)) {
+                telegramSourceBot = telegramSourceBotMap.get(token);
+                telegramSourceBot.removeUse();
+                telegramSourceBot.removeInputs(command, inputs);
 
-                if (telegramInstanceObject.uses > 1) {
-                    telegramInstanceObject.uses -= 1;
-
-                    if (telegramInstanceObject.inputs.has(command)) {
-                        let commandInputs = telegramInstanceObject.inputs.get(command);
-
-                        idList.forEach((id) => {
-                            commandInputs.delete(id);
-                        });
-                    }
-
-                    telegramInstanceObject.listeners.delete(command);
-
-                    resolve();
-                } else {
-                    telegramInstanceObject.instance.stopPolling()
+                if (telegramSourceBot.getUses() === 0) {
+                    telegramSourceBot.getInstance().stopPolling()
                         .then(() => {
-                            telegramInstanceObject.instance = null;
-                            telegramInstanceObject.uses = null;
-                            telegramInstanceObject.inputs.clear();
-                            telegramInstanceObject.inputs = null;
-                            telegramInstanceObject.listeners.clear();
-                            telegramInstanceObject.listeners = null;
-                            telegramInstanceObject = null;
-                            telegramInstanceMap.delete(token);
-
+                            telegramSourceBot = null;
+                            telegramSourceBotMap.delete(token);
                             resolve();
                         })
-                        .catch((err) => {
-                            reject(err);
-                        });
+                        .catch(reject);
+                } else if (telegramSourceBot.getInputs(command).length === 0) {
+                    telegramSourceBot.removeCommand(command);
+                    resolve();
                 }
+            } else {
+                resolve();
             }
-
-            resolve();
         });
-    }
-
-    constructor () {
-        super(...arguments);
-
-        this.telegramBot = null;
     }
 
     init () {
@@ -101,37 +131,48 @@ class TelegramSource extends Source {
 
         return new Promise ((resolve, reject) => {
             if (sourceData.workerConfig.token) {
-                me.telegramBot = TelegramSource.createTelegramInstance(
-                    sourceData.workerConfig.token,
-                    sourceData.workerConfig.command,
-                    sourceData.inputIdList);
-            }
+                TelegramSource.getTelegramSourceBot(sourceData, (message) => {
+                    if (sourceData.connected === true) {
+                        let cmdReg = new RegExp(`\/${command} (.*)`);
 
-            me.enable().then(resolve).catch(reject);
+                    }
+                });
+                me.enable().then(resolve).catch(reject);
+            } else {
+                resolve();
+            }
         });
     }
 
     enable () {
         let me = this;
+        let sourceData = me.sourceData;
+        let command = sourceData.workerConfig.command;
+        let telegramSourceBot = TelegramSource.getTelegramSourceBot(sourceData);
 
         return new Promise ((resolve, reject) => {
-            if (me.sourceData.connected === true) {
-                if (!TelegramSource.getTelegramInstanceObject(me.sourceData.workerConfig.token).listeners.has(me.sourceData.workerConfig.command)) {
-                    me.telegramBot.onText(new RegExp(`\/${me.sourceData.workerConfig.command} (.*)`), (msg, match) => {
-                        let telegramInstanceObject = TelegramSource.getTelegramInstanceObject(me.sourceData.workerConfig.token);
+            if (sourceData.connected === true && telegramSourceBot) {
+                if (!telegramSourceBot.hasCommand(command)) {
+                    let telegramBotInstance = telegramSourceBot.getInstance();
 
-                        if (telegramInstanceObject) {
-                            let inputsToNotify = telegramInstanceObject.inputs.get(me.sourceData.workerConfig.command);
+                    //telegramBotInstance.on(new RegExp(`\/${command} (.*)`), (message, match) => {
+                    telegramBotInstance.on('message', (message) => {
 
-                            TelegramSource.getTelegramInstanceObject(me.sourceData.workerConfig.token).instance.sendMessage(msg.from.id, 'Yes, Sir');
-                            me.notifyCustomInputs(Array.from(inputsToNotify), match[1]);
+
+                        if (telegramSourceBot && telegramBotInstance) {
+                            let inputs = telegramSourceBot.getInputs(me.sourceData.workerConfig.command);
+
+                            telegramBotInstance.sendMessage(message.from.id, 'Yes, Sir');
+                            me.notifyCustomInputs(inputs, match[1]);
                         }
                     });
 
-                    TelegramSource.getTelegramInstanceObject(me.sourceData.workerConfig.token).listeners.add(me.sourceData.workerConfig.command);
-                }
+                    telegramBotInstance.on('message', (msg) => {
+                        console.log(msg.text);
+                    });
 
-                me.health = true;
+                    telegramSourceBot.addCommand(command);
+                }
             }
 
             resolve();
@@ -139,24 +180,18 @@ class TelegramSource extends Source {
     }
 
     disable () {
+        return TelegramSource.removeTelegramSourceBot(this.sourceData);
+    }
+
+    update (sourceData) {
         let me = this;
 
-        return new Promise ((resolve, reject) => {
-            me.health = false;
-
-            TelegramSource.removeTelegramInstance(
-                me.sourceData.workerConfig.token,
-                me.sourceData.workerConfig.command,
-                me.sourceData.inputIdList)
-                .then(() => {
-                    me.telegramBot = null;
-
-                    resolve();
-                })
-                .catch((err) => {
-                    reject(err);
-                });
-        });
+        return me.disable()
+            .then(() => {
+                TelegramSource.updateTelegramSourceBot(sourceData, me.sourceData);
+                me.sourceData = sourceData;
+                return me.init();
+            });
     }
 }
 
