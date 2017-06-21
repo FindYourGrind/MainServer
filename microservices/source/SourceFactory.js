@@ -46,6 +46,7 @@ class SourceFactory {
 
     static remove (sourceId) {
         let sourceInstance = sourcePool.get(sourceId);
+
         return sourceInstance.disable().then(() => {
             sourceInstance = null;
             sourcePool.delete(sourceId);
