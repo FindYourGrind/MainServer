@@ -1,10 +1,9 @@
 class Source {
-    constructor(sourceData, sourceType, notificationCallback) {
+    constructor(sourceData, notificationCallback) {
         let me = this;
 
         me.health = false;
         me.sourceData = sourceData;
-        me.sourceType = sourceType;
         me.notificationCallback = notificationCallback;
     }
 

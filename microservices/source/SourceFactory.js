@@ -10,37 +10,28 @@ class SourceFactory {
 
     static create (sourceData, notificationCallback) {
         return new Promise((resolve, reject) => {
-            senecaSource.make('SourceWorkerType').list$({ type: sourceData.type }, (err, sourceTypes) => {
-                if (err) {
-                    reject(err);
-                } else if (sourceTypes.length === 0) {
+            let source;
+
+            switch(sourceData.type) {
+                case 1:
+                    source = new WebSocketSource(sourceData, notificationCallback);
+                    break;
+                case 2:
+                    source = new TimerSource(sourceData, notificationCallback);
+                    break;
+                case 3:
+                    source = new TelegramSource(sourceData, notificationCallback);
+                    break;
+                default:
                     reject('No such source type: ' + sourceData.type);
-                } else {
-                    let source;
+                    break;
+            }
 
-                    switch(sourceTypes[0].type) {
-                        case 1:
-                            source = new WebSocketSource(sourceData, sourceTypes[0], notificationCallback);
-                            break;
-                        case 2:
-                            source = new TimerSource(sourceData, sourceTypes[0], notificationCallback);
-                            break;
-                        case 3:
-                            source = new TelegramSource(sourceData, sourceTypes[0], notificationCallback);
-                            break;
-                        default:
-                            reject('No such source type: ' + sourceData.type);
-                            break;
-                    }
-
-                    source.init()
-                        .then((result) => {
-                            sourcePool.set(sourceData.id, source);
-                            resolve(result);
-                        })
-                        .catch(reject);
-                }
-            });
+            source.init()
+                .then((result) => {
+                    sourcePool.set(sourceData.id, source);
+                    resolve(result);
+                })
         });
     }
 

@@ -14,8 +14,8 @@ const DB_CONFIG = {
 };
 
 seneca
-    .use(require('seneca-entity'))
-    .use(require('seneca-postgres-store'), DB_CONFIG)
+    //.use(require('seneca-entity'))
+    //.use(require('seneca-postgres-store'), DB_CONFIG)
     .use(function () {
         seneca.add({role: ROLE, cmd: 'create'}, (message, callback) => {
             SourceFactory.create(message.data, (data, inputs) => {

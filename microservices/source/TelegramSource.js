@@ -36,15 +36,11 @@ class TelegramSource extends Source {
         return new Promise ((resolve, reject) => {
             if (sourceData.workerConfig.token) {
                 TelegramBotManager.createTelegramBot(sourceData, onMessageHandler.bind(me));
-                me.enable().then(resolve).catch(reject);
+                resolve();
             } else {
                 reject('No telegram bot token: Source Name: ' + sourceData.name);
             }
         });
-    }
-
-    enable () {
-        return new Promise ((resolve, reject) => { resolve(); });
     }
 
     disable () {
