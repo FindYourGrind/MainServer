@@ -16,6 +16,10 @@ class MicroServiceManager {
         me.loggerErrName = 'microServiceErr';
     }
 
+    static getApp () {
+        return app;
+    }
+
     static act (role, command, data, callback) {
         let logger = app.logger;
 

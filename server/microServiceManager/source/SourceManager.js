@@ -10,12 +10,14 @@ class SourceManager extends MicroServiceManager {
         super(constants.source.ROLE, constants.source.PATH);
 
         let me = this;
+        let app = MicroServiceManager.getApp();
 
         me.loggerInfoName = 'sourceMicroServiceInfo';
         me.loggerErrName = 'sourceMicroServiceErr';
 
-        me.on(constants.source.commands.NOTIFY_INPUTS, (err, data) => {
-            console.log(data);
+        me.on(constants.source.commands.NOTIFY_INPUTS, (err, message) => {
+            console.log(message);
+            app.models.Input.updateInputsValue(message.inputs, message.data);
         });
     }
 

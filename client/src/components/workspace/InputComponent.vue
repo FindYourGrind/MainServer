@@ -11,7 +11,7 @@
             <md-layout class="input-data" md-align="start">
                 Input: {{ inputData.name }}<br>
                 ID: {{ inputData.id }}<br>
-                Value: {{ parseInt(inputData.value * 10) }}<br>
+                Value: {{ inputData.processedValue }}<br>
                 Update Time: {{ (new Date(inputData.updateTimeStamp)).toLocaleTimeString() }}
             </md-layout>
             <md-layout md-align="end">

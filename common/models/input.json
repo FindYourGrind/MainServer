@@ -22,6 +22,10 @@
     "accountId": {
       "type": "number",
       "required": true
+    },
+    "processedValue": {
+      "type": "any",
+      "default": null
     }
   },
   "validations": [],

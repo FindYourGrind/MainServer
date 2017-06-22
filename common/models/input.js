@@ -27,12 +27,12 @@ module.exports = function(Input) {
     Input.updateInputsValue = function (inputIdList, value) {
         let app = Input.app;
         let logger = app.logger;
-        let updateTimeStamp = new Date();
 
         return new Promise (function (resolve, reject) {
-            Input.updateAll({ where: { id : { inq: inputIdList } } }, {
+            Input.updateAll({ id : { inq: inputIdList } }, {
                 value: value,
-                updateTimeStamp: updateTimeStamp
+                processedValue: value,
+                updateTimeStamp: new Date()
             })
                 .then(function () {
                     logger.info('Inputs: ' + inputIdList + ' was updated');
