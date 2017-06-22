@@ -1,5 +1,7 @@
 'use strict';
 
+let ValueMapper = require('../../server/valueMapper/ValueMapper');
+
 module.exports = function(Input) {
 
     Input.observe('before delete', function beforeInputDelete (ctx, next) {
@@ -29,19 +31,21 @@ module.exports = function(Input) {
         let logger = app.logger;
 
         return new Promise (function (resolve, reject) {
-            Input.updateAll({ id : { inq: inputIdList } }, {
-                value: value,
-                processedValue: value,
-                updateTimeStamp: new Date()
-            })
-                .then(function () {
-                    logger.info('Inputs: ' + inputIdList + ' was updated');
-
-                    resolve();
+            Input.find({ where: { id: { inq: inputIdList } }, include: ['valueMapper']  })
+                .then(function (inputRecords) {
+                    return app.utility.promiseConveyor((resolve, reject) => {
+                        inputRecords.forEach((inputRecord) => {
+                            inputRecord.updateAttributes({
+                                value: value,
+                                processedValue: ValueMapper.processValue(inputRecord.__data.valueMapper, value),
+                                updateTimeStamp: new Date()
+                            }).then(resolve).catch(reject);
+                        })
+                    });
                 })
+                .then(resolve)
                 .catch(function (err) {
-                    logger.error('Error while updating Inputs: ' + inputIdList + ' - ' + err);
-
+                    logger.error('Error while converting Inputs: ' + inputIdList + ' values - ' + err);
                     reject(err);
                 });
         });
