@@ -12,19 +12,35 @@ class Convert {
     }
 
     static [constants.convert.TO_INTEGER] (stringValue) {
-        return parseInt(stringValue);
+        return new Promise((resolve, reject) => {
+            let result = _.toSafeInteger(stringValue);
+
+            _.isSafeInteger(result) ? resolve(result) : reject('Error convert ' + constants.convert.TO_INTEGER);
+        });
     }
 
     static [constants.convert.TO_FLOAT] (stringValue) {
-        return parseFloat(stringValue);
+        return new Promise((resolve, reject) => {
+            let result = _.toNumber(stringValue);
+
+            _.isNumber(result) ? resolve(result) : reject('Error convert ' + constants.convert.TO_FLOAT);
+        });
     }
 
     static [constants.convert.TO_DATE] (stringValue) {
-        return new Date(stringValue);
+        return new Promise((resolve, reject) => {
+            let result = new Date(stringValue);
+
+            _.isDate(result) ? resolve(result) : reject('Error convert ' + constants.convert.TO_DATE);
+        });
     }
 
     static [constants.convert.TO_COMPLEX] (stringValue) {
-        return JSON.parse(stringValue);
+        return new Promise((resolve, reject) => {
+            let result = JSON.parse(stringValue);
+
+            _.isObjectLike(result) ? resolve(result) : reject('Error convert ' + constants.convert.TO_COMPLEX);
+        });
     }
 }
 

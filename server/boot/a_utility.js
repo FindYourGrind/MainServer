@@ -56,6 +56,33 @@ module.exports = function (app) {
             }
 
             return nextIteration(generator);
+        },
+
+        promiseConveyorII: function (func) {
+            function a () {
+                return new Promise ((resolve, reject) => {
+                    func(next);
+                });
+            }
+
+            let promiseWrapper = new Promise ((resolve, reject) => { func(resolve, reject); });
+
+            function nextIteration () {
+                return new Promise ((resolve, reject) => {
+                    promiseWrapper
+                        .then(() => {
+                            return nextIteration();
+                        })
+                        .then(() => {
+                            resolve();
+                        })
+                        .catch((err) => {
+                            reject(err)
+                        })
+                });
+            }
+
+            return nextIteration();
         }
     };
 };

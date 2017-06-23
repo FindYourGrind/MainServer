@@ -30,18 +30,19 @@ module.exports = function(Input) {
         let app = Input.app;
         let logger = app.logger;
 
-        return new Promise (function (resolve, reject) {
-            Input.find({ where: { id: { inq: inputIdList } }, include: ['valueMapper']  })
+        return new Promise(function (resolve, reject) {
+            Input.find({where: {id: {inq: inputIdList}}, include: ['valueMapper']})
                 .then(function (inputRecords) {
-                    return app.utility.promiseConveyor((resolve, reject) => {
-                        inputRecords.forEach((inputRecord) => {
-                            inputRecord.updateAttributes({
-                                value: value,
-                                processedValue: ValueMapper.processValue(inputRecord.__data.valueMapper, value),
-                                updateTimeStamp: new Date()
-                            }).then(resolve).catch(reject);
-                        })
-                    });
+                    return Promise.all(inputRecords.map((inputRecord) => {
+                        return ValueMapper.processValue(inputRecord.__data.valueMapper, value)
+                            .then((processedValue) => {
+                                return inputRecord.updateAttributes({
+                                    value: value,
+                                    processedValue: processedValue,
+                                    updateTimeStamp: new Date()
+                                })
+                            });
+                    }))
                 })
                 .then(resolve)
                 .catch(function (err) {

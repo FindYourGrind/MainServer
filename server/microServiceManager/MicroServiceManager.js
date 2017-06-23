@@ -3,6 +3,15 @@ const constants = require('./constants.json');
 let fork = require('child_process').fork;
 let app = require('../server');
 
+let debugPortGenerator = (function* () {
+  let startAddress = 20000;
+
+  while(startAddress < 20100) {
+      yield startAddress;
+      startAddress++;
+  }
+})();
+
 
 class MicroServiceManager {
 
@@ -46,7 +55,7 @@ class MicroServiceManager {
             if (me.pid === -1) {
                 let logger = app.logger;
                 let sourceMicroServiceProcess = fork(me.path, [], {
-                    execArgv: [],
+                    execArgv: ['--inspect=' + debugPortGenerator.next().value],
                     stdio: ['pipe', 'pipe', 'pipe', 'ipc']
                 });
 
