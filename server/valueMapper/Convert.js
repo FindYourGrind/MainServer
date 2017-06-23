@@ -1,9 +1,14 @@
+let _ = require('lodash');
 let constants = require('./constants.json');
 
 class Convert {
 
     static [constants.convert.TO_STRING] (stringValue) {
-        return String(stringValue);
+        return new Promise((resolve, reject) => {
+            let result = _.toString(stringValue);
+
+            _.isString(result) ? resolve(result) : reject('Error convert ' + constants.convert.TO_STRING);
+        });
     }
 
     static [constants.convert.TO_INTEGER] (stringValue) {
