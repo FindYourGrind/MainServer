@@ -3,44 +3,40 @@ let constants = require('./constants.json');
 
 class Convert {
 
-    static [constants.convert.TO_STRING] (stringValue) {
-        return new Promise((resolve, reject) => {
-            let result = _.toString(stringValue);
+    static [constants.convert.TO_STRING](stringValue) {
+        let result = _.toString(stringValue);
 
-            _.isString(result) ? resolve(result) : reject('Error convert ' + constants.convert.TO_STRING);
-        });
+        return (!_.isNil(result) || _.isString(result)) ? result : null;
     }
 
-    static [constants.convert.TO_INTEGER] (stringValue) {
-        return new Promise((resolve, reject) => {
-            let result = _.toSafeInteger(stringValue);
+    static [constants.convert.TO_INTEGER](stringValue) {
+        let result = parseInt(stringValue);
 
-            _.isSafeInteger(result) ? resolve(result) : reject('Error convert ' + constants.convert.TO_INTEGER);
-        });
+        return (!_.isNil(result) || !_.isNaN(result) || _.isInteger(result)) ? result : NaN;
     }
 
-    static [constants.convert.TO_FLOAT] (stringValue) {
-        return new Promise((resolve, reject) => {
-            let result = _.toNumber(stringValue);
+    static [constants.convert.TO_FLOAT](stringValue) {
+        let result = _.toNumber(stringValue);
 
-            _.isNumber(result) ? resolve(result) : reject('Error convert ' + constants.convert.TO_FLOAT);
-        });
+        return (!_.isNil(result) || !_.isNaN(result) || _.isNumber(result)) ? result : NaN;
     }
 
-    static [constants.convert.TO_DATE] (stringValue) {
-        return new Promise((resolve, reject) => {
-            let result = new Date(stringValue);
+    static [constants.convert.TO_DATE](stringValue) {
+        let result = new Date(stringValue);
 
-            _.isDate(result) ? resolve(result) : reject('Error convert ' + constants.convert.TO_DATE);
-        });
+        return (!_.isNil(result) || !_.isNaN(result.getTime()) || _.isDate(result)) ? result : null;
     }
 
-    static [constants.convert.TO_COMPLEX] (stringValue) {
-        return new Promise((resolve, reject) => {
-            let result = JSON.parse(stringValue);
+    static [constants.convert.TO_COMPLEX](stringValue) {
+        let result;
 
-            _.isObjectLike(result) ? resolve(result) : reject('Error convert ' + constants.convert.TO_COMPLEX);
-        });
+        try {
+            result = JSON.parse(stringValue);
+        } catch (err) {
+            result = null;
+        }
+
+        return (!_.isNil(result) || _.isObjectLike(result)) ? result : {};
     }
 }
 

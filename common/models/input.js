@@ -2,12 +2,12 @@
 
 let ValueMapper = require('../../server/valueMapper/ValueMapper');
 
-module.exports = function(Input) {
+module.exports = function (Input) {
 
-    Input.observe('before delete', function beforeInputDelete (ctx, next) {
+    Input.observe('before delete', function beforeInputDelete(ctx, next) {
         let logger = Input.app.logger;
 
-        Input.find({ where: ctx.where })
+        Input.find({where: ctx.where})
             .then(function (inputRecords) {
                 return Input.disconnectFewInputs(inputRecords);
             })
@@ -34,14 +34,11 @@ module.exports = function(Input) {
             Input.find({where: {id: {inq: inputIdList}}, include: ['valueMapper']})
                 .then(function (inputRecords) {
                     return Promise.all(inputRecords.map((inputRecord) => {
-                        return ValueMapper.processValue(inputRecord.__data.valueMapper, value)
-                            .then((processedValue) => {
-                                return inputRecord.updateAttributes({
-                                    value: value,
-                                    processedValue: processedValue,
-                                    updateTimeStamp: new Date()
-                                })
-                            });
+                        return inputRecord.updateAttributes({
+                            value: value,
+                            processedValue: ValueMapper.processValue(inputRecord.__data.valueMapper, value),
+                            updateTimeStamp: new Date()
+                        });
                     }))
                 })
                 .then(resolve)
@@ -58,13 +55,13 @@ module.exports = function(Input) {
      * @param {Function(Error)} callback
      */
 
-    Input.prototype.disconnect = function(sourceId, callback) {
+    Input.prototype.disconnect = function (sourceId, callback) {
         let me = this;
         let app = Input.app;
         let logger = app.logger;
         let sourceModel = app.models.Source;
 
-        return new Promise (function (resolve, reject) {
+        return new Promise(function (resolve, reject) {
             me.updateAttributes({
                 sourceId: 0,
                 connected: false
@@ -95,13 +92,13 @@ module.exports = function(Input) {
     Input.disconnectFewInputs = function (inputRecords) {
         let app = Input.app;
 
-        return new Promise (function (resolve, reject) {
-            app.utility.conveyor((function* () {
+        return new Promise(function (resolve, reject) {
+            app.utility.conveyor((function*() {
                 for (let index = 0; index < inputRecords.length; index++) {
                     if (inputRecords[index].connected === true) {
                         yield inputRecords[index].disconnect(inputRecords[index].sourceId);
                     } else {
-                        yield new Promise (function (resolve) {
+                        yield new Promise(function (resolve) {
                             resolve();
                         });
                     }
